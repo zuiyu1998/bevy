@@ -1,10 +1,9 @@
-use crate::BevyPathfinderDevice;
+use crate::{BevyPathfinderDevice, BevyTexture};
 use bevy_asset::AssetStorage;
 use bevy_render::{
     render_graph::{Node, ResourceSlotInfo, ResourceSlots},
-    render_resource::ResourceInfo,
     renderer::RenderContext,
-    shader::{FieldBindType, Shader},
+    shader::{FieldBindType, Shader}, texture::{TextureDimension, TextureDescriptor, TextureFormat, Extent3d, TextureUsage},
 };
 use legion::prelude::{Resources, World};
 use pathfinder_canvas::{vec2f, Canvas, CanvasFontContext, ColorF, Path2D, RectF, Vector2I};
@@ -17,7 +16,7 @@ use pathfinder_renderer::{
     options::BuildOptions,
 };
 use pathfinder_resources::embedded::EmbeddedResourceLoader;
-use std::borrow::Cow;
+use std::{borrow::Cow, cell::RefCell};
 
 #[derive(Default)]
 pub struct PathfinderNode;
@@ -62,7 +61,22 @@ impl Node for PathfinderNode {
         let mut renderer = Renderer::new(
             device,
             &EmbeddedResourceLoader::new(),
-            DestFramebuffer::full_window(window_size),
+            DestFramebuffer::Other(BevyTexture {
+                handle: color_texture,
+                sampler_resource: RefCell::new(None),
+                texture_descriptor: TextureDescriptor {
+                    dimension: TextureDimension::D2,
+                    format: TextureFormat::Bgra8UnormSrgb,
+                    mip_level_count: 1,
+                    sample_count: 1,
+                    size: Extent3d {
+                        depth: 1,
+                        height: window_size.y() as u32,
+                        width: window_size.x() as u32,
+                    },
+                    usage: TextureUsage::COPY_DST | TextureUsage::OUTPUT_ATTACHMENT | TextureUsage::SAMPLED
+                },
+            }),
             RendererOptions {
                 background_color: Some(ColorF::white()),
                 ..Default::default()

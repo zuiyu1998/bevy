@@ -405,7 +405,6 @@ impl<'a> BevyPathfinderDevice<'a> {
         texture_format
     }
 
-    // v
     pub fn setup_pipline_descriptor(
         &self,
         render_state: &RenderState<BevyPathfinderDevice>,
@@ -635,9 +634,9 @@ pub struct BevyProgram {
 }
 
 pub struct BevyTexture {
-    handle: RenderResource,
-    texture_descriptor: TextureDescriptor,
-    sampler_resource: RefCell<Option<RenderResource>>,
+    pub handle: RenderResource,
+    pub texture_descriptor: TextureDescriptor,
+    pub sampler_resource: RefCell<Option<RenderResource>>,
 }
 
 #[derive(Debug, Clone)]
