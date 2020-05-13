@@ -18,4 +18,3 @@ pub mod transform3d;
 pub mod unit_vector;
 pub mod util;
 pub mod vector;
-pub mod alignment;

@@ -32,8 +32,8 @@ in ivec2 aTileOffset;
 in ivec2 aTileOrigin;
 in uvec2 aMaskTexCoord0;
 in ivec2 aMaskBackdrop;
-in int aColor;
-in int aTileCtrl;
+in ivec2 aColor;
+in ivec2 aTileCtrl;
 
 out vec3 vMaskTexCoord0;
 out vec2 vColorTexCoord0;
@@ -47,7 +47,7 @@ void main() {
     vec2 maskTexCoord0 = (vec2(aMaskTexCoord0) + tileOffset) * tileSize;
 
     vec2 textureMetadataScale = vec2(1.0) / vec2(textureMetadataSize);
-    vec2 metadataEntryCoord = vec2(aColor % 128 * 4, aColor / 128);
+    vec2 metadataEntryCoord = vec2(aColor.x % 128 * 4, aColor.x / 128);
     vec2 colorTexMatrix0Coord = (metadataEntryCoord + vec2(0.5, 0.5)) * textureMetadataScale;
     vec2 colorTexOffsetsCoord = (metadataEntryCoord + vec2(1.5, 0.5)) * textureMetadataScale;
     vec2 baseColorCoord = (metadataEntryCoord + vec2(2.5, 0.5)) * textureMetadataScale;
@@ -58,6 +58,6 @@ void main() {
     vColorTexCoord0 = mat2(colorTexMatrix0) * position + colorTexOffsets.xy;
     vMaskTexCoord0 = vec3(maskTexCoord0, float(aMaskBackdrop.x));
     vBaseColor = baseColor;
-    vTileCtrl = float(aTileCtrl);
+    vTileCtrl = float(aTileCtrl.x);
     gl_Position = transform * vec4(position, 0.0, 1.0);
 }

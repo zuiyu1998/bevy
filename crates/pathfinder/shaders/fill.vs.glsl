@@ -26,9 +26,8 @@ layout(std140, set=0, binding=1) uniform uTileSize {
 in uvec2 aTessCoord;
 in vec2 aFromSubpx;
 in vec2 aToSubpx;
-in uint aFromPx;
-in uint aToPx;
-in uint aTileIndex;
+in uvec2 aPx;
+in uvec2 aTileIndex;
 
 out vec2 vFrom;
 out vec2 vTo;
@@ -40,10 +39,10 @@ vec2 computeTileOffset(uint tileIndex, float stencilTextureWidth) {
 }
 
 void main() {
-    vec2 tileOrigin = computeTileOffset(aTileIndex, framebufferSize.x);
+    vec2 tileOrigin = computeTileOffset(aTileIndex.x, framebufferSize.x);
 
-    vec2 from = vec2(aFromPx & 15u, aFromPx >> 4u) + aFromSubpx;
-    vec2 to = vec2(aToPx & 15u, aToPx >> 4u) + aToSubpx;
+    vec2 from = vec2(aPx.x & 15u, aPx.x >> 4u) + aFromSubpx;
+    vec2 to = vec2(aPx.y & 15u, aPx.y >> 4u) + aToSubpx;
 
     vec2 position;
     if (aTessCoord.x == 0u)

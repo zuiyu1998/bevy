@@ -10,13 +10,13 @@ uniform sampler2D SPIRV_Cross_CombineduTextureMetadatauSampler;
 layout(location = 1) in ivec2 aTileOrigin;
 layout(location = 0) in ivec2 aTileOffset;
 layout(location = 2) in uvec2 aMaskTexCoord0;
-layout(location = 4) in int aColor;
+layout(location = 4) in ivec2 aColor;
 out vec2 vColorTexCoord0;
 out vec3 vMaskTexCoord0;
 layout(location = 3) in ivec2 aMaskBackdrop;
 out vec4 vBaseColor;
 out float vTileCtrl;
-layout(location = 5) in int aTileCtrl;
+layout(location = 5) in ivec2 aTileCtrl;
 
 void main()
 {
@@ -25,7 +25,7 @@ void main()
     vec2 position = (tileOrigin + tileOffset) * uTileSize[0].xy;
     vec2 maskTexCoord0 = (vec2(aMaskTexCoord0) + tileOffset) * uTileSize[0].xy;
     vec2 textureMetadataScale = vec2(1.0) / vec2(uTextureMetadataSize[0].xy);
-    vec2 metadataEntryCoord = vec2(float((aColor % 128) * 4), float(aColor / 128));
+    vec2 metadataEntryCoord = vec2(float((aColor.x % 128) * 4), float(aColor.x / 128));
     vec2 colorTexMatrix0Coord = (metadataEntryCoord + vec2(0.5)) * textureMetadataScale;
     vec2 colorTexOffsetsCoord = (metadataEntryCoord + vec2(1.5, 0.5)) * textureMetadataScale;
     vec2 baseColorCoord = (metadataEntryCoord + vec2(2.5, 0.5)) * textureMetadataScale;
@@ -35,7 +35,7 @@ void main()
     vColorTexCoord0 = (mat2(vec2(colorTexMatrix0.xy), vec2(colorTexMatrix0.zw)) * position) + colorTexOffsets.xy;
     vMaskTexCoord0 = vec3(maskTexCoord0, float(aMaskBackdrop.x));
     vBaseColor = baseColor;
-    vTileCtrl = float(aTileCtrl);
+    vTileCtrl = float(aTileCtrl.x);
     gl_Position = mat4(uTransform[0], uTransform[1], uTransform[2], uTransform[3]) * vec4(position, 0.0, 1.0);
 }
 

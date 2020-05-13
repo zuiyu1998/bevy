@@ -28,9 +28,8 @@ struct main0_in
     uint2 aTessCoord [[attribute(0)]];
     float2 aFromSubpx [[attribute(1)]];
     float2 aToSubpx [[attribute(2)]];
-    uint aFromPx [[attribute(3)]];
-    uint aToPx [[attribute(4)]];
-    uint aTileIndex [[attribute(5)]];
+    uint2 aPx [[attribute(3)]];
+    uint2 aTileIndex [[attribute(4)]];
 };
 
 static inline __attribute__((always_inline))
@@ -44,11 +43,11 @@ float2 computeTileOffset(thread const uint& tileIndex, thread const float& stenc
 vertex main0_out main0(main0_in in [[stage_in]], constant uTileSize& v_20 [[buffer(0)]], constant uFramebufferSize& _57 [[buffer(1)]])
 {
     main0_out out = {};
-    uint param = in.aTileIndex;
+    uint param = in.aTileIndex.x;
     float param_1 = _57.framebufferSize.x;
     float2 tileOrigin = computeTileOffset(param, param_1, v_20);
-    float2 from = float2(float(in.aFromPx & 15u), float(in.aFromPx >> 4u)) + in.aFromSubpx;
-    float2 to = float2(float(in.aToPx & 15u), float(in.aToPx >> 4u)) + in.aToSubpx;
+    float2 from = float2(float(in.aPx.x & 15u), float(in.aPx.x >> 4u)) + in.aFromSubpx;
+    float2 to = float2(float(in.aPx.y & 15u), float(in.aPx.y >> 4u)) + in.aToSubpx;
     float2 position;
     if (in.aTessCoord.x == 0u)
     {

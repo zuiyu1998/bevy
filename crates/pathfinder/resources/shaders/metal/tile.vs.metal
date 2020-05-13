@@ -34,11 +34,11 @@ struct main0_in
     int2 aTileOrigin [[attribute(1)]];
     uint2 aMaskTexCoord0 [[attribute(2)]];
     int2 aMaskBackdrop [[attribute(3)]];
-    int aColor [[attribute(4)]];
-    int aTileCtrl [[attribute(5)]];
+    int2 aColor [[attribute(4)]];
+    int2 aTileCtrl [[attribute(5)]];
 };
 
-vertex main0_out main0(main0_in in [[stage_in]], constant uTileSize& _26 [[buffer(0)]], constant uTextureMetadataSize& _49 [[buffer(1)]], constant uTransform& _161 [[buffer(2)]], texture2d<float> uTextureMetadata [[texture(0)]], sampler uSampler [[sampler(0)]])
+vertex main0_out main0(main0_in in [[stage_in]], constant uTileSize& _26 [[buffer(0)]], constant uTextureMetadataSize& _49 [[buffer(1)]], constant uTransform& _164 [[buffer(2)]], texture2d<float> uTextureMetadata [[texture(0)]], sampler uSampler [[sampler(0)]])
 {
     main0_out out = {};
     float2 tileOrigin = float2(in.aTileOrigin);
@@ -46,7 +46,7 @@ vertex main0_out main0(main0_in in [[stage_in]], constant uTileSize& _26 [[buffe
     float2 position = (tileOrigin + tileOffset) * _26.tileSize;
     float2 maskTexCoord0 = (float2(in.aMaskTexCoord0) + tileOffset) * _26.tileSize;
     float2 textureMetadataScale = float2(1.0) / float2(_49.textureMetadataSize);
-    float2 metadataEntryCoord = float2(float((in.aColor % 128) * 4), float(in.aColor / 128));
+    float2 metadataEntryCoord = float2(float((in.aColor.x % 128) * 4), float(in.aColor.x / 128));
     float2 colorTexMatrix0Coord = (metadataEntryCoord + float2(0.5)) * textureMetadataScale;
     float2 colorTexOffsetsCoord = (metadataEntryCoord + float2(1.5, 0.5)) * textureMetadataScale;
     float2 baseColorCoord = (metadataEntryCoord + float2(2.5, 0.5)) * textureMetadataScale;
@@ -56,8 +56,8 @@ vertex main0_out main0(main0_in in [[stage_in]], constant uTileSize& _26 [[buffe
     out.vColorTexCoord0 = (float2x2(float2(colorTexMatrix0.xy), float2(colorTexMatrix0.zw)) * position) + colorTexOffsets.xy;
     out.vMaskTexCoord0 = float3(maskTexCoord0, float(in.aMaskBackdrop.x));
     out.vBaseColor = baseColor;
-    out.vTileCtrl = float(in.aTileCtrl);
-    out.gl_Position = _161.transform * float4(position, 0.0, 1.0);
+    out.vTileCtrl = float(in.aTileCtrl.x);
+    out.gl_Position = _164.transform * float4(position, 0.0, 1.0);
     return out;
 }
 

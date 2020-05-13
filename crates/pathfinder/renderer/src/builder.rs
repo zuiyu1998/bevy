@@ -26,7 +26,6 @@ use crate::z_buffer::{DepthMetadata, ZBuffer};
 use pathfinder_content::effects::{BlendMode, Filter};
 use pathfinder_content::fill::FillRule;
 use pathfinder_content::render_target::RenderTargetId;
-use pathfinder_geometry::alignment::{AlignedI16, AlignedU8, AlignedU16, AlignedI8};
 use pathfinder_geometry::line_segment::{LineSegment2F, LineSegmentU4, LineSegmentU8};
 use pathfinder_geometry::rect::{RectF, RectI};
 use pathfinder_geometry::transform2d::Transform2F;
@@ -649,14 +648,15 @@ impl ObjectBuilder {
         self.fills.push(FillBatchEntry {
             page: alpha_tile_id.page(),
             fill: Fill {
-                px: LineSegmentU4 { from: px[0] as AlignedU8, to: px[2] as AlignedU8 },
+                px: LineSegmentU4 { from: px[0] as u8, to: px[2] as u8 },
                 subpx: LineSegmentU8 {
                     from_x: from_x as u8,
                     from_y: from_y as u8,
                     to_x:   to_x   as u8,
                     to_y:   to_y   as u8,
                 },
-                alpha_tile_index: alpha_tile_id.tile() as AlignedU16,
+                alpha_tile_index: alpha_tile_id.tile(),
+                empty: 0,
             },
         });
     }
@@ -842,14 +842,16 @@ impl Tile {
         }
 
         Tile {
-            tile_x: tile_origin.x() as AlignedI16,
-            tile_y: tile_origin.y() as AlignedI16,
-            mask_0_u: mask_0_uv.x() as AlignedU8,
-            mask_0_v: mask_0_uv.y() as AlignedU8,
-            mask_0_backdrop: draw_tile_backdrop as AlignedI8,
-            ctrl: ctrl as AlignedU16,
+            tile_x: tile_origin.x() as i16,
+            tile_y: tile_origin.y() as i16,
+            mask_0_u: mask_0_uv.x() as u8,
+            mask_0_v: mask_0_uv.y() as u8,
+            mask_0_backdrop: draw_tile_backdrop,
+            ctrl: ctrl as u16,
+            ctrl_pad: 0,
             pad: 0,
-            color: draw_tiling_path_info.paint_id.0 as AlignedU16,
+            color: draw_tiling_path_info.paint_id.0,
+            color_pad: 0,
         }
     }
 
@@ -865,11 +867,11 @@ impl Clip {
         let dest_uv = calculate_mask_uv(dest_tile_index);
         let src_uv = calculate_mask_uv(src_tile_index);
         Clip {
-            dest_u: dest_uv.x() as AlignedU8,
-            dest_v: dest_uv.y() as AlignedU8,
-            src_u: src_uv.x() as AlignedU8,
-            src_v: src_uv.y() as AlignedU8,
-            backdrop: src_backdrop as AlignedI8,
+            dest_u: dest_uv.x() as u8,
+            dest_v: dest_uv.y() as u8,
+            src_u: src_uv.x() as u8,
+            src_v: src_uv.y() as u8,
+            backdrop: src_backdrop,
             pad_0: 0,
             pad_1: 0,
         }

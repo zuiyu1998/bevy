@@ -200,26 +200,6 @@ impl VertexAttrType {
     }
 }
 
-#[cfg(feature = "shader_alignment_32_bits")]
-pub const ALIGNED_U8_ATTR: VertexAttrType = VertexAttrType::U32;
-#[cfg(not(feature = "shader_alignment_32_bits"))]
-pub const ALIGNED_U8_ATTR: VertexAttrType = VertexAttrType::U8;
-
-#[cfg(feature = "shader_alignment_32_bits")]
-pub const ALIGNED_U16_ATTR: VertexAttrType = VertexAttrType::U32;
-#[cfg(not(feature = "shader_alignment_32_bits"))]
-pub const ALIGNED_U16_ATTR: VertexAttrType = VertexAttrType::U16;
-
-#[cfg(feature = "shader_alignment_32_bits")]
-pub const ALIGNED_I8_ATTR: VertexAttrType = VertexAttrType::I32;
-#[cfg(not(feature = "shader_alignment_32_bits"))]
-pub const ALIGNED_I8_ATTR: VertexAttrType = VertexAttrType::I8;
-
-#[cfg(feature = "shader_alignment_32_bits")]
-pub const ALIGNED_I16_ATTR: VertexAttrType = VertexAttrType::I32;
-#[cfg(not(feature = "shader_alignment_32_bits"))]
-pub const ALIGNED_I16_ATTR: VertexAttrType = VertexAttrType::I16;
-
 #[derive(Clone, Copy, Debug)]
 pub enum BufferData<'a, T> {
     Uninitialized(usize),

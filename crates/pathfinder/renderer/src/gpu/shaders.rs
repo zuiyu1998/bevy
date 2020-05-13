@@ -13,7 +13,6 @@ use crate::gpu::renderer::{MASK_TILES_ACROSS, MASK_TILES_DOWN};
 use crate::tiles::{TILE_HEIGHT, TILE_WIDTH};
 use pathfinder_gpu::{BufferTarget, BufferUploadMode, ComputeDimensions, Device, FeatureLevel, VertexAttrClass};
 use pathfinder_gpu::{VertexAttrDescriptor, VertexAttrType, VertexBufferDescriptor};
-use pathfinder_gpu::{ALIGNED_I16_ATTR, ALIGNED_I8_ATTR, ALIGNED_U8_ATTR, ALIGNED_U16_ATTR};
 use pathfinder_resources::ResourceLoader;
 use once_cell::sync::Lazy;
 
@@ -40,7 +39,7 @@ impl<D> BlitVertexArray<D> where D: Device {
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
                 ]
             };
             descriptor.update_attrs();
@@ -75,7 +74,7 @@ impl<D> ClearVertexArray<D> where D: Device {
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
                 ]
             };
             descriptor.update_attrs();
@@ -116,7 +115,7 @@ where
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U16, 2),
                 ]
             };
             descriptor.update_attrs();
@@ -126,8 +125,7 @@ where
         let fill_attrs= &[
             device.get_vertex_attr(&fill_program.program, "FromSubpx").unwrap(),
             device.get_vertex_attr(&fill_program.program, "ToSubpx").unwrap(),
-            device.get_vertex_attr(&fill_program.program, "FromPx").unwrap(),
-            device.get_vertex_attr(&fill_program.program, "ToPx").unwrap(),
+            device.get_vertex_attr(&fill_program.program, "Px").unwrap(),
             device.get_vertex_attr(&fill_program.program, "TileIndex").unwrap(),
         ];
 
@@ -138,9 +136,8 @@ where
                 vertex_attrs: vec![
                     VertexAttrDescriptor::datatype_only(VertexAttrClass::FloatNorm, VertexAttrType::U8, 2),
                     VertexAttrDescriptor::datatype_only(VertexAttrClass::FloatNorm, VertexAttrType::U8, 2),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U8_ATTR, 1),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U8_ATTR, 1),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U16_ATTR, 1),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U8, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U16, 2),
                 ]
             };
             descriptor.update_attrs();
@@ -179,7 +176,7 @@ impl<D> TileVertexArray<D> where D: Device {
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U16, 2),
                 ]
             };
             descriptor.update_attrs();
@@ -199,11 +196,11 @@ impl<D> TileVertexArray<D> where D: Device {
                 index: 1,
                 divisor: 1,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 2),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U8_ATTR, 2),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I8_ATTR, 2),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 1),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 1),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U8, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I8, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
                 ]
             };
             descriptor.update_attrs();
@@ -243,7 +240,7 @@ impl<D> CopyTileVertexArray<D> where D: Device {
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
                 ],
             };
             descriptor.update_attrs();
@@ -280,7 +277,7 @@ impl<D> ClipTileVertexArray<D> where D: Device {
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
                 ],
             };
             descriptor.update_attrs();
@@ -298,9 +295,9 @@ impl<D> ClipTileVertexArray<D> where D: Device {
                 index: 1,
                 divisor: 1,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U8_ATTR, 2),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_U8_ATTR, 2),
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I8_ATTR, 1),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U8, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::U8, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I8, 2),
                 ],
             };
             descriptor.update_attrs();
@@ -632,7 +629,7 @@ where
                 index: 0,
                 divisor: 0,
                 vertex_attrs: vec![
-                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, ALIGNED_I16_ATTR, 2),
+                    VertexAttrDescriptor::datatype_only(VertexAttrClass::Int, VertexAttrType::I16, 2),
                 ]
             };
             descriptor.update_attrs();
