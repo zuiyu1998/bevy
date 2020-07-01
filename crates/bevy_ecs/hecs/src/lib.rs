@@ -50,6 +50,7 @@ extern crate alloc;
 ///
 /// Calls m!(A, B, C), m!(A, B), m!(B), and m!() for i.e. (m, A, B, C)
 /// where m is any macro, for any number of parameters.
+#[macro_export]
 macro_rules! smaller_tuples_too {
     ($m: ident, $ty: ident) => {
         $m!{$ty}
@@ -68,30 +69,16 @@ mod entities;
 mod entity_builder;
 mod query;
 mod query_one;
-mod system;
 mod world;
-
-#[cfg(feature = "std")]
-mod into_system;
-mod resource_query;
-mod resources;
-mod command_buffer;
-mod schedule;
 
 pub use archetype::Archetype;
 pub use borrow::{EntityRef, Ref, RefMut};
 pub use bundle::{Bundle, DynamicBundle, MissingComponent};
-pub use entities::{Entity, NoSuchEntity};
+pub use entities::{Entity, NoSuchEntity, EntityMeta};
 pub use entity_builder::{BuiltEntity, EntityBuilder};
 pub use query::{Access, BatchedIter, Query, QueryBorrow, QueryIter, With, Without};
 pub use query_one::QueryOne;
 pub use world::{ArchetypesGeneration, Component, ComponentError, Iter, SpawnBatchIter, World};
-
-pub use into_system::{IntoForEachSystem, IntoQuerySystem, WorldQuery};
-pub use resource_query::{Res, ResMut, ResourceQuery};
-pub use resources::Resources;
-pub use command_buffer::CommandBuffer;
-pub use schedule::Schedule;
 
 // Unstable implementation details needed by the macros
 #[doc(hidden)]

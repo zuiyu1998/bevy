@@ -309,6 +309,7 @@ impl Entities {
     }
 }
 
+#[allow(missing_docs)] 
 #[derive(Copy, Clone)]
 pub struct EntityMeta {
     pub generation: u32,

@@ -42,7 +42,8 @@ pub struct Archetype {
 }
 
 impl Archetype {
-    pub(crate) fn new(types: Vec<TypeInfo>) -> Self {
+    #[allow(missing_docs)] 
+    pub fn new(types: Vec<TypeInfo>) -> Self {
         debug_assert!(
             types.windows(2).all(|x| x[0] < x[1]),
             "type info unsorted or contains duplicates"
@@ -80,7 +81,8 @@ impl Archetype {
         self.state.contains_key(&id)
     }
 
-    pub(crate) fn get<T: Component>(&self) -> Option<NonNull<T>> {
+    #[allow(missing_docs)] 
+    pub fn get<T: Component>(&self) -> Option<NonNull<T>> {
         let state = self.state.get(&TypeId::of::<T>())?;
         Some(unsafe {
             NonNull::new_unchecked(
@@ -89,7 +91,8 @@ impl Archetype {
         })
     }
 
-    pub(crate) fn borrow<T: Component>(&self) {
+    #[allow(missing_docs)] 
+    pub fn borrow<T: Component>(&self) {
         if self
             .state
             .get(&TypeId::of::<T>())
@@ -99,7 +102,8 @@ impl Archetype {
         }
     }
 
-    pub(crate) fn borrow_mut<T: Component>(&self) {
+    #[allow(missing_docs)] 
+    pub fn borrow_mut<T: Component>(&self) {
         if self
             .state
             .get(&TypeId::of::<T>())
@@ -109,13 +113,15 @@ impl Archetype {
         }
     }
 
-    pub(crate) fn release<T: Component>(&self) {
+    #[allow(missing_docs)] 
+    pub fn release<T: Component>(&self) {
         if let Some(x) = self.state.get(&TypeId::of::<T>()) {
             x.borrow.release();
         }
     }
 
-    pub(crate) fn release_mut<T: Component>(&self) {
+    #[allow(missing_docs)] 
+    pub fn release_mut<T: Component>(&self) {
         if let Some(x) = self.state.get(&TypeId::of::<T>()) {
             x.borrow.release_mut();
         }
@@ -154,7 +160,7 @@ impl Archetype {
     }
 
     /// Every type must be written immediately after this call
-    pub(crate) unsafe fn allocate(&mut self, id: u32) -> u32 {
+    pub unsafe fn allocate(&mut self, id: u32) -> u32 {
         if self.len as usize == self.entities.len() {
             self.grow(self.len.max(64));
         }
@@ -278,7 +284,8 @@ impl Archetype {
         }
     }
 
-    pub(crate) unsafe fn put_dynamic(
+    #[allow(missing_docs)] 
+    pub unsafe fn put_dynamic(
         &mut self,
         component: *mut u8,
         ty: TypeId,

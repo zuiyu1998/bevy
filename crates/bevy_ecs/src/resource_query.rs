@@ -1,8 +1,8 @@
 use crate::{Archetype, Component};
 use core::{any::TypeId, ptr::NonNull, ops::{DerefMut, Deref}, hash::{Hasher, Hash}, marker::PhantomData};
-use hashbrown::HashMap;
+use std::collections::HashMap;
+use hecs::smaller_tuples_too;
 
-#[doc(hidden)]
 #[derive(Debug)]
 pub struct Res<'a, T: 'a> {
     #[allow(dead_code)]
@@ -19,7 +19,6 @@ impl<'a, T: 'a> Clone for Res<'a, T> {
 }
 
 impl<'a, T: 'a> Res<'a, T> {
-    #[doc(hidden)]
     #[inline(always)]
     pub fn new(resource: *const T) -> Self {
         Self {
@@ -28,7 +27,6 @@ impl<'a, T: 'a> Res<'a, T> {
         }
     }
 
-    #[doc(hidden)]
     #[inline(always)]
     pub fn map<K: 'a, F: FnMut(&T) -> &K>(&self, mut f: F) -> Res<'a, K> { Res::new(f(&self)) }
 }
@@ -80,7 +78,6 @@ where
     fn hash<H: Hasher>(&self, state: &mut H) { self.value.hash(state); }
 }
 
-#[doc(hidden)]
 #[derive(Debug)]
 pub struct ResMut<'a, T: 'a> {
     // held for drop impl
@@ -96,7 +93,6 @@ impl<'a, T: 'a> Clone for ResMut<'a, T> {
 }
 
 impl<'a, T: 'a> ResMut<'a, T> {
-    #[doc(hidden)]
     #[inline(always)]
     pub fn new(resource: *mut T) -> Self {
         Self {
@@ -105,7 +101,6 @@ impl<'a, T: 'a> ResMut<'a, T> {
         }
     }
 
-    #[doc(hidden)]
     #[inline(always)]
     pub fn map_into<K: 'a, F: FnMut(&mut T) -> K>(mut self, mut f: F) -> ResMut<'a, K> {
         ResMut::new(&mut f(&mut self))
@@ -167,7 +162,6 @@ where
 
 /// A collection of component types to fetch from a `World`
 pub trait ResourceQuery {
-    #[doc(hidden)]
     type Fetch: for<'a> FetchResource<'a>;
 }
 
@@ -190,7 +184,6 @@ impl<'a, T: Component> ResourceQuery for Res<'a, T> {
     type Fetch = FetchResourceRead<T>;
 }
 
-#[doc(hidden)]
 pub struct FetchResourceRead<T>(NonNull<T>);
 
 impl<'a, T: Component> FetchResource<'a> for FetchResourceRead<T> {
@@ -222,7 +215,6 @@ impl<'a, T: Component> ResourceQuery for ResMut<'a, T> {
     type Fetch = FetchResourceWrite<T>;
 }
 
-#[doc(hidden)]
 pub struct FetchResourceWrite<T>(NonNull<T>);
 
 impl<'a, T: Component> FetchResource<'a> for FetchResourceWrite<T> {

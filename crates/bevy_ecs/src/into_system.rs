@@ -1,12 +1,10 @@
-use crate::alloc::string::{String, ToString};
-use crate::*;
-use crate::{system::System, World};
-use core::{marker::PhantomData, ptr::NonNull};
-use entities::EntityMeta;
-use resource_query::{FetchResource, ResourceQuery};
-use resources::Resources;
-use std::boxed::Box;
-use system::ThreadLocalExecution;
+use crate::{
+    resource_query::{FetchResource, ResourceQuery},
+    system::{System, ThreadLocalExecution},
+    CommandBuffer, Resources,
+};
+use core::marker::PhantomData;
+use hecs::{Fetch, Query, QueryBorrow, World};
 
 pub struct SystemFn<F>
 where
@@ -79,13 +77,11 @@ macro_rules! impl_into_foreach_system {
     };
 }
 
-#[doc(hidden)]
 pub struct WorldQuery<'a, Q: Query> {
     world: &'a World,
     _marker: PhantomData<Q>,
 }
 
-#[doc(hidden)]
 impl<'a, Q: Query> WorldQuery<'a, Q> {
     // TODO: allow getting components here that match the query
     pub fn iter(&mut self) -> QueryBorrow<'_, Q> {
@@ -93,7 +89,6 @@ impl<'a, Q: Query> WorldQuery<'a, Q> {
     }
 }
 
-#[doc(hidden)]
 pub trait IntoQuerySystem<CommandBuffer, R, Q> {
     fn system(self) -> Box<dyn System>;
 }
@@ -218,38 +213,6 @@ impl_into_systems!(Ra,Rb,Rc,Rd,Re,Rf,Rg,Rh);
 impl_into_systems!(Ra,Rb,Rc,Rd,Re,Rf,Rg,Rh,Ri);
 #[rustfmt::skip]
 impl_into_systems!(Ra,Rb,Rc,Rd,Re,Rf,Rg,Rh,Ri,Rj);
-
-#[derive(Copy, Clone, Debug)]
-pub struct EntityFetch(NonNull<u32>);
-
-impl Query for Entity {
-    type Fetch = EntityFetch;
-}
-
-impl<'a> Fetch<'a> for EntityFetch {
-    type Item = Entity;
-    fn access(_archetype: &Archetype) -> Option<Access> {
-        Some(Access::Iterate)
-    }
-    fn borrow(_archetype: &Archetype) {}
-    #[inline]
-    unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
-        Some(EntityFetch(NonNull::new_unchecked(
-            archetype.entities().as_ptr().add(offset),
-        )))
-    }
-    fn release(_archetype: &Archetype) {}
-
-    #[inline]
-    unsafe fn next(&mut self, meta: &[EntityMeta]) -> Self::Item {
-        let id = self.0.as_ptr();
-        self.0 = NonNull::new_unchecked(id.add(1));
-        Entity {
-            id: *id,
-            generation: meta[*id as usize].generation,
-        }
-    }
-}
 
 pub struct ThreadLocalSystem<F>
 where

@@ -1,20 +1,17 @@
-use crate::alloc::vec::Vec;
-use crate::archetype::Archetype;
 use crate::{
     resource_query::{FetchResource, ResourceQuery},
     Component, ComponentError, Ref, RefMut, TypeInfo,
 };
 use core::any::TypeId;
-use hashbrown::HashMap;
+use std::collections::HashMap;
+use hecs::Archetype;
 
 #[derive(Default)]
-#[doc(hidden)]
 pub struct Resources {
     resource_archetypes: HashMap<TypeId, Archetype>,
 }
 
 impl Resources {
-    #[doc(hidden)]
     pub fn insert<T: Component>(&mut self, mut resource: T) {
         let type_id = TypeId::of::<T>();
         let archetype = self.resource_archetypes.entry(type_id).or_insert_with(|| {
@@ -31,7 +28,6 @@ impl Resources {
         }
     }
 
-    #[doc(hidden)]
     pub fn get<T: Component>(&self) -> Result<Ref<'_, T>, ComponentError> {
         self.resource_archetypes
             .get(&TypeId::of::<T>())
@@ -41,7 +37,6 @@ impl Resources {
             })
     }
 
-    #[doc(hidden)]
     pub fn get_mut<T: Component>(&self) -> Result<RefMut<'_, T>, ComponentError> {
         self.resource_archetypes
             .get(&TypeId::of::<T>())
@@ -51,7 +46,6 @@ impl Resources {
             })
     }
 
-    #[doc(hidden)]
     pub fn query<Q: ResourceQuery>(&self) -> <Q::Fetch as FetchResource>::Item {
         unsafe { Q::Fetch::get(&self.resource_archetypes) }
     }

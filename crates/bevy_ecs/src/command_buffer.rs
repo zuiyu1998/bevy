@@ -1,8 +1,5 @@
-use crate::alloc::boxed::Box;
-use crate::alloc::vec::Vec;
 use crate::{DynamicBundle, World};
-use std::sync::Mutex;
-use alloc::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 pub enum Command {
     WriteWorld(Box<dyn WorldWriter>),
@@ -54,8 +51,6 @@ impl CommandBuffer {
 
 #[cfg(test)]
 mod tests {
-    use crate::alloc::vec::Vec;
-    use crate::alloc::*;
     use crate::{CommandBuffer, World};
 
     #[test]

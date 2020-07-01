@@ -34,6 +34,3 @@ bencher = "0.1.5"
 name = "bench"
 harness = false
 required-features = ["macros"]
-
-[profile.release]
-debug = true

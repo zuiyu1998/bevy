@@ -17,7 +17,7 @@ use core::ptr::NonNull;
 
 use crate::archetype::Archetype;
 use crate::entities::EntityMeta;
-use crate::Component;
+use crate::{Entity, Component};
 
 /// A collection of component types to fetch from a `World`
 pub trait Query {
@@ -62,6 +62,38 @@ pub enum Access {
     Read,
     /// Read and write components
     Write,
+}
+
+#[derive(Copy, Clone, Debug)]
+pub struct EntityFetch(NonNull<u32>);
+
+impl Query for Entity {
+    type Fetch = EntityFetch;
+}
+
+impl<'a> Fetch<'a> for EntityFetch {
+    type Item = Entity;
+    fn access(_archetype: &Archetype) -> Option<Access> {
+        Some(Access::Iterate)
+    }
+    fn borrow(_archetype: &Archetype) {}
+    #[inline]
+    unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
+        Some(EntityFetch(NonNull::new_unchecked(
+            archetype.entities().as_ptr().add(offset),
+        )))
+    }
+    fn release(_archetype: &Archetype) {}
+
+    #[inline]
+    unsafe fn next(&mut self, meta: &[EntityMeta]) -> Self::Item {
+        let id = self.0.as_ptr();
+        self.0 = NonNull::new_unchecked(id.add(1));
+        Entity {
+            id: *id,
+            generation: meta[*id as usize].generation,
+        }
+    }
 }
 
 impl<'a, T: Component> Query for &'a T {
