@@ -26,6 +26,7 @@ bevy_asset = { path = "crates/bevy_asset" }
 bevy_type_registry = { path = "crates/bevy_type_registry" }
 bevy_core = { path = "crates/bevy_core" }
 bevy_diagnostic = { path = "crates/bevy_diagnostic" }
+bevy_ecs = { path = "crates/bevy_ecs" }
 bevy_gltf = { path = "crates/bevy_gltf" }
 bevy_input = { path = "crates/bevy_input" }
 bevy_pbr = { path = "crates/bevy_pbr" }
@@ -127,6 +128,10 @@ path = "examples/diagnostics/custom_diagnostic.rs"
 [[example]]
 name = "print_diagnostics"
 path = "examples/diagnostics/print_diagnostics.rs"
+
+[[example]]
+name = "bevy_ecs"
+path = "examples/ecs/bevy_ecs.rs"
 
 [[example]]
 name = "event"
