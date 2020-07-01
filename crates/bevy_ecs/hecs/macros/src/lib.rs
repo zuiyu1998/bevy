@@ -17,7 +17,8 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use proc_macro2::Span;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput};
+use syn::{parse_macro_input, DeriveInput, Path};
+use proc_macro_crate::crate_name;
 
 /// Implement `Bundle` for a monomorphic struct
 ///
@@ -42,15 +43,24 @@ pub fn derive_bundle(input: TokenStream) -> TokenStream {
     };
     let ident = input.ident;
     let (tys, fields) = struct_fields(&data.fields);
+    let path_str = if crate_name("bevy").is_ok() {
+        "bevy::ecs"
+    } else if crate_name("bevy_ecs").is_ok() {
+        "bevy_ecs"
+    } else {
+        "hecs"
+    };
+
+    let path: Path = syn::parse(path_str.parse::<TokenStream>().unwrap()).unwrap();
 
     let n = tys.len();
     let code = quote! {
-        impl ::hecs::DynamicBundle for #ident {
+        impl #path::DynamicBundle for #ident {
             fn with_ids<T>(&self, f: impl FnOnce(&[std::any::TypeId]) -> T) -> T {
                 Self::with_static_ids(f)
             }
 
-            fn type_info(&self) -> Vec<::hecs::TypeInfo> {
+            fn type_info(&self) -> Vec<#path::TypeInfo> {
                 Self::static_type_info()
             }
 
@@ -63,12 +73,12 @@ pub fn derive_bundle(input: TokenStream) -> TokenStream {
             }
         }
 
-        impl ::hecs::Bundle for #ident {
+        impl #path::Bundle for #ident {
             fn with_static_ids<T>(f: impl FnOnce(&[std::any::TypeId]) -> T) -> T {
                 use std::any::TypeId;
                 use std::mem;
 
-                ::hecs::lazy_static::lazy_static! {
+                #path::lazy_static::lazy_static! {
                     static ref ELEMENTS: [TypeId; #n] = {
                         let mut dedup = std::collections::HashSet::new();
                         for &(ty, name) in [#((std::any::TypeId::of::<#tys>(), std::any::type_name::<#tys>())),*].iter() {
@@ -90,18 +100,18 @@ pub fn derive_bundle(input: TokenStream) -> TokenStream {
                 f(&*ELEMENTS)
             }
 
-            fn static_type_info() -> Vec<::hecs::TypeInfo> {
-                let mut info = vec![#(::hecs::TypeInfo::of::<#tys>()),*];
+            fn static_type_info() -> Vec<#path::TypeInfo> {
+                let mut info = vec![#(#path::TypeInfo::of::<#tys>()),*];
                 info.sort_unstable();
                 info
             }
 
             unsafe fn get(
                 mut f: impl FnMut(std::any::TypeId, usize) -> Option<std::ptr::NonNull<u8>>,
-            ) -> Result<Self, ::hecs::MissingComponent> {
+            ) -> Result<Self, #path::MissingComponent> {
                 #(
                     let #fields = f(std::any::TypeId::of::<#tys>(), std::mem::size_of::<#tys>())
-                            .ok_or_else(::hecs::MissingComponent::new::<#tys>)?
+                            .ok_or_else(#path::MissingComponent::new::<#tys>)?
                             .cast::<#tys>()
                         .as_ptr();
                 )*
