@@ -1,17 +1,3 @@
-// Copyright 2019 Google LLC
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 use bevy_ecs::*;
 
 struct Position(f32);
@@ -28,7 +14,7 @@ fn move_system(velocity: &Velocity, entity: Entity) {
     println!("move {} {:?}", velocity.0, entity);
 }
 
-fn query_system(mut query: WorldQuery<(&Velocity, &Position, Entity)>) {
+fn query_system(mut query: Query<(&Velocity, &Position, Entity)>) {
     for (velocity, position, entity_id) in &mut query.iter() {
         println!("{:?} {} {}", entity_id, velocity.0, position.0);
     }
@@ -36,7 +22,7 @@ fn query_system(mut query: WorldQuery<(&Velocity, &Position, Entity)>) {
 
 fn command_buffer_query_system(
     mut command_buffer: CommandBuffer,
-    _query: WorldQuery<(&Velocity, &Position, Entity)>,
+    _query: Query<(&Velocity, &Position, Entity)>,
 ) {
     command_buffer.spawn((NewThing(1.0), Position(1.0)));
 }
@@ -56,6 +42,7 @@ fn resource_foreach_system(
 fn main() {
     let mut world = World::default();
     let mut resources = Resources::default();
+    
 
     world.spawn((Velocity(1.0), Position(1.0)));
     world.spawn((Velocity(2.0), Position(2.0)));

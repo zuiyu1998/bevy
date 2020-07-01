@@ -4,7 +4,7 @@ use crate::{
     CommandBuffer, Resources,
 };
 use core::marker::PhantomData;
-use hecs::{Fetch, Query, QueryBorrow, World};
+use hecs::{Fetch, Query as HecsQuery, QueryBorrow, World};
 
 pub struct SystemFn<F>
 where
@@ -53,9 +53,9 @@ macro_rules! impl_into_foreach_system {
                 FnMut(
                     $($command_buffer,)*
                     $(<<$resource as ResourceQuery>::Fetch as FetchResource>::Item,)*
-                    $(<<$component as Query>::Fetch as Fetch>::Item,)*)+
+                    $(<<$component as HecsQuery>::Fetch as Fetch>::Item,)*)+
                 Send + Sync + 'static,
-            $($component: Query,)*
+            $($component: HecsQuery,)*
             $($resource: ResourceQuery,)*
         {
             #[allow(non_snake_case)]
@@ -77,12 +77,12 @@ macro_rules! impl_into_foreach_system {
     };
 }
 
-pub struct WorldQuery<'a, Q: Query> {
+pub struct Query<'a, Q: HecsQuery> {
     world: &'a World,
     _marker: PhantomData<Q>,
 }
 
-impl<'a, Q: Query> WorldQuery<'a, Q> {
+impl<'a, Q: HecsQuery> Query<'a, Q> {
     // TODO: allow getting components here that match the query
     pub fn iter(&mut self) -> QueryBorrow<'_, Q> {
         self.world.query::<Q>()
@@ -97,13 +97,13 @@ macro_rules! impl_into_query_system {
     (($($command_buffer: ident)*), ($($resource: ident),*), ($($query: ident),*)) => {
         impl<Func, $($resource,)* $($query,)*> IntoQuerySystem<($($command_buffer,)*), ($($resource,)*), ($($query,)*)> for Func where
             Func:
-                FnMut($($command_buffer,)* $($resource,)* $(WorldQuery<$query>,)*) +
+                FnMut($($command_buffer,)* $($resource,)* $(Query<$query>,)*) +
                 FnMut(
                     $($command_buffer,)*
                     $(<<$resource as ResourceQuery>::Fetch as FetchResource>::Item,)*
-                    $(WorldQuery<$query>,)*) +
+                    $(Query<$query>,)*) +
                 Send + Sync +'static,
-            $($query: Query,)*
+            $($query: HecsQuery,)*
             $($resource: ResourceQuery,)*
         {
             #[allow(non_snake_case)]
@@ -115,7 +115,7 @@ macro_rules! impl_into_query_system {
                     name: core::any::type_name::<Self>().to_string(),
                     func: move |command_buffer, world, resources| {
                         let ($($resource,)*) = resources.query::<($($resource,)*)>();
-                        $(let $query = WorldQuery::<$query> {
+                        $(let $query = Query::<$query> {
                             world,
                             _marker: PhantomData::default(),
                         };)*

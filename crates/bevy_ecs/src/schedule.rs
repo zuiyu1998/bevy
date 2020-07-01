@@ -117,24 +117,24 @@ impl Schedule {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::{Resources, Schedule, World};
-    use crate::{IntoForEachSystem, IntoQuerySystem};
+// #[cfg(test)]
+// mod tests {
+//     use crate::{Resources, Schedule, World};
+//     use crate::{IntoForEachSystem, IntoQuerySystem};
 
-    #[test]
-    fn schedule() {
-        let mut world = World::new();
-        let mut resources = Resources::default();
+//     #[test]
+//     fn schedule() {
+//         let mut world = World::new();
+//         let mut resources = Resources::default();
 
-        world.spawn((1u32, 2u64));
+//         world.spawn((1u32, 2u64));
 
-        let mut schedule = Schedule::default();
-        schedule.add_stage("A");
-        schedule.add_stage("B");
+//         let mut schedule = Schedule::default();
+//         schedule.add_stage("A");
+//         schedule.add_stage("B");
 
-        let xy_system = (|_x: &u32, _y: &mut u64| {
+//         let xy_system = (|_x: &u32, _y: &mut u64| {
 
-        }).system();
-    }
-}
+//         }).system();
+//     }
+// }
