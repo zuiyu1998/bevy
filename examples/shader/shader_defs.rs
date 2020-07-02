@@ -1,5 +1,5 @@
 use bevy::{prelude::*, render::shader};
-use bevy_render::{pipeline::{PipelineSpecialization, RenderPipeline, DynamicBinding}, base_render_graph};
+use crate::render::{pipeline::{PipelineSpecialization, RenderPipeline, DynamicBinding}, base_render_graph};
 
 fn main() {
     App::build()

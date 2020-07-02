@@ -1,0 +1,61 @@
+use super::{light::Light, material::StandardMaterial, pipelines::FORWARD_PIPELINE_HANDLE};
+use crate::asset::Handle;
+use crate::derive::ComponentSet;
+use crate::render::{
+    draw::Draw,
+    mesh::Mesh,
+    pipeline::{DynamicBinding, PipelineSpecialization, RenderPipeline, RenderPipelines},
+};
+use crate::transform::prelude::{Rotation, Scale, Transform, Translation};
+
+#[derive(ComponentSet)]
+pub struct MeshComponents {
+    pub mesh: Handle<Mesh>,
+    pub material: Handle<StandardMaterial>,
+    pub draw: Draw,
+    pub render_pipelines: RenderPipelines,
+    pub transform: Transform,
+    pub translation: Translation,
+    pub rotation: Rotation,
+    pub scale: Scale,
+}
+
+impl Default for MeshComponents {
+    fn default() -> Self {
+        Self {
+            render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::specialized(
+                FORWARD_PIPELINE_HANDLE,
+                PipelineSpecialization {
+                    dynamic_bindings: vec![
+                        // Transform
+                        DynamicBinding {
+                            bind_group: 2,
+                            binding: 0,
+                        },
+                        // StandardMaterial_albedo
+                        DynamicBinding {
+                            bind_group: 3,
+                            binding: 0,
+                        },
+                    ],
+                    ..Default::default()
+                },
+            )]),
+            mesh: Default::default(),
+            material: Default::default(),
+            draw: Default::default(),
+            transform: Default::default(),
+            translation: Default::default(),
+            rotation: Default::default(),
+            scale: Default::default(),
+        }
+    }
+}
+
+#[derive(ComponentSet, Default)]
+pub struct LightComponents {
+    pub light: Light,
+    pub transform: Transform,
+    pub translation: Translation,
+    pub rotation: Rotation,
+}

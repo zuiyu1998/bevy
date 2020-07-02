@@ -9,7 +9,7 @@ mod type_registry;
 pub use dynamic_properties::*;
 pub use properties::*;
 pub use property::*;
-pub use type_registry::*;
+pub use crate::type_registry::*;
 
 pub use bevy_property_derive::*;
 pub use erased_serde;

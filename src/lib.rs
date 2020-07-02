@@ -42,27 +42,29 @@ mod add_default_plugins;
 pub mod prelude;
 
 pub use add_default_plugins::*;
-pub use bevy_app as app;
 pub use glam as math;
 pub use legion;
 
-pub use bevy_asset as asset;
-pub use bevy_core as core;
-pub use bevy_diagnostic as diagnostic;
-pub use bevy_ecs as ecs;
-pub use bevy_gltf as gltf;
-pub use bevy_input as input;
-pub use bevy_pbr as pbr;
+pub use bevy_derive as derive;
+
+pub mod app;
+pub mod asset;
+pub mod core;
+pub mod diagnostic;
+pub mod ecs;
+pub mod gltf;
+pub mod input;
+pub mod pbr;
 pub use bevy_property as property;
-pub use bevy_render as render;
-pub use bevy_scene as scene;
-pub use bevy_sprite as sprite;
-pub use bevy_text as text;
-pub use bevy_transform as transform;
-pub use bevy_type_registry as type_registry;
-pub use bevy_ui as ui;
+pub mod render;
+pub mod scene;
+pub mod sprite;
+pub mod text;
+pub mod transform;
+pub mod type_registry;
+pub mod ui;
 #[cfg(feature = "bevy_wgpu")]
-pub use bevy_wgpu as wgpu;
-pub use bevy_window as window;
+pub mod wgpu;
+pub mod window;
 #[cfg(feature = "bevy_winit")]
-pub use bevy_winit as winit;
+pub mod winit;

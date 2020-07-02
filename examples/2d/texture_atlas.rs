@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use bevy_asset::{HandleId, LoadState};
-use bevy_sprite::TextureAtlasBuilder;
+use crate::asset::{HandleId, LoadState};
+use crate::sprite::TextureAtlasBuilder;
 
 fn main() {
     App::build()

@@ -6,27 +6,27 @@ pub trait AddDefaultPlugins {
 
 impl AddDefaultPlugins for AppBuilder {
     fn add_default_plugins(&mut self) -> &mut Self {
-        self.add_plugin(bevy_type_registry::TypeRegistryPlugin::default());
-        self.add_plugin(bevy_core::CorePlugin::default());
-        self.add_plugin(bevy_diagnostic::DiagnosticsPlugin::default());
-        self.add_plugin(bevy_input::InputPlugin::default());
-        self.add_plugin(bevy_window::WindowPlugin::default());
-        self.add_plugin(bevy_asset::AssetPlugin::default());
-        self.add_plugin(bevy_scene::ScenePlugin::default());
-        self.add_plugin(bevy_render::RenderPlugin::default());
-        self.add_plugin(bevy_sprite::SpritePlugin::default());
-        self.add_plugin(bevy_pbr::PbrPlugin::default());
-        self.add_plugin(bevy_ui::UiPlugin::default());
-        self.add_plugin(bevy_gltf::GltfPlugin::default());
-        self.add_plugin(bevy_text::TextPlugin::default());
+        self.add_plugin(crate::type_registry::TypeRegistryPlugin::default());
+        self.add_plugin(crate::core::CorePlugin::default());
+        self.add_plugin(crate::diagnostic::DiagnosticsPlugin::default());
+        self.add_plugin(crate::input::InputPlugin::default());
+        self.add_plugin(crate::window::WindowPlugin::default());
+        self.add_plugin(crate::asset::AssetPlugin::default());
+        self.add_plugin(crate::scene::ScenePlugin::default());
+        self.add_plugin(crate::render::RenderPlugin::default());
+        self.add_plugin(crate::sprite::SpritePlugin::default());
+        self.add_plugin(crate::pbr::PbrPlugin::default());
+        self.add_plugin(crate::ui::UiPlugin::default());
+        self.add_plugin(crate::gltf::GltfPlugin::default());
+        self.add_plugin(crate::text::TextPlugin::default());
 
         #[cfg(feature = "bevy_winit")]
-        self.add_plugin(bevy_winit::WinitPlugin::default());
+        self.add_plugin(winit::WinitPlugin::default());
         #[cfg(not(feature = "bevy_winit"))]
-        self.add_plugin(bevy_app::schedule_runner::ScheduleRunnerPlugin::default());
+        self.add_plugin(crate::app::schedule_runner::ScheduleRunnerPlugin::default());
 
         #[cfg(feature = "bevy_wgpu")]
-        self.add_plugin(bevy_wgpu::WgpuPlugin::default());
+        self.add_plugin(wgpu::WgpuPlugin::default());
 
         self
     }

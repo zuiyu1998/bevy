@@ -5,45 +5,53 @@ authors = ["Carter Anderson <mcanders1@gmail.com>"]
 edition = "2018"
 
 [features]
-default = ["bevy_wgpu", "bevy_winit"]
+default = ["wgpu", "winit"]
 more-system-fns = ["legion/more-system-fns"]
-profiler = ["bevy_app/profiler", "bevy_diagnostic/profiler"]
+filesystem_watcher = []
+profiler = []
 
 [workspace]
 members = [
-    "crates/*",
+    "crates/bevy_derive",
+    "crates/bevy_property",
     "examples/app/dynamic_plugin_loading/example_plugin"
-]
-exclude = [
-    "crates/bevy_glam",
-    "crates/bevy_legion"
 ]
 
 [dependencies]
 # bevy
-bevy_app = { path = "crates/bevy_app" }
-bevy_asset = { path = "crates/bevy_asset" }
-bevy_type_registry = { path = "crates/bevy_type_registry" }
-bevy_core = { path = "crates/bevy_core" }
-bevy_diagnostic = { path = "crates/bevy_diagnostic" }
-bevy_ecs = { path = "crates/bevy_ecs" }
-bevy_gltf = { path = "crates/bevy_gltf" }
-bevy_input = { path = "crates/bevy_input" }
-bevy_pbr = { path = "crates/bevy_pbr" }
+bevy_derive = { path = "crates/bevy_derive" }
 bevy_property = { path = "crates/bevy_property" }
-bevy_render = { path = "crates/bevy_render" }
-bevy_scene = { path = "crates/bevy_scene" }
-bevy_sprite = { path = "crates/bevy_sprite" }
-bevy_transform = { path = "crates/bevy_transform" }
-bevy_text = { path = "crates/bevy_text" }
-bevy_ui = { path = "crates/bevy_ui" }
-bevy_window = { path = "crates/bevy_window" }
-bevy_wgpu = { path = "crates/bevy_wgpu", optional = true }
-bevy_winit = { path = "crates/bevy_winit", optional = true }
-legion = { path = "crates/bevy_legion" }
+legion = { path = "crates/bevy_legion", features = ["serialize"] }
+hecs = { path = "crates/hecs", features = ["macros"] }
+
+ab_glyph = "0.2.2"
+anyhow = "1.0"
+bitflags = "1.0"
+crossbeam-channel = "0.4.2"
+crossbeam-utils = "0.7.2"
+downcast-rs = "1.1.1"
+erased-serde = "0.3"
 glam = "0.8.7"
-# other
+glsl-to-spirv = { git = "https://github.com/cart/glsl-to-spirv" }
+gltf = "0.15.2"
+guillotiere = "0.5.2"
+libloading = "0.5.2"
 log = { version = "0.4", features = ["release_max_level_info"] }
+notify = { version = "5.0.0-pre.2", optional = true }
+once_cell = "1.3.1"
+png = "0.16.0"
+pollster = "0.2.0"
+rayon = "1.2"
+rectangle-pack = "0.1"
+ron = { git = "https://github.com/ron-rs/ron", rev = "35355ba7eb495f07282162826c29873154c2fa14" }
+serde = { version = "1", features = ["derive"] }
+shrinkwraprs = "0.2"
+smallvec = { version = "1.4", features = ["serde"] }
+spirv-reflect = "0.2.3"
+thiserror = "1.0"
+uuid = { version = "0.8", features = ["v4", "serde"] }
+wgpu = { git = "https://github.com/gfx-rs/wgpu-rs.git", rev = "7b866b1a1b72d4ecb7a63e11fbc8f521fe9eb363", optional = true }
+winit = { version = "0.22.2", optional = true }
 
 [dev-dependencies]
 rand = "0.7.2"
