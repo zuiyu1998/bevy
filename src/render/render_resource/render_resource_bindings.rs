@@ -261,7 +261,7 @@ impl Default for RenderResourceBindingsId {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::pipeline::{BindType, BindingDescriptor, UniformProperty};
+    use crate::render::pipeline::{BindType, BindingDescriptor, UniformProperty};
 
     #[test]
     fn test_bind_groups() {

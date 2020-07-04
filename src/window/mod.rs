@@ -5,7 +5,7 @@ mod windows;
 
 pub use event::*;
 pub use system::*;
-pub use crate::window::*;
+pub use window::*;
 pub use windows::*;
 
 use crate::app::{AppBuilder, AppPlugin, Events};

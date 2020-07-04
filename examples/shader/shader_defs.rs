@@ -1,5 +1,11 @@
-use bevy::{prelude::*, render::shader};
-use crate::render::{pipeline::{PipelineSpecialization, RenderPipeline, DynamicBinding}, base_render_graph};
+use bevy::{
+    prelude::*,
+    render::{
+        base_render_graph,
+        pipeline::{DynamicBinding, PipelineSpecialization, RenderPipeline},
+        shader,
+    },
+};
 
 fn main() {
     App::build()
@@ -97,7 +103,7 @@ fn setup(
             mesh: cube_handle,
             render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::specialized(
                 pipeline_handle,
-                // NOTE: in the future you wont need to manually declare dynamic bindings 
+                // NOTE: in the future you wont need to manually declare dynamic bindings
                 PipelineSpecialization {
                     dynamic_bindings: vec![
                         // Transform
@@ -123,7 +129,7 @@ fn setup(
             mesh: cube_handle,
             render_pipelines: RenderPipelines::from_pipelines(vec![RenderPipeline::specialized(
                 pipeline_handle,
-                // NOTE: in the future you wont need to manually declare dynamic bindings 
+                // NOTE: in the future you wont need to manually declare dynamic bindings
                 PipelineSpecialization {
                     dynamic_bindings: vec![
                         // Transform

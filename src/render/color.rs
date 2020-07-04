@@ -1,10 +1,9 @@
 use super::texture::Texture;
 use crate::render::{
-    impl_render_resource_bytes,
     render_resource::{RenderResource, RenderResourceType},
 };
 use crate::asset::Handle;
-use crate::core::bytes::{Byteable, Bytes};
+use crate::{impl_render_resource_bytes, core::bytes::{Byteable, Bytes}};
 use bevy_property::Property;
 use glam::Vec4;
 use serde::{Deserialize, Serialize};

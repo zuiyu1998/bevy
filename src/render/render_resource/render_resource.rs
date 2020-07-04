@@ -172,7 +172,7 @@ where
     }
 }
 
-impl RenderResources for transform::prelude::Transform {
+impl RenderResources for crate::transform::prelude::Transform {
     fn render_resources_len(&self) -> usize {
         1
     }

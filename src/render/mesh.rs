@@ -168,7 +168,7 @@ impl Mesh {
 
 pub mod shape {
     use super::{Mesh, VertexAttribute};
-    use super::pipeline::state_descriptors::PrimitiveTopology;
+    use crate::render::pipeline::state_descriptors::PrimitiveTopology;
     use glam::*;
 
     pub struct Cube {
@@ -499,7 +499,7 @@ pub fn mesh_resource_provider_system(resources: &mut Resources) -> Box<dyn Sched
 #[cfg(test)]
 mod tests {
     use super::{AsVertexBufferDescriptor, Mesh, VertexAttribute};
-    use crate::{pipeline::state_descriptors::PrimitiveTopology, Vertex};
+    use crate::render::{pipeline::state_descriptors::PrimitiveTopology, Vertex};
     use crate::core::bytes::AsBytes;
 
     #[test]

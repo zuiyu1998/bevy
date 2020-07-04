@@ -42,12 +42,12 @@ impl Modules {
         }
     }
 
-    pub fn external() -> Modules {
+    pub fn internal() -> Modules {
         Modules {
-            bevy_asset: "bevy_asset".to_string(),
-            bevy_render: "bevy_render".to_string(),
-            bevy_core: "bevy_core".to_string(),
-            bevy_app: "bevy_app".to_string(),
+            bevy_asset: "crate::asset".to_string(),
+            bevy_render: "crate::render".to_string(),
+            bevy_core: "crate::core".to_string(),
+            bevy_app: "crate::app".to_string(),
             legion: "legion".to_string(),
         }
     }
@@ -75,7 +75,7 @@ pub fn get_modules(ast: &DeriveInput) -> Modules {
     let mut modules = if module_attribute_args.meta.unwrap_or_else(|| use_meta()) {
         Modules::meta()
     } else {
-        Modules::external()
+        Modules::internal()
     };
 
     if let Some(path) = module_attribute_args.bevy_asset {

@@ -1,4 +1,4 @@
-use crate::{WindowCloseRequested, WindowId};
+use crate::window::{WindowCloseRequested, WindowId};
 use crate::app::{AppExit, EventReader, Events};
 use legion::prelude::*;
 

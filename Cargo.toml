@@ -57,6 +57,7 @@ winit = { version = "0.22.2", optional = true }
 rand = "0.7.2"
 serde = { version = "1", features = ["derive"]}
 env_logger = "0.7"
+# crate = { package = "bevy" }
 
 [profile.dev]
 opt-level = 3

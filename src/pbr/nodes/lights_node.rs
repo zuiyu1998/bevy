@@ -4,7 +4,7 @@ use crate::render::{
     renderer::{RenderContext, RenderResourceContext},
 };
 
-use super::{
+use crate::pbr::{
     light::{Light, LightRaw},
     uniform,
 };

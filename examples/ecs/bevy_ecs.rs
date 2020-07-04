@@ -1,4 +1,4 @@
-use ecs::*;
+use bevy::ecs::*;
 
 struct Position(f32);
 struct Velocity(f32);
