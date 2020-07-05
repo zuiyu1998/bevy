@@ -1,4 +1,4 @@
-use crate::renderer::{WgpuRenderGraphExecutor, WgpuRenderResourceContext};
+use crate::wgpu::renderer::{WgpuRenderGraphExecutor, WgpuRenderResourceContext};
 use crate::app::{EventReader, Events};
 use crate::render::{
     render_graph::{DependentNodeStager, RenderGraph, RenderGraphStager},
@@ -69,9 +69,9 @@ impl WgpuRenderer {
             let window = windows
                 .get(window_created_event.id)
                 .expect("Received window created event for non-existent window");
-            #[cfg(feature = "bevy_winit")]
+            #[cfg(feature = "winit")]
             {
-                let winit_windows = resources.get::<winit::WinitWindows>().unwrap();
+                let winit_windows = resources.get::<crate::winit::WinitWindows>().unwrap();
                 let winit_window = winit_windows.get_window(window.id).unwrap();
                 let surface = unsafe { self.instance.create_surface(winit_window.deref()) };
                 render_resource_context.set_window_surface(window.id, surface);

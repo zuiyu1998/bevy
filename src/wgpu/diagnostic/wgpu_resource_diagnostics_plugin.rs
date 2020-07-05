@@ -1,4 +1,4 @@
-use crate::renderer::WgpuRenderResourceContext;
+use crate::wgpu::renderer::WgpuRenderResourceContext;
 use crate::app::{AppBuilder, AppPlugin};
 use crate::diagnostic::{Diagnostic, DiagnosticId, Diagnostics};
 use crate::render::renderer::RenderResourceContext;

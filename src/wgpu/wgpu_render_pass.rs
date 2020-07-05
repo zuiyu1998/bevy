@@ -1,4 +1,4 @@
-use crate::{renderer::WgpuRenderContext, WgpuResourceRefs};
+use crate::wgpu::{renderer::WgpuRenderContext, WgpuResourceRefs};
 use crate::asset::Handle;
 use crate::render::{
     pass::RenderPass,

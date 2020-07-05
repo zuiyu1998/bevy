@@ -1,4 +1,4 @@
-use crate::{
+use crate::wgpu::{
     wgpu_type_converter::{OwnedWgpuVertexBufferDescriptor, WgpuInto},
     WgpuBindGroupInfo, WgpuResources,
 };
@@ -280,7 +280,7 @@ impl RenderResourceContext for WgpuRenderResourceContext {
         window_swap_chains.insert(window.id, swap_chain);
     }
 
-    fn next_swap_chain_texture(&self, window_id: window::WindowId) -> TextureId {
+    fn next_swap_chain_texture(&self, window_id: crate::window::WindowId) -> TextureId {
         let mut window_swap_chains = self.resources.window_swap_chains.write().unwrap();
         let mut swap_chain_outputs = self.resources.swap_chain_frames.write().unwrap();
 

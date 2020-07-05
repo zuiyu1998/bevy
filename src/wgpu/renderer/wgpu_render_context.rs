@@ -1,5 +1,5 @@
 use super::WgpuRenderResourceContext;
-use crate::{wgpu_type_converter::WgpuInto, WgpuRenderPass, WgpuResourceRefs};
+use crate::wgpu::{wgpu_type_converter::WgpuInto, WgpuRenderPass, WgpuResourceRefs};
 
 use crate::render::{
     pass::{

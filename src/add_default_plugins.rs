@@ -20,13 +20,13 @@ impl AddDefaultPlugins for AppBuilder {
         self.add_plugin(crate::gltf::GltfPlugin::default());
         self.add_plugin(crate::text::TextPlugin::default());
 
-        #[cfg(feature = "bevy_winit")]
-        self.add_plugin(winit::WinitPlugin::default());
-        #[cfg(not(feature = "bevy_winit"))]
+        #[cfg(feature = "winit")]
+        self.add_plugin(crate::winit::WinitPlugin::default());
+        #[cfg(not(feature = "winit"))]
         self.add_plugin(crate::app::schedule_runner::ScheduleRunnerPlugin::default());
 
-        #[cfg(feature = "bevy_wgpu")]
-        self.add_plugin(wgpu::WgpuPlugin::default());
+        #[cfg(feature = "wgpu")]
+        self.add_plugin(crate::wgpu::WgpuPlugin::default());
 
         self
     }

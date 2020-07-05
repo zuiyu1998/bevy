@@ -23,9 +23,9 @@ pub struct WgpuPlugin;
 impl AppPlugin for WgpuPlugin {
     fn build(&self, app: &mut AppBuilder) {
         let render_system = wgpu_render_system(app.resources_mut());
-        app.add_system_to_stage(render::stage::RENDER, render_system)
+        app.add_system_to_stage(crate::render::stage::RENDER, render_system)
             .add_system_to_stage(
-                render::stage::POST_RENDER,
+                crate::render::stage::POST_RENDER,
                 free_shared_buffers_system.system(),
             );
     }

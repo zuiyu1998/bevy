@@ -63,8 +63,8 @@ pub mod text;
 pub mod transform;
 pub mod type_registry;
 pub mod ui;
-#[cfg(feature = "bevy_wgpu")]
+#[cfg(feature = "wgpu")]
 pub mod wgpu;
 pub mod window;
-#[cfg(feature = "bevy_winit")]
+#[cfg(feature = "winit")]
 pub mod winit;
