@@ -1,6 +1,6 @@
 use crate::{
     draw::{Draw, RenderCommand},
-    pass::{ClearColor, PassDescriptor, TextureAttachment},
+    pass::{ClearColor, PassDescriptor, TextureAttachment, LoadOp},
     pipeline::{
         BindGroupDescriptor, BindType, BindingDescriptor, PipelineDescriptor, UniformProperty,
     },
