@@ -43,6 +43,7 @@ impl Node for CameraNode {
 impl SystemNode for CameraNode {
     fn get_system(&self) -> Box<dyn Schedulable> {
         let mut camera_buffer = None;
+        let mut staging_buffer = None;
         let mut command_queue = self.command_queue.clone();
         let camera_name = self.camera_name.clone();
         (move |
@@ -53,56 +54,68 @@ impl SystemNode for CameraNode {
                mut render_resource_bindings: ResMut<RenderResourceBindings>,
                world: &mut SubWorld,
                _query: &mut Query<(Read<Camera>, Read<Transform>)>| {
-            let render_resource_context = &**render_resource_context;
-            if camera_buffer.is_none() {
-                let size = std::mem::size_of::<[[f32; 4]; 4]>();
-                let buffer = render_resource_context.create_buffer(BufferInfo {
-                    size,
-                    buffer_usage: BufferUsage::COPY_DST | BufferUsage::UNIFORM,
-                    ..Default::default()
-                });
-                render_resource_bindings.set(
-                    &camera_name,
-                    RenderResourceBinding::Buffer {
-                        buffer,
-                        range: 0..size as u64,
-                        dynamic_index: None,
+                let render_resource_context = &**render_resource_context;
+
+                let (camera, transform) = if let Some(camera_entity) = active_cameras.get(&camera_name) {
+                    (
+                        query.get::<Camera>(camera_entity).unwrap(),
+                        query.get::<Transform>(camera_entity).unwrap(),
+                    )
+                } else {
+                    return;
+                };
+            
+                let staging_buffer = if let Some(staging_buffer) = staging_buffer {
+                    render_resource_context.map_buffer(staging_buffer);
+                    staging_buffer
+                } else {
+                    let size = std::mem::size_of::<[[f32; 4]; 4]>();
+                    let buffer = render_resource_context.create_buffer(BufferInfo {
+                        size,
+                        buffer_usage: BufferUsage::COPY_DST | BufferUsage::UNIFORM,
+                        ..Default::default()
+                    });
+                    render_resource_bindings.set(
+                        &camera_name,
+                        RenderResourceBinding::Buffer {
+                            buffer,
+                            range: 0..size as u64,
+                            dynamic_index: None,
+                        },
+                    );
+                    camera_buffer = Some(buffer);
+            
+                    let staging_buffer = render_resource_context.create_buffer(BufferInfo {
+                        size,
+                        buffer_usage: BufferUsage::COPY_SRC | BufferUsage::MAP_WRITE,
+                        mapped_at_creation: true,
+                    });
+            
+                    staging_buffer = Some(staging_buffer);
+                    staging_buffer
+                };
+            
+                let matrix_size = std::mem::size_of::<[[f32; 4]; 4]>();
+                let camera_matrix: [f32; 16] =
+                    (camera.projection_matrix * transform.value.inverse()).to_cols_array();
+            
+                render_resource_context.write_mapped_buffer(
+                    staging_buffer,
+                    0..matrix_size as u64,
+                    &mut |data, _renderer| {
+                        data[0..matrix_size].copy_from_slice(camera_matrix.as_bytes());
                     },
                 );
-                camera_buffer = Some(buffer);
-            }
-            let (camera, transform) = if let Some(camera_entity) = active_cameras.get(&camera_name)
-            {
-                (
-                    world.get_component::<Camera>(camera_entity).unwrap(),
-                    world.get_component::<Transform>(camera_entity).unwrap(),
-                )
-            } else {
-                return;
-            };
-
-            let matrix_size = std::mem::size_of::<[[f32; 4]; 4]>();
-            let camera_matrix: [f32; 16] = (camera.projection_matrix * transform.value.inverse()).to_cols_array();
-
-            let tmp_buffer = render_resource_context.create_buffer_mapped(
-                BufferInfo {
-                    size: matrix_size,
-                    buffer_usage: BufferUsage::COPY_SRC,
-                    ..Default::default()
-                },
-                &mut |data, _renderer| {
-                    data[0..matrix_size].copy_from_slice(camera_matrix.as_bytes());
-                },
-            );
-
-            command_queue.copy_buffer_to_buffer(
-                tmp_buffer,
-                0,
-                camera_buffer.unwrap(),
-                0,
-                matrix_size as u64,
-            );
-            command_queue.free_buffer(tmp_buffer);
+                render_resource_context.unmap_buffer(staging_buffer);
+            
+                let camera_buffer = camera_buffer.unwrap();
+                command_queue.copy_buffer_to_buffer(
+                    staging_buffer,
+                    0,
+                    camera_buffer,
+                    0,
+                    matrix_size as u64,
+                );
         })
         .system()
     }
