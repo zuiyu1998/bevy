@@ -14,7 +14,7 @@ bevy_type_registry = { path = "../bevy_type_registry" }
 bevy_render = { path = "../bevy_render" }
 bevy_transform = { path = "../bevy_transform" }
 
-legion = { path = "../bevy_legion", features = ["serialize"] }
+legion = { path = "../bevy_legion", features = ["serialize"], default-features = false  }
 glam = "0.8.7"
 rectangle-pack = "0.1"
 thiserror = "1.0"

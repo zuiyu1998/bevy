@@ -14,6 +14,6 @@ bevy_render = { path = "../bevy_render" }
 bevy_property = { path = "../bevy_property" }
 bevy_transform = { path = "../bevy_transform" }
 bevy_window = { path = "../bevy_window" }
-legion = { path = "../bevy_legion"}
+legion = { path = "../bevy_legion", default-features = false}
 
 glam = "0.8.7"

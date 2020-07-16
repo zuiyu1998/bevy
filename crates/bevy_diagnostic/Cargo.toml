@@ -10,5 +10,5 @@ profiler = []
 [dependencies]
 bevy_app = { path = "../bevy_app" }
 bevy_core = { path = "../bevy_core" }
-legion = { path = "../bevy_legion" }
+legion = { path = "../bevy_legion", default-features = false }
 uuid = { version = "0.8", features = ["v4", "serde"] }

@@ -39,7 +39,7 @@ bevy_ui = { path = "crates/bevy_ui" }
 bevy_window = { path = "crates/bevy_window" }
 bevy_wgpu = { path = "crates/bevy_wgpu", optional = true }
 bevy_winit = { path = "crates/bevy_winit", optional = true }
-legion = { path = "crates/bevy_legion" }
+legion = { path = "crates/bevy_legion", default-features = false  }
 glam = "0.8.7"
 # other
 log = { version = "0.4", features = ["release_max_level_info"] }

@@ -16,7 +16,7 @@ bevy_diagnostic = { path = "../bevy_diagnostic" }
 bevy_render = { path = "../bevy_render" }
 bevy_window = { path = "../bevy_window" }
 bevy_winit = { path = "../bevy_winit", optional = true }
-legion = { path = "../bevy_legion" }
+legion = { path = "../bevy_legion", default-features = false }
 
 # render
 wgpu = { git = "https://github.com/gfx-rs/wgpu-rs.git", rev = "8c4d814607a303458ad9453da59dfc3a9951d7a3" }
