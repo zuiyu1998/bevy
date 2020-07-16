@@ -54,8 +54,6 @@ impl SystemNode for LightsNode {
         let mut staging_buffer = None;
         let mut lights_are_dirty = true;
         // TODO: merge these
-        let mut tmp_count_buffer = None;
-        let mut tmp_light_buffer = None;
         let mut command_queue = self.command_queue.clone();
         let max_lights = self.max_lights;
         (move |render_resource_context: Res<Box<dyn RenderResourceContext>>,
@@ -65,15 +63,15 @@ impl SystemNode for LightsNode {
                query: &mut Query<(Read<Light>, Read<Transform>, Read<Translation>)>| {
                 let render_resource_context = &**render_resource_context;
             
-                let light_count = query.iter().iter().count();
+                let light_count = query.iter(world).count();
                 let size = std::mem::size_of::<LightRaw>();
                 let light_count_size = std::mem::size_of::<LightCount>();
                 let light_array_size = size * light_count;
-                let light_array_max_size = size * state.max_lights;
+                let light_array_max_size = size * max_lights;
                 let current_light_uniform_size = light_count_size + light_array_size;
                 let max_light_uniform_size = light_count_size + light_array_max_size;
             
-                if let Some(staging_buffer) = state.staging_buffer {
+                if let Some(staging_buffer) = staging_buffer {
                     if light_count == 0 {
                         return;
                     }
@@ -95,12 +93,12 @@ impl SystemNode for LightsNode {
                     );
                     light_buffer = Some(buffer);
             
-                    let staging_buffer = render_resource_context.create_buffer(BufferInfo {
+                    let new_staging_buffer = render_resource_context.create_buffer(BufferInfo {
                         size: max_light_uniform_size,
                         buffer_usage: BufferUsage::COPY_SRC | BufferUsage::MAP_WRITE,
                         mapped_at_creation: true,
                     });
-                    staging_buffer = Some(staging_buffer);
+                    staging_buffer = Some(new_staging_buffer);
                 }
             
                 let staging_buffer = staging_buffer.unwrap();
@@ -113,7 +111,7 @@ impl SystemNode for LightsNode {
             
                         // light array
                         for ((light, transform, translation), slot) in
-                            query.iter().iter().zip(data[light_count_size..current_light_uniform_size].chunks_exact_mut(size))
+                            query.iter(world).zip(data[light_count_size..current_light_uniform_size].chunks_exact_mut(size))
                         {
                             slot.copy_from_slice(
                                 LightRaw::from(&light, &transform.value, &translation).as_bytes(),

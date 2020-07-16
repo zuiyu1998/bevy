@@ -58,8 +58,8 @@ impl SystemNode for CameraNode {
 
                 let (camera, transform) = if let Some(camera_entity) = active_cameras.get(&camera_name) {
                     (
-                        query.get::<Camera>(camera_entity).unwrap(),
-                        query.get::<Transform>(camera_entity).unwrap(),
+                        world.get_component::<Camera>(camera_entity).unwrap(),
+                        world.get_component::<Transform>(camera_entity).unwrap(),
                     )
                 } else {
                     return;
@@ -85,14 +85,14 @@ impl SystemNode for CameraNode {
                     );
                     camera_buffer = Some(buffer);
             
-                    let staging_buffer = render_resource_context.create_buffer(BufferInfo {
+                    let new_staging_buffer = render_resource_context.create_buffer(BufferInfo {
                         size,
                         buffer_usage: BufferUsage::COPY_SRC | BufferUsage::MAP_WRITE,
                         mapped_at_creation: true,
                     });
             
-                    staging_buffer = Some(staging_buffer);
-                    staging_buffer
+                    staging_buffer = Some(new_staging_buffer);
+                    new_staging_buffer
                 };
             
                 let matrix_size = std::mem::size_of::<[[f32; 4]; 4]>();

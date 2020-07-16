@@ -412,18 +412,13 @@ where
         .update_staging_buffer(render_resource_context);
 
 
-            for (uniforms, draw, mut render_pipelines) in query.iter_mut(world) {
-                if !draw.is_visible {
-                    return;
-                }
-
     if let Some(staging_buffer) = uniform_buffer_arrays.staging_buffer {
         render_resource_context.map_buffer(staging_buffer);
         render_resource_context.write_mapped_buffer(
             staging_buffer,
             0..uniform_buffer_arrays.staging_buffer_size as u64,
             &mut |mut staging_buffer, _render_resource_context| {
-                for (uniforms, draw, render_pipelines) in &mut query.iter() {
+                for (uniforms, draw, mut render_pipelines) in query.iter_mut(world) {
                     if !draw.is_visible {
                         return;
                     }
@@ -445,7 +440,7 @@ where
     } else {
         // TODO: can we just remove this?
         let mut staging_buffer: [u8; 0] = [];
-        for (uniforms, draw, mut render_pipelines) in query.iter_mut() {
+        for (uniforms, draw, mut render_pipelines) in query.iter_mut(world) {
             if !draw.is_visible {
                 return;
             }
@@ -458,7 +453,8 @@ where
                 &mut staging_buffer,
             );
         }
-    }
+    }}).system()
+}
 }
 
 #[derive(Default)]
