@@ -61,7 +61,7 @@ impl Default for WindowDescriptor {
             title: "bevy".to_string(),
             width: 1280,
             height: 720,
-            vsync: true,
+            vsync: false,
         }
     }
 }
