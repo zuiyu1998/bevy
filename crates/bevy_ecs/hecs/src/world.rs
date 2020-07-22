@@ -25,8 +25,9 @@ use hashbrown::{HashMap, HashSet};
 use crate::{
     archetype::Archetype,
     entities::{Entities, Location},
-    Bundle, DynamicBundle, Entity, EntityRef, MissingComponent, NoSuchEntity, Query, QueryBorrow,
-    QueryOne, Ref, RefMut,
+    query::QueryIter2,
+    Bundle, DynamicBundle, Entity, EntityRef, MissingComponent, NoSuchEntity, Query, QueryOne, Ref,
+    RefMut,
 };
 
 /// An unordered collection of entities, each having any number of distinctly typed components
@@ -236,8 +237,9 @@ impl World {
     /// assert!(entities.contains(&(a, 123, true)));
     /// assert!(entities.contains(&(b, 456, false)));
     /// ```
-    pub fn query<Q: Query>(&self) -> QueryBorrow<'_, Q> {
-        QueryBorrow::new(&self.archetypes)
+    #[inline]
+    pub fn query<Q: Query>(&self) -> QueryIter2<'_, Q> {
+        QueryIter2::new(&self.archetypes)
     }
 
     /// Prepare a query against a single entity
@@ -388,7 +390,10 @@ impl World {
             let old_index = mem::replace(&mut loc.index, target_index);
             if let Some(moved) = source_arch.move_to(old_index, |ptr, ty, size, is_modified| {
                 target_arch.put_dynamic(ptr, ty, size, target_index);
-                target_arch.get_type_state_mut(ty).unwrap().modified_entities[target_index as usize] = is_modified;
+                target_arch
+                    .get_type_state_mut(ty)
+                    .unwrap()
+                    .modified_entities[target_index as usize] = is_modified;
             }) {
                 self.entities.get_mut(Entity::with_id(moved)).unwrap().index = old_index;
             }
@@ -468,7 +473,10 @@ impl World {
                 // Only move the components present in the target archetype, i.e. the non-removed ones.
                 if let Some(dst) = target_arch.get_dynamic(ty, size, target_index) {
                     ptr::copy_nonoverlapping(src, dst.as_ptr(), size);
-                    target_arch.get_type_state_mut(ty).unwrap().modified_entities[target_index as usize] = is_modified;
+                    target_arch
+                        .get_type_state_mut(ty)
+                        .unwrap()
+                        .modified_entities[target_index as usize] = is_modified;
                 }
             }) {
                 self.entities.get_mut(Entity::with_id(moved)).unwrap().index = old_index;
@@ -562,7 +570,7 @@ impl World {
         self.entities.get(entity).ok()
     }
 
-    /// Clears each entity's tracker state. For example, each entity's component "modified" state will be reset to `false`. 
+    /// Clears each entity's tracker state. For example, each entity's component "modified" state will be reset to `false`.
     pub fn clear_trackers(&mut self) {
         for archetype in self.archetypes.iter_mut() {
             archetype.clear_trackers();

@@ -81,19 +81,15 @@ impl Query for Entity {
 
 impl<'a> Fetch<'a> for EntityFetch {
     type Item = Entity;
-    #[inline]
     fn access(_archetype: &Archetype) -> Option<Access> {
         Some(Access::Iterate)
     }
-    #[inline]
     fn borrow(_archetype: &Archetype) {}
-    #[inline]
     unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
         Some(EntityFetch(NonNull::new_unchecked(
             archetype.entities().as_ptr().add(offset),
         )))
     }
-    #[inline]
     fn release(_archetype: &Archetype) {}
 
     #[inline]
@@ -114,6 +110,7 @@ pub struct FetchRead<T>(NonNull<T>);
 impl<'a, T: Component> Fetch<'a> for FetchRead<T> {
     type Item = &'a T;
 
+    
     fn access(archetype: &Archetype) -> Option<Access> {
         if archetype.has::<T>() {
             Some(Access::Read)
@@ -122,19 +119,22 @@ impl<'a, T: Component> Fetch<'a> for FetchRead<T> {
         }
     }
 
+    
     fn borrow(archetype: &Archetype) {
         archetype.borrow::<T>();
     }
-    #[inline]
+    
     unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
         archetype
             .get::<T>()
             .map(|x| Self(NonNull::new_unchecked(x.as_ptr().add(offset))))
     }
+    
     fn release(archetype: &Archetype) {
         archetype.release::<T>();
     }
 
+    
     #[inline]
     unsafe fn next(&mut self) -> &'a T {
         let x = self.0.as_ptr();
@@ -147,6 +147,146 @@ impl<'a, T: Component> Query for &'a mut T {
     type Fetch = FetchMut<T>;
 }
 
+/// Unique borrow of an entity's component
+pub struct Mut<'a, T: Component> {
+    value: &'a mut T,
+    modified: &'a mut bool,
+}
+
+unsafe impl<T: Component> Send for Mut<'_, T> {}
+unsafe impl<T: Component> Sync for Mut<'_, T> {}
+
+impl<'a, T: Component> Deref for Mut<'a, T> {
+    type Target = T;
+    
+    fn deref(&self) -> &T {
+        self.value
+    }
+}
+
+impl<'a, T: Component> DerefMut for Mut<'a, T> {
+    
+    fn deref_mut(&mut self) -> &mut T {
+        *self.modified = true;
+        self.value
+    }
+}
+
+impl<'a, T: Component> Query for Mut<'a, T> {
+    type Fetch = FetchMut<T>;
+}
+#[doc(hidden)]
+pub struct FetchMut<T>(NonNull<T>, NonNull<bool>);
+
+impl<'a, T: Component> Fetch<'a> for FetchMut<T> {
+    type Item = Mut<'a, T>;
+
+    
+    fn access(archetype: &Archetype) -> Option<Access> {
+        if archetype.has::<T>() {
+            Some(Access::Write)
+        } else {
+            None
+        }
+    }
+
+    
+    fn borrow(archetype: &Archetype) {
+        archetype.borrow_mut::<T>();
+    }
+    
+    unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
+        archetype
+            .get_with_modified::<T>()
+            .map(|(components, modified)| {
+                Self(
+                    NonNull::new_unchecked(components.as_ptr().add(offset)),
+                    NonNull::new_unchecked(modified.as_ptr().add(offset)),
+                )
+            })
+    }
+    
+    fn release(archetype: &Archetype) {
+        archetype.release_mut::<T>();
+    }
+
+    
+    #[inline]
+    unsafe fn next(&mut self) -> Mut<'a, T> {
+        let component = self.0.as_ptr();
+        let modified = self.1.as_ptr();
+        self.0 = NonNull::new_unchecked(component.add(1));
+        self.1 = NonNull::new_unchecked(modified.add(1));
+        Mut {
+            value: &mut *component,
+            modified: &mut *modified,
+        }
+    }
+}
+
+#[allow(missing_docs)]
+pub struct Changed<'a, T> {
+    value: &'a T,
+}
+
+impl<'a, T: Component> Deref for Changed<'a, T> {
+    type Target = T;
+    
+    fn deref(&self) -> &T {
+        self.value
+    }
+}
+
+impl<'a, T: Component> Query for Changed<'a, T> {
+    type Fetch = FetchChanged<T>;
+}
+
+#[doc(hidden)]
+pub struct FetchChanged<T>(NonNull<T>, NonNull<bool>);
+
+impl<'a, T: Component> Fetch<'a> for FetchChanged<T> {
+    type Item = Changed<'a, T>;
+
+    
+    fn access(archetype: &Archetype) -> Option<Access> {
+        if archetype.has::<T>() {
+            Some(Access::Read)
+        } else {
+            None
+        }
+    }
+
+    
+    fn borrow(archetype: &Archetype) {
+        archetype.borrow::<T>();
+    }
+    
+    unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
+        let components = NonNull::new_unchecked(archetype.get::<T>()?.as_ptr().add(offset));
+        let modified = NonNull::new_unchecked(archetype.get_modified::<T>()?.as_ptr().add(offset));
+        Some(Self(components, modified))
+    }
+    
+    fn release(archetype: &Archetype) {
+        archetype.release::<T>();
+    }
+
+    
+    unsafe fn should_skip(&self) -> bool {
+        // skip if the current item wasn't changed
+        !*self.1.as_ref()
+    }
+
+    
+    #[inline]
+    unsafe fn next(&mut self) -> Self::Item {
+        self.1 = NonNull::new_unchecked(self.1.as_ptr().add(1));
+        let value = self.0.as_ptr();
+        self.0 = NonNull::new_unchecked(value.add(1));
+        Changed { value: &*value }
+    }
+}
+
 impl<T: Query> Query for Option<T> {
     type Fetch = TryFetch<T::Fetch>;
 }
@@ -157,24 +297,31 @@ pub struct TryFetch<T>(Option<T>);
 impl<'a, T: Fetch<'a>> Fetch<'a> for TryFetch<T> {
     type Item = Option<T::Item>;
 
+    
     fn access(archetype: &Archetype) -> Option<Access> {
         Some(T::access(archetype).unwrap_or(Access::Iterate))
     }
 
+    
     fn borrow(archetype: &Archetype) {
         T::borrow(archetype)
     }
+    
     unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
         Some(Self(T::get(archetype, offset)))
     }
+    
     fn release(archetype: &Archetype) {
         T::release(archetype)
     }
 
+    
+    #[inline]
     unsafe fn next(&mut self) -> Option<T::Item> {
         Some(self.0.as_mut()?.next())
     }
 
+    
     unsafe fn should_skip(&self) -> bool {
         self.0.as_ref().map_or(false, |fetch| fetch.should_skip())
     }
@@ -209,6 +356,7 @@ pub struct FetchWithout<T, F>(F, PhantomData<fn(T)>);
 impl<'a, T: Component, F: Fetch<'a>> Fetch<'a> for FetchWithout<T, F> {
     type Item = F::Item;
 
+    
     fn access(archetype: &Archetype) -> Option<Access> {
         if archetype.has::<T>() {
             None
@@ -217,23 +365,29 @@ impl<'a, T: Component, F: Fetch<'a>> Fetch<'a> for FetchWithout<T, F> {
         }
     }
 
+    
     fn borrow(archetype: &Archetype) {
         F::borrow(archetype)
     }
+    
     unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
         if archetype.has::<T>() {
             return None;
         }
         Some(Self(F::get(archetype, offset)?, PhantomData))
     }
+    
     fn release(archetype: &Archetype) {
         F::release(archetype)
     }
 
+    
+    #[inline]
     unsafe fn next(&mut self) -> F::Item {
         self.0.next()
     }
 
+    
     unsafe fn should_skip(&self) -> bool {
         self.0.should_skip()
     }
@@ -270,6 +424,7 @@ pub struct FetchWith<T, F>(F, PhantomData<fn(T)>);
 impl<'a, T: Component, F: Fetch<'a>> Fetch<'a> for FetchWith<T, F> {
     type Item = F::Item;
 
+    
     fn access(archetype: &Archetype) -> Option<Access> {
         if archetype.has::<T>() {
             F::access(archetype)
@@ -278,221 +433,112 @@ impl<'a, T: Component, F: Fetch<'a>> Fetch<'a> for FetchWith<T, F> {
         }
     }
 
+    
     fn borrow(archetype: &Archetype) {
         F::borrow(archetype)
     }
+    
     unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
         if !archetype.has::<T>() {
             return None;
         }
         Some(Self(F::get(archetype, offset)?, PhantomData))
     }
+    
     fn release(archetype: &Archetype) {
         F::release(archetype)
     }
 
+    
+    #[inline]
     unsafe fn next(&mut self) -> F::Item {
         self.0.next()
     }
 
+    
     unsafe fn should_skip(&self) -> bool {
         self.0.should_skip()
     }
 }
 
-/// A borrow of a `World` sufficient to execute the query `Q`
-///
-/// Note that borrows are not released until this object is dropped.
-pub struct QueryBorrow<'w, Q: Query> {
+#[allow(missing_docs)]
+pub struct QueryIter2<'w, Q: Query> {
     archetypes: &'w [Archetype],
-    borrowed: bool,
-    _marker: PhantomData<Q>,
+    archetype_index: u32,
+    archetype_len: u32,
+    fetch: Option<Q::Fetch>,
 }
 
-impl<'w, Q: Query> QueryBorrow<'w, Q> {
-    pub(crate) fn new(archetypes: &'w [Archetype]) -> Self {
-        Self {
-            archetypes,
-            borrowed: false,
-            _marker: PhantomData,
-        }
-    }
-
-    /// Execute the query
-    ///
-    /// Must be called only once per query.
-    pub fn iter<'q>(&'q mut self) -> QueryIter<'q, 'w, Q> {
-        self.borrow();
-        QueryIter {
-            borrow: self,
-            archetype_index: 0,
-            iter: None,
-        }
-    }
-
-    /// Like `iter`, but returns child iterators of at most `batch_size` elements
-    ///
-    /// Useful for distributing work over a threadpool.
-    pub fn iter_batched<'q>(&'q mut self, batch_size: u32) -> BatchedIter<'q, 'w, Q> {
-        self.borrow();
-        BatchedIter {
-            borrow: self,
-            archetype_index: 0,
-            batch_size,
-            batch: 0,
-        }
-    }
-
-    fn borrow(&mut self) {
-        if self.borrowed {
-            panic!(
-                "called QueryBorrow::iter twice on the same borrow; construct a new query instead"
-            );
-        }
-        for x in self.archetypes {
-            // TODO: Release prior borrows on failure?
+impl<'w, Q: Query> QueryIter2<'w, Q> {
+    #[allow(missing_docs)]
+    
+    pub fn new(archetypes: &'w [Archetype]) -> Self {
+        for x in archetypes {
             if Q::Fetch::access(x) >= Some(Access::Read) {
                 Q::Fetch::borrow(x);
             }
         }
-        self.borrowed = true;
-    }
-
-    /// Transform the query into one that requires a certain component without borrowing it
-    ///
-    /// This can be useful when the component needs to be borrowed elsewhere and it isn't necessary
-    /// for the iterator to expose its data directly.
-    ///
-    /// Equivalent to using a query type wrapped in `With`.
-    ///
-    /// # Example
-    /// ```
-    /// # use hecs::*;
-    /// let mut world = World::new();
-    /// let a = world.spawn((123, true, "abc"));
-    /// let b = world.spawn((456, false));
-    /// let c = world.spawn((42, "def"));
-    /// let entities = world.query::<(Entity, &i32)>()
-    ///     .with::<bool>()
-    ///     .iter()
-    ///     .map(|(e, &i)| (e, i)) // Copy out of the world
-    ///     .collect::<Vec<_>>();
-    /// assert!(entities.contains(&(a, 123)));
-    /// assert!(entities.contains(&(b, 456)));
-    /// ```
-    pub fn with<T: Component>(self) -> QueryBorrow<'w, With<T, Q>> {
-        self.transform()
-    }
-
-    /// Transform the query into one that skips entities having a certain component
-    ///
-    /// Equivalent to using a query type wrapped in `Without`.
-    ///
-    /// # Example
-    /// ```
-    /// # use hecs::*;
-    /// let mut world = World::new();
-    /// let a = world.spawn((123, true, "abc"));
-    /// let b = world.spawn((456, false));
-    /// let c = world.spawn((42, "def"));
-    /// let entities = world.query::<(Entity, &i32)>()
-    ///     .without::<bool>()
-    ///     .iter()
-    ///     .map(|(e, &i)| (e, i)) // Copy out of the world
-    ///     .collect::<Vec<_>>();
-    /// assert_eq!(entities, &[(c, 42)]);
-    /// ```
-    pub fn without<T: Component>(self) -> QueryBorrow<'w, Without<T, Q>> {
-        self.transform()
-    }
-
-    /// Helper to change the type of the query
-    fn transform<R: Query>(mut self) -> QueryBorrow<'w, R> {
-        let x = QueryBorrow {
-            archetypes: self.archetypes,
-            borrowed: self.borrowed,
-            _marker: PhantomData,
-        };
-        // Ensure `Drop` won't fire redundantly
-        self.borrowed = false;
-        x
-    }
-}
-
-unsafe impl<'w, Q: Query> Send for QueryBorrow<'w, Q> {}
-unsafe impl<'w, Q: Query> Sync for QueryBorrow<'w, Q> {}
-
-impl<'w, Q: Query> Drop for QueryBorrow<'w, Q> {
-    fn drop(&mut self) {
-        if self.borrowed {
-            for x in self.archetypes {
-                if Q::Fetch::access(x) >= Some(Access::Read) {
-                    Q::Fetch::release(x);
-                }
-            }
+        Self {
+            archetypes,
+            archetype_index: 0,
+            archetype_len: 0,
+            fetch: None,
         }
     }
 }
 
-impl<'q, 'w, Q: Query> IntoIterator for &'q mut QueryBorrow<'w, Q> {
-    type Item = <Q::Fetch as Fetch<'q>>::Item;
-    type IntoIter = QueryIter<'q, 'w, Q>;
+impl<'w, Q: Query> Iterator for QueryIter2<'w, Q> {
+    type Item = <Q::Fetch as Fetch<'w>>::Item;
 
-    fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-/// Iterator over the set of entities with the components in `Q`
-pub struct QueryIter<'q, 'w, Q: Query> {
-    borrow: &'q mut QueryBorrow<'w, Q>,
-    archetype_index: u32,
-    iter: Option<ChunkIter<Q>>,
-}
-
-unsafe impl<'q, 'w, Q: Query> Send for QueryIter<'q, 'w, Q> {}
-unsafe impl<'q, 'w, Q: Query> Sync for QueryIter<'q, 'w, Q> {}
-
-impl<'q, 'w, Q: Query> Iterator for QueryIter<'q, 'w, Q> {
-    type Item = <Q::Fetch as Fetch<'q>>::Item;
-
+    
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
         loop {
-            match self.iter {
-                None => {
-                    let archetype = self.borrow.archetypes.get(self.archetype_index as usize)?;
-                    self.archetype_index += 1;
-                    unsafe {
-                        self.iter = Q::Fetch::get(archetype, 0).map(|fetch| ChunkIter {
-                            fetch,
-                            len: archetype.len(),
-                        });
+            match self.fetch {
+                Some(ref mut fetch) => {
+                    loop {
+                        if self.archetype_len == 0 {
+                            break;
+                        }
+
+                        self.archetype_len -= 1;
+                        unsafe {
+                            if fetch.should_skip() {
+                                // we still need to progress the iterator
+                                let _ = fetch.next();
+                                continue;
+                            }
+
+                            return Some(fetch.next());
+                        }
                     }
                 }
-                Some(ref mut iter) => match unsafe { iter.next() } {
-                    None => {
-                        self.iter = None;
-                        continue;
+                None => {
+                    let archetype = self.archetypes.get(self.archetype_index as usize)?;
+                    self.archetype_index += 1;
+                    self.archetype_len = archetype.len();
+                    unsafe {
+                        self.fetch = Q::Fetch::get(archetype, 0);
                     }
-                    Some(components) => {
-                        return Some(components);
-                    }
-                },
+
+                    continue;
+                }
             }
+            self.fetch = None;
         }
     }
 
+    
     fn size_hint(&self) -> (usize, Option<usize>) {
         let n = self.len();
         (n, Some(n))
     }
 }
 
-impl<'q, 'w, Q: Query> ExactSizeIterator for QueryIter<'q, 'w, Q> {
+impl<'w, Q: Query> ExactSizeIterator for QueryIter2<'w, Q> {
+    
     fn len(&self) -> usize {
-        self.borrow
-            .archetypes
+        self.archetypes
             .iter()
             .filter(|&x| Q::Fetch::access(x).is_some())
             .map(|x| x.len() as usize)
@@ -500,91 +546,16 @@ impl<'q, 'w, Q: Query> ExactSizeIterator for QueryIter<'q, 'w, Q> {
     }
 }
 
-struct ChunkIter<Q: Query> {
-    fetch: Q::Fetch,
-    len: u32,
-}
-
-impl<Q: Query> ChunkIter<Q> {
-    unsafe fn next<'a, 'w>(&mut self) -> Option<<Q::Fetch as Fetch<'a>>::Item> {
-        loop {
-            if self.len == 0 {
-                return None;
-            }
-
-            self.len -= 1;
-            if self.fetch.should_skip() {
-                // we still need to progress the iterator
-                let _ = self.fetch.next();
-                continue;
-            }
-
-            break Some(self.fetch.next());
-        }
-    }
-}
-
-/// Batched version of `QueryIter`
-pub struct BatchedIter<'q, 'w, Q: Query> {
-    borrow: &'q mut QueryBorrow<'w, Q>,
-    archetype_index: u32,
-    batch_size: u32,
-    batch: u32,
-}
-
-unsafe impl<'q, 'w, Q: Query> Send for BatchedIter<'q, 'w, Q> {}
-unsafe impl<'q, 'w, Q: Query> Sync for BatchedIter<'q, 'w, Q> {}
-
-impl<'q, 'w, Q: Query> Iterator for BatchedIter<'q, 'w, Q> {
-    type Item = Batch<'q, Q>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            let archetype = self.borrow.archetypes.get(self.archetype_index as usize)?;
-            let offset = self.batch_size * self.batch;
-            if offset >= archetype.len() {
-                self.archetype_index += 1;
-                self.batch = 0;
-                continue;
-            }
-            if let Some(fetch) = unsafe { Q::Fetch::get(archetype, offset as usize) } {
-                self.batch += 1;
-                return Some(Batch {
-                    _marker: PhantomData,
-                    state: ChunkIter {
-                        fetch,
-                        len: self.batch_size.min(archetype.len() - offset),
-                    },
-                });
-            } else {
-                self.archetype_index += 1;
-                debug_assert_eq!(
-                    self.batch, 0,
-                    "query fetch should always reject at the first batch or not at all"
-                );
-                continue;
+impl<'w, Q: Query> Drop for QueryIter2<'w, Q> {
+    
+    fn drop(&mut self) {
+        for x in self.archetypes {
+            if Q::Fetch::access(x) >= Some(Access::Read) {
+                Q::Fetch::release(x);
             }
         }
     }
 }
-
-/// A sequence of entities yielded by `BatchedIter`
-pub struct Batch<'q, Q: Query> {
-    _marker: PhantomData<&'q ()>,
-    state: ChunkIter<Q>,
-}
-
-impl<'q, 'w, Q: Query> Iterator for Batch<'q, Q> {
-    type Item = <Q::Fetch as Fetch<'q>>::Item;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let components = unsafe { self.state.next()? };
-        Some(components)
-    }
-}
-
-unsafe impl<'q, Q: Query> Send for Batch<'q, Q> {}
-unsafe impl<'q, Q: Query> Sync for Batch<'q, Q> {}
 
 macro_rules! tuple_impl {
     ($($name: ident),*) => {
@@ -608,12 +579,14 @@ macro_rules! tuple_impl {
             unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
                 Some(($($name::get(archetype, offset)?,)*))
             }
+
             #[allow(unused_variables)]
             fn release(archetype: &Archetype) {
                 $($name::release(archetype);)*
             }
 
             #[allow(unused_variables)]
+            #[inline]
             unsafe fn next(&mut self) -> Self::Item {
                 #[allow(non_snake_case)]
                 let ($($name,)*) = self;
@@ -635,131 +608,6 @@ macro_rules! tuple_impl {
 
 //smaller_tuples_too!(tuple_impl, B, A);
 smaller_tuples_too!(tuple_impl, O, N, M, L, K, J, I, H, G, F, E, D, C, B, A);
-
-/// Unique borrow of an entity's component
-pub struct Mut<'a, T: Component> {
-    value: &'a mut T,
-    modified: &'a mut bool,
-}
-
-unsafe impl<T: Component> Send for Mut<'_, T> {}
-unsafe impl<T: Component> Sync for Mut<'_, T> {}
-
-impl<'a, T: Component> Deref for Mut<'a, T> {
-    type Target = T;
-    fn deref(&self) -> &T {
-        self.value
-    }
-}
-
-impl<'a, T: Component> DerefMut for Mut<'a, T> {
-    fn deref_mut(&mut self) -> &mut T {
-        *self.modified = true;
-        self.value
-    }
-}
-
-impl<'a, T: Component> Query for Mut<'a, T> {
-    type Fetch = FetchMut<T>;
-}
-#[doc(hidden)]
-pub struct FetchMut<T>(NonNull<T>, NonNull<bool>);
-
-impl<'a, T: Component> Fetch<'a> for FetchMut<T> {
-    type Item = Mut<'a, T>;
-
-    fn access(archetype: &Archetype) -> Option<Access> {
-        if archetype.has::<T>() {
-            Some(Access::Write)
-        } else {
-            None
-        }
-    }
-
-    fn borrow(archetype: &Archetype) {
-        archetype.borrow_mut::<T>();
-    }
-    unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
-        archetype
-            .get_with_modified::<T>()
-            .map(|(components, modified)| {
-                Self(
-                    NonNull::new_unchecked(components.as_ptr().add(offset)),
-                    NonNull::new_unchecked(modified.as_ptr().add(offset)),
-                )
-            })
-    }
-    fn release(archetype: &Archetype) {
-        archetype.release_mut::<T>();
-    }
-
-    unsafe fn next(&mut self) -> Mut<'a, T> {
-        let component = self.0.as_ptr();
-        let modified = self.1.as_ptr();
-        self.0 = NonNull::new_unchecked(component.add(1));
-        self.1 = NonNull::new_unchecked(modified.add(1));
-        Mut {
-            value: &mut *component,
-            modified: &mut *modified,
-        }
-    }
-}
-
-#[allow(missing_docs)]
-pub struct Changed<'a, T> {
-    value: &'a T,
-}
-
-impl<'a, T: Component> Deref for Changed<'a, T> {
-    type Target = T;
-    fn deref(&self) -> &T {
-        self.value
-    }
-}
-
-impl<'a, T: Component> Query for Changed<'a, T> {
-    type Fetch = FetchChanged<T>;
-}
-
-#[doc(hidden)]
-pub struct FetchChanged<T>(NonNull<T>, NonNull<bool>);
-
-impl<'a, T: Component> Fetch<'a> for FetchChanged<T> {
-    type Item = Changed<'a, T>;
-
-    fn access(archetype: &Archetype) -> Option<Access> {
-        if archetype.has::<T>() {
-            Some(Access::Read)
-        } else {
-            None
-        }
-    }
-
-    fn borrow(archetype: &Archetype) {
-        archetype.borrow::<T>();
-    }
-    unsafe fn get(archetype: &'a Archetype, offset: usize) -> Option<Self> {
-        let components = NonNull::new_unchecked(archetype.get::<T>()?.as_ptr().add(offset));
-        let modified = NonNull::new_unchecked(archetype.get_modified::<T>()?.as_ptr().add(offset));
-        Some(Self(components, modified))
-    }
-    fn release(archetype: &Archetype) {
-        archetype.release::<T>();
-    }
-
-    unsafe fn should_skip(&self) -> bool {
-        // skip if the current item wasn't changed
-        !*self.1.as_ref()
-    }
-
-    #[inline]
-    unsafe fn next(&mut self) -> Self::Item {
-        self.1 = NonNull::new_unchecked(self.1.as_ptr().add(1));
-        let value = self.0.as_ptr();
-        self.0 = NonNull::new_unchecked(value.add(1));
-        Changed { value: &*value }
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -787,7 +635,7 @@ mod tests {
         let e3 = world.spawn((A(0), B(0)));
         world.spawn((A(0), B));
 
-        for (i, mut a) in world.query::<Mut<A>>().iter().enumerate() {
+        for (i, mut a) in world.query::<Mut<A>>().enumerate() {
             if i % 2 == 0 {
                 a.0 += 1;
             }
@@ -796,7 +644,6 @@ mod tests {
         fn get_changed_a(world: &World) -> Vec<Entity> {
             world
                 .query::<(Changed<A>, Entity)>()
-                .iter()
                 .map(|(_a, e)| e)
                 .collect::<Vec<Entity>>()
         };
@@ -836,7 +683,6 @@ mod tests {
 
         assert!(world
             .query::<(Changed<A>, Entity)>()
-            .iter()
             .map(|(_a, e)| e)
             .collect::<Vec<Entity>>()
             .is_empty());
@@ -849,17 +695,16 @@ mod tests {
         let e2 = world.spawn((A(0), B(0)));
         world.spawn((A(0), B(0)));
 
-        for mut a in world.query::<Mut<A>>().iter() {
+        for mut a in world.query::<Mut<A>>() {
             a.0 += 1;
         }
 
-        for mut b in world.query::<Mut<B>>().iter().skip(1).take(1) {
+        for mut b in world.query::<Mut<B>>().skip(1).take(1) {
             b.0 += 1;
         }
 
         let a_b_changed = world
             .query::<(Changed<A>, Changed<B>, Entity)>()
-            .iter()
             .map(|(_a, _b, e)| e)
             .collect::<Vec<Entity>>();
         assert_eq!(a_b_changed, vec![e2]);

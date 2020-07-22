@@ -28,7 +28,6 @@ pub fn ui_update_system(
     };
     let orphan_nodes = orphan_node_query
         .iter()
-        .iter()
         .map(|(e, _, _)| e)
         .collect::<Vec<Entity>>();
     let mut window_rect = Rect {

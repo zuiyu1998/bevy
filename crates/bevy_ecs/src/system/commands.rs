@@ -326,7 +326,6 @@ mod tests {
         command_buffer.apply(&mut world, &mut resources);
         let results = world
             .query::<(&u32, &u64)>()
-            .iter()
             .map(|(a, b)| (*a, *b))
             .collect::<Vec<_>>();
         assert_eq!(results, vec![(1u32, 2u64)]);

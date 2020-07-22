@@ -5,7 +5,8 @@ use crate::{
 };
 use core::marker::PhantomData;
 use hecs::{
-    Component, ComponentError, Entity, Fetch, Query as HecsQuery, QueryBorrow, Ref, RefMut, World,
+    Component, ComponentError, Entity, Fetch, Query as HecsQuery,
+    Ref, RefMut, World, QueryIter2,
 };
 use std::borrow::Cow;
 
@@ -108,7 +109,7 @@ macro_rules! impl_into_foreach_system {
                         <<($($resource,)*) as ResourceQuery>::Fetch as FetchResource>::borrow(&resources);
                         {
                             let ($($resource,)*) = resources.query_system::<($($resource,)*)>(id);
-                            for ($($component,)*) in world.query::<($($component,)*)>().iter() {
+                            for ($($component,)*) in world.query::<($($component,)*)>() {
                                 fn_call!(self, ($($commands, state)*), ($($resource),*), ($($component),*))
                             }
                         }
@@ -132,9 +133,9 @@ macro_rules! impl_into_foreach_system {
     };
 }
 
-pub struct Query<'a, Q: HecsQuery> {
-    world: &'a World,
-    archetype_access: &'a ArchetypeAccess,
+pub struct Query<'w, Q: HecsQuery> {
+    world: &'w World,
+    archetype_access: &'w ArchetypeAccess,
     _marker: PhantomData<Q>,
 }
 
@@ -146,7 +147,8 @@ pub enum QueryComponentError {
 }
 
 impl<'a, Q: HecsQuery> Query<'a, Q> {
-    pub fn iter(&mut self) -> QueryBorrow<'_, Q> {
+    #[inline]
+    pub fn iter(&mut self) -> QueryIter2<'a, Q> {
         self.world.query::<Q>()
     }
 
@@ -443,7 +445,7 @@ mod tests {
             a_c_query: Query<(&A, &C)>,
             d_query: Query<&D>,
         ) {
-            let entities = entity_query.iter().iter().collect::<Vec<Entity>>();
+            let entities = entity_query.iter().collect::<Vec<Entity>>();
             assert!(
                 b_query.get::<B>(entities[0]).is_err(),
                 "entity 0 should not have B"

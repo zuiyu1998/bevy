@@ -83,8 +83,7 @@ pub fn ui_focus_system(
     let mut hovered_entity = None;
 
     {
-        let mut query_iter = node_query.iter();
-        let mut moused_over_z_sorted_nodes = query_iter
+        let mut moused_over_z_sorted_nodes = node_query
             .iter()
             .filter_map(|(entity, node, transform, click, hover, focus_policy)| {
                 let position = transform.value.w_axis();

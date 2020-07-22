@@ -83,7 +83,7 @@ pub fn lights_node_system(
     let state = &mut state;
     let render_resource_context = &**render_resource_context;
 
-    let light_count = query.iter().iter().count();
+    let light_count = query.iter().count();
     let size = std::mem::size_of::<LightRaw>();
     let light_count_size = std::mem::size_of::<LightCount>();
     let light_array_size = size * light_count;
@@ -131,7 +131,6 @@ pub fn lights_node_system(
 
             // light array
             for ((light, transform, translation), slot) in query
-                .iter()
                 .iter()
                 .zip(data[light_count_size..current_light_uniform_size].chunks_exact_mut(size))
             {
