@@ -12,6 +12,10 @@ pub struct FrameGraphCommandBuffer {
 }
 
 impl FrameGraphCommandBuffer {
+    pub fn command_buffer(self) -> Option<wgpu::CommandBuffer> {
+        self.command_buffer
+    }
+
     pub fn new(device: &RenderDevice) -> Self {
         Self {
             device: device.clone(),

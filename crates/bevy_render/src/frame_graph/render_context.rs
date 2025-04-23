@@ -45,6 +45,11 @@ impl<'a> RenderContext<'a> {
             command_buffer,
         })
     }
+
+    pub fn finish(self) -> Vec<FrameGraphCommandBuffer> {
+        self.command_buffer_queue
+    }
+
 }
 
 pub struct TrackedRenderPass<'a, 'b> {

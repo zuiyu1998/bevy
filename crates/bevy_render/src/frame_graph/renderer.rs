@@ -1,6 +1,9 @@
 use bevy_ecs::prelude::*;
 
-use crate::{render_resource::PipelineCache, renderer::RenderDevice};
+use crate::{
+    render_resource::PipelineCache,
+    renderer::{RenderDevice, RenderQueue},
+};
 
 use super::{FrameGraph, RenderContext, SetupGraph, SetupGraphRunner};
 
@@ -26,9 +29,22 @@ pub fn compile_frame_graph_system(mut frame_graph: ResMut<FrameGraph>) {
 pub fn execute_frame_graph_system(
     mut frame_graph: ResMut<FrameGraph>,
     render_device: Res<RenderDevice>,
+    render_queue: Res<RenderQueue>,
     pipeline_cache: Res<PipelineCache>,
 ) {
     let mut render_context = RenderContext::new(&render_device, &pipeline_cache);
 
     frame_graph.execute(&mut render_context);
+
+    let mut command_buffers = vec![];
+
+    for command_buffer in render_context.finish().into_iter() {
+        let command_buffer = command_buffer.command_buffer();
+
+        if command_buffer.is_some() {
+            command_buffers.push(command_buffer.unwrap());
+        }
+    }
+
+    render_queue.submit(command_buffers);
 }
