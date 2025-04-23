@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use wgpu::IndexFormat;
+use wgpu::{IndexFormat, Operations};
 
 use crate::{frame_graph::*, render_resource::RenderPipeline, renderer::RenderDevice};
 
@@ -141,7 +141,16 @@ impl CommandBufferTrait for FrameGraphCommandBuffer {
 }
 
 #[derive(Clone)]
-pub struct RenderPassInfo {}
+pub struct RenderPassInfo {
+    pub color_attachments: Vec<ColorAttachmentInfo>,
+}
+
+#[derive(Clone)]
+pub struct ColorAttachmentInfo {
+    pub view: ResourceRef<FrameGraphTexture, GpuRead>,
+    pub resolve_target: Option<ResourceRef<FrameGraphTexture, GpuRead>>,
+    pub ops: Operations<wgpu::Color>,
+}
 
 pub trait CommandBufferTrait: 'static + Sync + Send {
     fn begin_render_pass(

@@ -3,9 +3,9 @@ use std::sync::Arc;
 use bevy_ecs::resource::Resource;
 
 use super::{
-    DevicePass, ImportToFrameGraph, PassNode, RenderContext, Resource as FrameGraphResource,
-    ResourceBoard, ResourceDescriptor, ResourceInfo, ResourceNode, ResourceNodeHandle, TypeEquals,
-    TypeHandle, VirtualResource,
+    DevicePass, ImportToFrameGraph, PassNode, PassNodeBuilder, RenderContext,
+    Resource as FrameGraphResource, ResourceBoard, ResourceDescriptor, ResourceInfo, ResourceNode,
+    ResourceNodeHandle, TypeEquals, TypeHandle, VirtualResource,
 };
 
 #[derive(Default, Resource)]
@@ -18,13 +18,16 @@ pub struct FrameGraph {
 }
 
 impl FrameGraph {
+    pub fn create_pass_node_builder(&mut self, name: &str) -> PassNodeBuilder {
+        PassNodeBuilder::new(name, self)
+    }
+
     #[allow(unreachable_code)]
     #[allow(unused_variables)]
     pub fn import<ResourceType>(
         &mut self,
         name: &str,
         resource: Arc<ResourceType>,
-        desc: ResourceType::Descriptor,
     ) -> ResourceNodeHandle<ResourceType>
     where
         ResourceType: ImportToFrameGraph,
@@ -38,12 +41,8 @@ impl FrameGraph {
 
         let imported_resource = ImportToFrameGraph::import(resource);
         let resource_handle = TypeHandle::new(self.resources.len());
-        let resource: VirtualResource = VirtualResource::new_imported::<ResourceType>(
-            name,
-            resource_handle,
-            desc,
-            imported_resource,
-        );
+        let resource: VirtualResource =
+            VirtualResource::new_imported::<ResourceType>(name, resource_handle, imported_resource);
 
         let resource_info = resource.info.clone();
         self.resources.push(resource);

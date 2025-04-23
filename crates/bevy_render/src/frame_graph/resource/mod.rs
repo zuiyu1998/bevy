@@ -1,4 +1,8 @@
+mod texture;
+
 use std::{marker::PhantomData, sync::Arc};
+
+use super::{FrameGraphTexture, TextureInfo};
 
 use super::{PassNode, TypeHandle};
 
@@ -10,7 +14,9 @@ where
 }
 
 #[derive(Clone)]
-pub enum ImportedVirtualResource {}
+pub enum ImportedVirtualResource {
+    Texture(Arc<FrameGraphTexture>),
+}
 
 #[derive(Clone)]
 pub struct VirtualResource {
@@ -35,15 +41,11 @@ impl VirtualResource {
     pub fn new_imported<ResourceType: Resource>(
         name: &str,
         handle: TypeHandle<VirtualResource>,
-        desc: ResourceType::Descriptor,
         imported_resource: ImportedVirtualResource,
     ) -> VirtualResource {
         let info = ResourceInfo::new(name, handle);
 
-        let state = ResourceState::imported(ImportedResourceState::new(
-            desc.into(),
-            imported_resource.clone(),
-        ));
+        let state = ResourceState::imported(ImportedResourceState::new(imported_resource.clone()));
 
         VirtualResource { info, state }
     }
@@ -90,13 +92,12 @@ impl ResourceInfo {
 
 #[derive(Clone)]
 pub struct ImportedResourceState {
-    pub desc: AnyResourceDescriptor,
     pub resource: ImportedVirtualResource,
 }
 
 impl ImportedResourceState {
-    pub fn new(desc: AnyResourceDescriptor, resource: ImportedVirtualResource) -> Self {
-        Self { desc, resource }
+    pub fn new(resource: ImportedVirtualResource) -> Self {
+        Self { resource }
     }
 }
 
@@ -117,16 +118,18 @@ impl ResourceState {
 }
 
 #[derive(Clone)]
-pub enum AnyResourceDescriptor {}
+pub enum AnyResourceDescriptor {
+    Texture(TextureInfo),
+}
 
-pub enum AnyResource {}
+pub enum AnyResource {
+    ImportedTexture(FrameGraphTexture),
+}
 
 pub trait Resource: 'static {
     type Descriptor: ResourceDescriptor;
 
     fn borrow_resource(res: &AnyResource) -> &Self;
-
-    fn get_desc(&self) -> &Self::Descriptor;
 }
 
 pub trait ResourceDescriptor: 'static + Clone + Into<AnyResourceDescriptor> {
@@ -148,6 +151,15 @@ impl<T: Sized> TypeEquals for T {
 pub struct ResourceRef<ResourceType, ViewType> {
     pub index: TypeHandle<VirtualResource>,
     _marker: PhantomData<(ResourceType, ViewType)>,
+}
+
+impl<ResourceType, ViewType> Clone for ResourceRef<ResourceType, ViewType> {
+    fn clone(&self) -> Self {
+        Self {
+            index: self.index,
+            _marker: PhantomData,
+        }
+    }
 }
 
 impl<ResourceType, ViewType> ResourceRef<ResourceType, ViewType> {

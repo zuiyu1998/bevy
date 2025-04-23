@@ -1,8 +1,6 @@
-use crate::Result;
-
 use super::{
     FrameGraph, GpuRead, GpuWrite, RenderContext, ResourceNode, ResourceNodeHandle, ResourceRef,
-    TypeHandle, VirtualResource,
+    Result, TypeHandle, VirtualResource,
 };
 
 pub struct PassNode {
@@ -78,5 +76,5 @@ impl PassNode {
 }
 
 pub trait PassData: 'static + Send + Sync {
-    fn execute(&mut self, render_context: &mut RenderContext) -> Result<()>;
+    fn execute(&self, render_context: &mut RenderContext) -> Result<()>;
 }

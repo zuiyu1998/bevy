@@ -47,8 +47,7 @@ impl<'a> PassNodeBuilder<'a> {
     where
         ResourceType: ImportToFrameGraph,
     {
-        let desc = resource.get_desc().clone();
-        self.graph.import(name, resource, desc)
+        self.graph.import(name, resource)
     }
 
     pub fn create<DescriptorType>(
