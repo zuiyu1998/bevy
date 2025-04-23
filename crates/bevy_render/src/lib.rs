@@ -31,6 +31,7 @@ pub mod extract_component;
 pub mod extract_instances;
 mod extract_param;
 pub mod extract_resource;
+pub mod frame_graph;
 pub mod globals;
 pub mod gpu_component_array_buffer;
 pub mod gpu_readback;
@@ -49,7 +50,6 @@ pub mod sync_component;
 pub mod sync_world;
 pub mod texture;
 pub mod view;
-pub mod frame_graph;
 
 /// The render prelude.
 ///
@@ -93,6 +93,9 @@ use sync_world::{
 use crate::gpu_readback::GpuReadbackPlugin;
 use crate::{
     camera::CameraPlugin,
+    frame_graph::renderer::{
+        compile_frame_graph_system, execute_frame_graph_system, setup_frame_graph_system,
+    },
     mesh::{MeshPlugin, MorphPlugin, RenderMesh},
     render_asset::prepare_assets,
     render_resource::{PipelineCache, Shader, ShaderLoader},
@@ -179,6 +182,7 @@ pub enum RenderSet {
     PrepareResourcesFlush,
     /// A sub-set within [`Prepare`](RenderSet::Prepare) for constructing bind groups, or other data that relies on render resources prepared in [`PrepareResources`](RenderSet::PrepareResources).
     PrepareBindGroups,
+    FrameGraphSetup,
     /// Actual rendering happens here.
     /// In most cases, only the render backend should insert resources here.
     Render,
@@ -211,6 +215,7 @@ impl Render {
                 Queue,
                 PhaseSort,
                 Prepare,
+                FrameGraphSetup,
                 Render,
                 Cleanup,
                 PostCleanup,
@@ -522,6 +527,7 @@ unsafe fn initialize_render_app(app: &mut App) {
         .add_schedule(extract_schedule)
         .add_schedule(Render::base_schedule())
         .init_resource::<render_graph::RenderGraph>()
+        .init_resource::<frame_graph::SetupGraph>()
         .insert_resource(app.world().resource::<AssetServer>().clone())
         .add_systems(ExtractSchedule, PipelineCache::extract_shaders)
         .add_systems(
@@ -530,7 +536,13 @@ unsafe fn initialize_render_app(app: &mut App) {
                 // This set applies the commands from the extract schedule while the render schedule
                 // is running in parallel with the main app.
                 apply_extract_commands.in_set(RenderSet::ExtractCommands),
-                (PipelineCache::process_pipeline_queue_system, render_system)
+                setup_frame_graph_system.in_set(RenderSet::FrameGraphSetup),
+                (
+                    PipelineCache::process_pipeline_queue_system,
+                    compile_frame_graph_system,
+                    execute_frame_graph_system,
+                    render_system,
+                )
                     .chain()
                     .in_set(RenderSet::Render),
                 despawn_temporary_render_entities.in_set(RenderSet::PostCleanup),

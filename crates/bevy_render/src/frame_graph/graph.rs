@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
+use bevy_ecs::resource::Resource;
+
 use super::{
-    DevicePass, ImportToFrameGraph, PassNode, RenderContext, Resource, ResourceBoard,
-    ResourceDescriptor, ResourceInfo, ResourceNode, ResourceNodeHandle, TypeEquals, TypeHandle,
-    VirtualResource,
+    DevicePass, ImportToFrameGraph, PassNode, RenderContext, Resource as FrameGraphResource,
+    ResourceBoard, ResourceDescriptor, ResourceInfo, ResourceNode, ResourceNodeHandle, TypeEquals,
+    TypeHandle, VirtualResource,
 };
 
+#[derive(Default, Resource)]
 pub struct FrameGraph {
     pub(crate) resources: Vec<VirtualResource>,
     pub(crate) resource_nodes: Vec<ResourceNode>,
@@ -79,7 +82,7 @@ impl FrameGraph {
     where
         DescriptorType: ResourceDescriptor
             + TypeEquals<
-                Other = <<DescriptorType as ResourceDescriptor>::Resource as Resource>::Descriptor,
+                Other = <<DescriptorType as ResourceDescriptor>::Resource as FrameGraphResource>::Descriptor,
             >,
     {
         let resource_handle = TypeHandle::new(self.resources.len());

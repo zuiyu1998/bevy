@@ -77,6 +77,6 @@ impl PassNode {
     }
 }
 
-pub trait PassData: 'static {
+pub trait PassData: 'static + Send + Sync {
     fn execute(&mut self, render_context: &mut RenderContext) -> Result<()>;
 }
