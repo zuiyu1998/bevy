@@ -4,15 +4,17 @@ mod clear_color;
 mod manual_texture_view;
 mod projection;
 
+mod camera_driver_setup;
+
 pub use camera::*;
 pub use camera_driver_node::*;
+use camera_driver_setup::CameraDriverSetup;
 pub use clear_color::*;
 pub use manual_texture_view::*;
 pub use projection::*;
 
 use crate::{
-    extract_component::ExtractComponentPlugin, extract_resource::ExtractResourcePlugin,
-    render_graph::RenderGraph, ExtractSchedule, Render, RenderApp, RenderSet,
+    extract_component::ExtractComponentPlugin, extract_resource::ExtractResourcePlugin, frame_graph::SetupGraph, render_graph::RenderGraph, ExtractSchedule, Render, RenderApp, RenderSet
 };
 use bevy_app::{App, Plugin};
 use bevy_ecs::schedule::IntoScheduleConfigs;
@@ -46,6 +48,11 @@ impl Plugin for CameraPlugin {
             let camera_driver_node = CameraDriverNode::new(render_app.world_mut());
             let mut render_graph = render_app.world_mut().resource_mut::<RenderGraph>();
             render_graph.add_node(crate::graph::CameraDriverLabel, camera_driver_node);
+
+
+            let camera_driver_setup = CameraDriverSetup::new(render_app.world_mut());
+            let mut setup_graph = render_app.world_mut().resource_mut::<SetupGraph>();
+            setup_graph.add_node(crate::graph::CameraDriverLabel, camera_driver_setup);
         }
     }
 }
