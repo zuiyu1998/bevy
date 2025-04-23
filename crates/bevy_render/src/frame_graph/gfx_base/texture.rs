@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, PartialEq, Eq, Hash)]
 pub struct TextureInfo {}
 
 pub struct FrameGraphTexture {

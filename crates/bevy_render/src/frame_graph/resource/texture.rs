@@ -13,6 +13,10 @@ impl Resource for FrameGraphTexture {
     fn borrow_resource(res: &AnyResource) -> &Self {
         match res {
             AnyResource::ImportedTexture(res) => res,
+            AnyResource::OwnedTexture(res) => res,
+            _ => {
+                unimplemented!()
+            }
         }
     }
 }

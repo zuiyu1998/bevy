@@ -1,8 +1,9 @@
+mod buffer;
 mod texture;
 
 use std::{marker::PhantomData, sync::Arc};
 
-use super::{FrameGraphTexture, TextureInfo};
+use super::{BufferInfo, FrameGraphBuffer, FrameGraphTexture, TextureInfo};
 
 use super::{PassNode, TypeHandle};
 
@@ -16,6 +17,7 @@ where
 #[derive(Clone)]
 pub enum ImportedVirtualResource {
     Texture(Arc<FrameGraphTexture>),
+    Buffer(Arc<FrameGraphBuffer>),
 }
 
 #[derive(Clone)]
@@ -117,13 +119,17 @@ impl ResourceState {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub enum AnyResourceDescriptor {
     Texture(TextureInfo),
+    Buffer(BufferInfo),
 }
 
 pub enum AnyResource {
-    ImportedTexture(FrameGraphTexture),
+    ImportedTexture(Arc<FrameGraphTexture>),
+    OwnedTexture(FrameGraphTexture),
+    ImportedBuffer(Arc<FrameGraphBuffer>),
+    OwnedBuffer(FrameGraphBuffer),
 }
 
 pub trait Resource: 'static {
