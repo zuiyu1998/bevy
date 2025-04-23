@@ -37,6 +37,7 @@ use bevy_asset::UntypedAssetId;
 use bevy_platform::collections::{HashMap, HashSet};
 use bevy_render::{
     batching::gpu_preprocessing::GpuPreprocessingMode,
+    frame_graph::{EmptySetup, SetupGraphApp},
     render_phase::PhaseItemBatchSetKey,
     view::{ExtractedView, RetainedViewEntity},
 };
@@ -97,6 +98,10 @@ impl Plugin for Core2dPlugin {
                     prepare_core_2d_depth_textures.in_set(RenderSet::PrepareResources),
                 ),
             );
+
+        render_app
+            .add_setup_sub_graph(Core2d)
+            .add_setup_graph_node::<EmptySetup>(Core2d, Node2d::StartMainPass);
 
         render_app
             .add_render_sub_graph(Core2d)

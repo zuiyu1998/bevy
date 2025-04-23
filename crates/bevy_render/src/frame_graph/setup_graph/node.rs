@@ -241,9 +241,9 @@ impl NodeState {
 }
 
 #[derive(Default)]
-pub struct EmptyNode;
+pub struct EmptySetup;
 
-impl Setup for EmptyNode {
+impl Setup for EmptySetup {
     fn run(
         &self,
         _graph: &mut SetupGraphContext,
