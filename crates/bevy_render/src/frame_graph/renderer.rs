@@ -5,7 +5,7 @@ use crate::{
     renderer::{RenderDevice, RenderQueue},
 };
 
-use super::{FrameGraph, RenderContext, SetupGraph, SetupGraphRunner};
+use super::{FrameGraph, RenderContext, SetupGraph, SetupGraphRunner, TransientResourceCache};
 
 pub fn setup_frame_graph_system(world: &mut World) {
     world.resource_scope(|world, mut graph: Mut<SetupGraph>| {
@@ -31,8 +31,9 @@ pub fn execute_frame_graph_system(
     render_device: Res<RenderDevice>,
     render_queue: Res<RenderQueue>,
     pipeline_cache: Res<PipelineCache>,
+    mut transient_resource_cache: ResMut<TransientResourceCache>,
 ) {
-    let mut render_context = RenderContext::new(&render_device, &pipeline_cache);
+    let mut render_context = RenderContext::new(&render_device, &pipeline_cache, &mut transient_resource_cache);
 
     frame_graph.execute(&mut render_context);
 

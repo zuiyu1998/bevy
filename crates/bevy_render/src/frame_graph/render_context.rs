@@ -10,23 +10,34 @@ use crate::{
 use super::{
     BindGroupRef, CommandBufferTrait, DeviceTrait, ErrorKind, FrameGraphBuffer,
     FrameGraphCommandBuffer, GpuRead, RenderPassInfo, ResourceRef, ResourceTable, Result,
+    TransientResourceCache,
 };
 
 pub struct RenderContext<'a> {
-    device: &'a RenderDevice,
-    command_buffer_queue: Vec<FrameGraphCommandBuffer>,
-    resource_table: ResourceTable,
-    pipeline_cache: &'a PipelineCache,
+    pub(crate) device: &'a RenderDevice,
+    pub(crate) command_buffer_queue: Vec<FrameGraphCommandBuffer>,
+    pub(crate) resource_table: ResourceTable,
+    pub(crate) pipeline_cache: &'a PipelineCache,
+    pub(crate) transient_resource_cache: &'a mut TransientResourceCache,
 }
 
 impl<'a> RenderContext<'a> {
-    pub fn new(device: &'a RenderDevice, pipeline_cache: &'a PipelineCache) -> Self {
+    pub fn new(
+        device: &'a RenderDevice,
+        pipeline_cache: &'a PipelineCache,
+        transient_resource_cache: &'a mut TransientResourceCache,
+    ) -> Self {
         Self {
             device,
             command_buffer_queue: vec![],
             resource_table: Default::default(),
             pipeline_cache,
+            transient_resource_cache,
         }
+    }
+
+    pub fn set_resource_table(&mut self, resource_table: ResourceTable) {
+        self.resource_table = resource_table;
     }
 
     pub fn begin_render_pass<'b>(
@@ -49,7 +60,6 @@ impl<'a> RenderContext<'a> {
     pub fn finish(self) -> Vec<FrameGraphCommandBuffer> {
         self.command_buffer_queue
     }
-
 }
 
 pub struct TrackedRenderPass<'a, 'b> {

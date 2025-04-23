@@ -149,6 +149,10 @@ pub struct RenderPassInfo {
     pub color_attachments: Vec<ColorAttachmentInfo>,
 }
 
+pub struct RenderPassInfoView {
+    pub color_attachments: Vec<ColorAttachmentInfo>,
+}
+
 #[derive(Clone)]
 pub struct ColorAttachmentInfo {
     pub view: ResourceRef<FrameGraphTexture, GpuRead>,

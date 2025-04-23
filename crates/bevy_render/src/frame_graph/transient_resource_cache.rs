@@ -1,8 +1,9 @@
 use std::collections::HashMap;
+use bevy_ecs::resource::Resource;
 
 use crate::frame_graph::{AnyResource, AnyResourceDescriptor};
 
-#[derive(Default)]
+#[derive(Default, Resource)]
 pub struct TransientResourceCache {
     resources: HashMap<AnyResourceDescriptor, Vec<AnyResource>>,
 }

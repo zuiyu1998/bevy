@@ -12,6 +12,7 @@ pub mod resource_board;
 pub mod resource_node;
 pub mod resource_table;
 pub mod setup_graph;
+pub mod transient_resource_cache;
 
 pub use device_pass::*;
 pub use error::*;
@@ -26,3 +27,4 @@ pub use resource_board::*;
 pub use resource_node::*;
 pub use resource_table::*;
 pub use setup_graph::*;
+pub use transient_resource_cache::*;
