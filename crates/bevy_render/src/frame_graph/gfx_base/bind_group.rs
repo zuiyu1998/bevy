@@ -20,7 +20,7 @@ pub struct BindGroupView<'a> {
     pub entries: &'a [wgpu::BindGroupEntry<'a>],
 }
 
-impl ResourceView for BindGroupView<'_> {
+impl<'a> ResourceView<'a> for BindGroupView<'a> {
     type ViewRef = BindGroupRef;
 
     fn prepare_view(_resource_table: &ResourceTable, _view_ref: &Self::ViewRef) -> Result<Self> {

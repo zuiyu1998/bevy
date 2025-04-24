@@ -29,16 +29,28 @@ impl FrameGraphCommandBuffer {
 impl CommandBufferTrait for FrameGraphCommandBuffer {
     fn begin_render_pass(
         &mut self,
-        _resource_table: &ResourceTable,
-        _render_pass_info: &RenderPassInfo,
+        resource_table: &ResourceTable,
+        render_pass_info: &RenderPassInfo,
     ) -> Result<()> {
         let mut command_encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
 
+        let render_pass_view = RenderPassView::prepare_view(&resource_table, &render_pass_info)?;
+
+        let mut color_attachments = vec![];
+        for color_attachment in render_pass_view.color_attachments.iter() {
+            color_attachments.push(ColorAttachment::new(color_attachment));
+        }
+
+        let color_attachments = color_attachments
+            .iter()
+            .map(|color_attachment| Some(color_attachment.get_render_pass_color_attachment()))
+            .collect::<Vec<_>>();
+
         let render_pass = command_encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: None,
-            color_attachments: &[],
+            color_attachments: &color_attachments,
             ..Default::default()
         });
 
@@ -149,8 +161,66 @@ pub struct RenderPassInfo {
     pub color_attachments: Vec<ColorAttachmentInfo>,
 }
 
-pub struct RenderPassInfoView {
-    pub color_attachments: Vec<ColorAttachmentInfo>,
+pub struct ColorAttachment {
+    pub view: wgpu::TextureView,
+    pub resolve_target: Option<wgpu::TextureView>,
+    pub ops: Operations<wgpu::Color>,
+}
+
+impl ColorAttachment {
+    pub fn get_render_pass_color_attachment(&self) -> wgpu::RenderPassColorAttachment {
+        wgpu::RenderPassColorAttachment {
+            view: &self.view,
+            resolve_target: self.resolve_target.as_ref(),
+            ops: self.ops.clone(),
+        }
+    }
+
+    pub fn new(color_attachment: &ColorAttachmentView) -> Self {
+        Self {
+            view: color_attachment
+                .view
+                .value
+                .create_view(&wgpu::TextureViewDescriptor {
+                    ..Default::default()
+                }),
+            resolve_target: color_attachment.resolve_target.map(|texture| {
+                texture.value.create_view(&wgpu::TextureViewDescriptor {
+                    ..Default::default()
+                })
+            }),
+            ops: color_attachment.ops.clone(),
+        }
+    }
+}
+
+pub struct RenderPassView<'a> {
+    pub color_attachments: Vec<ColorAttachmentView<'a>>,
+}
+
+impl<'a> ResourceView<'a> for RenderPassView<'a> {
+    type ViewRef = RenderPassInfo;
+    fn prepare_view(
+        resource_table: &'a ResourceTable,
+        view_ref: &'a Self::ViewRef,
+    ) -> Result<Self> {
+        let mut color_attachments = vec![];
+
+        for color_attachment in view_ref.color_attachments.iter() {
+            color_attachments.push(ColorAttachmentView::prepare_view(
+                resource_table,
+                &color_attachment,
+            )?);
+        }
+
+        Ok(RenderPassView { color_attachments })
+    }
+}
+
+pub struct ColorAttachmentView<'a> {
+    pub view: &'a FrameGraphTexture,
+    pub resolve_target: Option<&'a FrameGraphTexture>,
+    pub ops: Operations<wgpu::Color>,
 }
 
 #[derive(Clone)]
@@ -158,6 +228,34 @@ pub struct ColorAttachmentInfo {
     pub view: ResourceRef<FrameGraphTexture, GpuRead>,
     pub resolve_target: Option<ResourceRef<FrameGraphTexture, GpuRead>>,
     pub ops: Operations<wgpu::Color>,
+}
+
+impl<'a> ResourceView<'a> for ColorAttachmentView<'a> {
+    type ViewRef = ColorAttachmentInfo;
+    fn prepare_view(
+        resource_table: &'a ResourceTable,
+        view_ref: &'a Self::ViewRef,
+    ) -> Result<Self> {
+        let view = resource_table
+            .get_resource(&view_ref.view)
+            .ok_or(ErrorKind::ResourceNotFound)?;
+
+        let mut resolve_target = None;
+
+        if let Some(texture_ref) = view_ref.resolve_target.clone() {
+            let target = resource_table
+                .get_resource(&texture_ref)
+                .ok_or(ErrorKind::ResourceNotFound)?;
+
+            resolve_target = Some(target)
+        }
+
+        Ok(ColorAttachmentView {
+            view,
+            resolve_target,
+            ops: view_ref.ops.clone(),
+        })
+    }
 }
 
 pub trait CommandBufferTrait: 'static + Sync + Send {

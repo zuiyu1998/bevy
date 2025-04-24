@@ -71,8 +71,8 @@ impl ResourceTable {
     }
 }
 
-pub trait ResourceView: Sized {
+pub trait ResourceView<'a>: Sized {
     type ViewRef: 'static;
 
-    fn prepare_view(resource_table: &ResourceTable, view_ref: &Self::ViewRef) -> Result<Self>;
+    fn prepare_view(resource_table: &'a ResourceTable, view_ref: &'a Self::ViewRef) -> Result<Self>;
 }
