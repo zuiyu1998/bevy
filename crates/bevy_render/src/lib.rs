@@ -45,6 +45,7 @@ pub mod extract_component;
 pub mod extract_instances;
 mod extract_param;
 pub mod extract_resource;
+pub mod frame_graph;
 pub mod globals;
 pub mod gpu_component_array_buffer;
 pub mod gpu_readback;
