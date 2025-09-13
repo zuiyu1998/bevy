@@ -9,7 +9,7 @@ use bevy_image::ToExtents;
 use bevy_render::{
     camera::ExtractedCamera,
     render_resource::{TextureDescriptor, TextureDimension, TextureFormat, TextureUsages},
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     texture::{CachedTexture, TextureCache},
 };
 

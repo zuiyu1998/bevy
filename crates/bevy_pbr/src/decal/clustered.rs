@@ -37,7 +37,7 @@ use bevy_render::{
         binding_types, BindGroupLayoutEntryBuilder, Buffer, BufferUsages, RawBufferVec, Sampler,
         SamplerBindingType, ShaderType, TextureSampleType, TextureView,
     },
-    renderer::{RenderAdapter, RenderDevice, RenderQueue},
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     sync_component::SyncComponentPlugin,
     sync_world::RenderEntity,
     texture::{FallbackImage, GpuImage},

@@ -15,7 +15,7 @@ use bevy_math::{Affine3A, Mat4, Vec3A};
 use bevy_render::{
     extract_component::ComponentUniforms,
     render_resource::{binding_types::*, *},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     texture::{CachedTexture, TextureCache},
     view::{ExtractedView, Msaa, ViewDepthTexture, ViewUniform, ViewUniforms},
 };

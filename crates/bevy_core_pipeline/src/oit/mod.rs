@@ -12,7 +12,7 @@ use bevy_render::{
     extract_component::{ExtractComponent, ExtractComponentPlugin},
     render_graph::{RenderGraphExt, ViewNodeRunner},
     render_resource::{BufferUsages, BufferVec, DynamicUniformBuffer, ShaderType, TextureUsages},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     view::Msaa,
     Render, RenderApp, RenderStartup, RenderSystems,
 };

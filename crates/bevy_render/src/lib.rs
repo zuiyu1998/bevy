@@ -46,6 +46,7 @@ pub mod extract_instances;
 mod extract_param;
 pub mod extract_resource;
 pub mod frame_graph;
+pub mod gfx_base;
 pub mod globals;
 pub mod gpu_component_array_buffer;
 pub mod gpu_readback;
@@ -79,11 +80,12 @@ pub use extract_param::Extract;
 
 use crate::{
     camera::CameraPlugin,
+    gfx_base::RenderAdapterInfo,
     gpu_readback::GpuReadbackPlugin,
     mesh::{MeshPlugin, MorphPlugin, RenderMesh},
     render_asset::prepare_assets,
     render_resource::{init_empty_bind_group_layout, PipelineCache},
-    renderer::{render_system, RenderAdapterInfo},
+    renderer::render_system,
     settings::RenderCreation,
     storage::StoragePlugin,
     texture::TexturePlugin,

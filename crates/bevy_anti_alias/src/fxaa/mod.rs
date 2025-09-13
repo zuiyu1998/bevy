@@ -16,7 +16,7 @@ use bevy_render::{
         binding_types::{sampler, texture_2d},
         *,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     view::{ExtractedView, ViewTarget},
     Render, RenderApp, RenderStartup, RenderSystems,
 };

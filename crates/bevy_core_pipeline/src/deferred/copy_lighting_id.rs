@@ -10,7 +10,7 @@ use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
     render_resource::{binding_types::texture_2d, *},
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     texture::{CachedTexture, TextureCache},
     view::ViewTarget,
     Render, RenderApp, RenderStartup, RenderSystems,

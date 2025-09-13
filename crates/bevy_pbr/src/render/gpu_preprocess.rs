@@ -37,6 +37,7 @@ use bevy_render::{
     },
     diagnostic::RecordDiagnostics,
     experimental::occlusion_culling::OcclusionCulling,
+    gfx_base::{RenderDevice, RenderQueue},
     render_graph::{Node, NodeRunError, RenderGraphContext, RenderGraphExt},
     render_resource::{
         binding_types::{storage_buffer, storage_buffer_read_only, texture_2d, uniform_buffer},
@@ -46,7 +47,7 @@ use bevy_render::{
         ShaderStages, ShaderType, SpecializedComputePipeline, SpecializedComputePipelines,
         TextureSampleType, UninitBufferVec,
     },
-    renderer::{RenderContext, RenderDevice, RenderQueue},
+    renderer::RenderContext,
     settings::WgpuFeatures,
     view::{ExtractedView, NoIndirectDrawing, ViewUniform, ViewUniformOffset, ViewUniforms},
     Render, RenderApp, RenderSystems,

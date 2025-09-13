@@ -8,7 +8,7 @@ use bevy_render::{
         Extent3d, ShaderType, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages,
         TextureView, UniformBuffer,
     },
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 use thiserror::Error;
 

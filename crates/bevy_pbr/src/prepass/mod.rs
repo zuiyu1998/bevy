@@ -31,7 +31,7 @@ use bevy_render::{
     render_asset::{prepare_assets, RenderAssets},
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    renderer::{RenderAdapter, RenderDevice, RenderQueue},
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     sync_world::RenderEntity,
     view::{
         ExtractedView, Msaa, RenderVisibilityRanges, RetainedViewEntity, ViewUniform,

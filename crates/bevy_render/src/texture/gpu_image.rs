@@ -1,7 +1,7 @@
 use crate::{
     render_asset::{PrepareAssetError, RenderAsset},
     render_resource::{DefaultImageSampler, Sampler, Texture, TextureView},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 use bevy_asset::{AssetId, RenderAssetUsages};
 use bevy_ecs::system::{lifetimeless::SRes, SystemParamItem};

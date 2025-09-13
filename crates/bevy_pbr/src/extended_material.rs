@@ -12,7 +12,7 @@ use bevy_render::{
         BindlessResourceType, BindlessSlabResourceLimit, RenderPipelineDescriptor,
         SpecializedMeshPipelineError, UnpreparedBindGroup,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
 };
 use bevy_shader::ShaderRef;
 

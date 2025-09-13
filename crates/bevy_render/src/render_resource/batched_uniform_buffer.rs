@@ -1,7 +1,7 @@
 use super::{GpuArrayBufferIndex, GpuArrayBufferable};
 use crate::{
     render_resource::DynamicUniformBuffer,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 use core::{marker::PhantomData, num::NonZero};
 use encase::{

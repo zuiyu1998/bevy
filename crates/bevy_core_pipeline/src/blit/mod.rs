@@ -7,7 +7,7 @@ use bevy_render::{
         binding_types::{sampler, texture_2d},
         *,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     RenderApp, RenderStartup,
 };
 use bevy_shader::Shader;

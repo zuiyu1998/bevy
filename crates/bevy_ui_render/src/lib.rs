@@ -40,6 +40,7 @@ use bevy_ecs::system::SystemParam;
 use bevy_image::{prelude::*, TRANSPARENT_IMAGE_HANDLE};
 use bevy_math::{Affine2, FloatOrd, Mat4, Rect, UVec4, Vec2};
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     render_asset::RenderAssets,
     render_graph::{Node as RenderGraphNode, NodeRunError, RenderGraph, RenderGraphContext},
     render_phase::{
@@ -47,7 +48,7 @@ use bevy_render::{
         ViewSortedRenderPhases,
     },
     render_resource::*,
-    renderer::{RenderContext, RenderDevice, RenderQueue},
+    renderer::RenderContext,
     sync_world::{MainEntity, RenderEntity, TemporaryRenderEntity},
     texture::GpuImage,
     view::{ExtractedView, Hdr, RetainedViewEntity, ViewUniforms},

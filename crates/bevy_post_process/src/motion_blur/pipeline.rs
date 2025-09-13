@@ -20,7 +20,7 @@ use bevy_render::{
         SamplerBindingType, SamplerDescriptor, ShaderStages, ShaderType, SpecializedRenderPipeline,
         SpecializedRenderPipelines, TextureFormat, TextureSampleType,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     view::{ExtractedView, Msaa, ViewTarget},
 };
 use bevy_shader::{Shader, ShaderDefVal};

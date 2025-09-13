@@ -9,11 +9,12 @@ use thiserror::Error;
 
 use crate::{
     diagnostic::internal::{DiagnosticsRecorder, RenderDiagnosticsMutex},
+    gfx_base::RenderDevice,
     render_graph::{
         Edge, InternedRenderLabel, InternedRenderSubGraph, NodeRunError, NodeState, RenderGraph,
         RenderGraphContext, SlotLabel, SlotType, SlotValue,
     },
-    renderer::{RenderContext, RenderDevice},
+    renderer::RenderContext,
 };
 
 /// The [`RenderGraphRunner`] is responsible for executing a [`RenderGraph`].

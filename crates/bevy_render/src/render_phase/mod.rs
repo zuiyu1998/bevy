@@ -47,7 +47,7 @@ use crate::batching::gpu_preprocessing::{
     GpuPreprocessingMode, GpuPreprocessingSupport, PhaseBatchedInstanceBuffers,
     PhaseIndirectParametersBuffers,
 };
-use crate::renderer::RenderDevice;
+use crate::gfx_base::RenderDevice;
 use crate::sync_world::{MainEntity, MainEntityHashMap};
 use crate::view::RetainedViewEntity;
 use crate::RenderDebugFlags;
@@ -67,7 +67,7 @@ use bevy_ecs::{
     prelude::*,
     system::{lifetimeless::SRes, SystemParamItem},
 };
-use bevy_render::renderer::RenderAdapterInfo;
+use bevy_render::gfx_base::RenderAdapterInfo;
 pub use bevy_render_macros::ShaderLabel;
 use core::{fmt::Debug, hash::Hash, iter, marker::PhantomData, ops::Range, slice::SliceIndex};
 use smallvec::SmallVec;

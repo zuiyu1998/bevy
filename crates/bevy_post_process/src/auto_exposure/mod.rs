@@ -8,7 +8,7 @@ use bevy_render::{
     render_resource::{
         Buffer, BufferDescriptor, BufferUsages, PipelineCache, SpecializedComputePipelines,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     ExtractSchedule, Render, RenderApp, RenderStartup, RenderSystems,
 };
 

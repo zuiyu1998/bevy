@@ -1,6 +1,6 @@
 use crate::{
     render_resource::*,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     texture::{DefaultImageSampler, GpuImage},
 };
 use bevy_asset::RenderAssetUsages;

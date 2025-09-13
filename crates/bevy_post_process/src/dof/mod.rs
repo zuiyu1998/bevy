@@ -34,6 +34,7 @@ use bevy_reflect::{prelude::ReflectDefault, Reflect};
 use bevy_render::{
     diagnostic::RecordDiagnostics,
     extract_component::{ComponentUniforms, DynamicUniformIndex, UniformComponentPlugin},
+    gfx_base::RenderDevice,
     render_graph::{
         NodeRunError, RenderGraphContext, RenderGraphExt as _, ViewNode, ViewNodeRunner,
     },
@@ -48,7 +49,7 @@ use bevy_render::{
         ShaderType, SpecializedRenderPipeline, SpecializedRenderPipelines, StoreOp,
         TextureDescriptor, TextureDimension, TextureFormat, TextureSampleType, TextureUsages,
     },
-    renderer::{RenderContext, RenderDevice},
+    renderer::RenderContext,
     sync_component::SyncComponentPlugin,
     sync_world::RenderEntity,
     texture::{CachedTexture, TextureCache},

@@ -15,7 +15,7 @@ use bevy_render::{
         FragmentState, MultisampleState, PipelineCache, RenderPipelineDescriptor, ShaderStages,
         SpecializedRenderPipeline, SpecializedRenderPipelines,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     view::{Msaa, ViewUniform, ViewUniforms},
 };
 use bevy_shader::Shader;

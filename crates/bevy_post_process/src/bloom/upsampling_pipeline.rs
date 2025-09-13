@@ -14,7 +14,7 @@ use bevy_render::{
         binding_types::{sampler, texture_2d, uniform_buffer},
         *,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     view::ViewTarget,
 };
 use bevy_shader::Shader;

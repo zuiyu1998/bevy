@@ -8,7 +8,7 @@ use bevy_render::{
     render_resource::{
         BindingResource, BufferBindingType, ShaderSize, ShaderType, StorageBuffer, UniformBuffer,
     },
-    renderer::{RenderAdapter, RenderDevice, RenderQueue},
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     sync_world::RenderEntity,
     Extract,
 };

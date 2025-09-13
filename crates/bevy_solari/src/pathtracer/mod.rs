@@ -10,7 +10,7 @@ use bevy_ecs::{component::Component, reflect::ReflectComponent, schedule::IntoSc
 use bevy_reflect::{std_traits::ReflectDefault, Reflect};
 use bevy_render::{
     render_graph::{RenderGraphExt, ViewNodeRunner},
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     view::Hdr,
     ExtractSchedule, Render, RenderApp, RenderSystems,
 };

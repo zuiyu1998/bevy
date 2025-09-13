@@ -122,7 +122,7 @@ use {
             BindGroupLayoutEntries, Buffer, BufferInitDescriptor, BufferUsages, ShaderStages,
             ShaderType, VertexFormat,
         },
-        renderer::RenderDevice,
+        gfx_base::RenderDevice,
         sync_world::{MainEntity, TemporaryRenderEntity},
         Extract, ExtractSchedule, Render, RenderApp, RenderStartup, RenderSystems,
     },

@@ -23,7 +23,7 @@ use bevy_render::{
         Buffer, BufferDescriptor, BufferUsages, Texture, TextureDescriptor, TextureDimension,
         TextureFormat, TextureUsages, TextureView, TextureViewDescriptor,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
 };
 
 /// Size of the `LightSample` shader struct in bytes.

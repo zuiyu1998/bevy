@@ -1,6 +1,6 @@
 use wgpu::CommandEncoder;
 
-use crate::renderer::RenderDevice;
+use crate::gfx_base::RenderDevice;
 
 pub struct RenderContext {
     render_device: RenderDevice,

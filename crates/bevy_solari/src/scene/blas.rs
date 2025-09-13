@@ -13,7 +13,7 @@ use bevy_render::{
     },
     render_asset::ExtractedAssets,
     render_resource::*,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 
 /// After compacting this many vertices worth of meshes per frame, no further BLAS will be compacted.

@@ -1,7 +1,6 @@
-use crate::renderer::WgpuWrapper;
 use crate::{
     render_resource::{SurfaceTexture, TextureView},
-    renderer::{RenderAdapter, RenderDevice, RenderInstance},
+    gfx_base::{RenderAdapter, RenderDevice, RenderInstance, WgpuWrapper},
     Extract, ExtractSchedule, Render, RenderApp, RenderSystems,
 };
 use bevy_app::{App, Plugin};

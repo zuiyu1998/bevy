@@ -40,7 +40,7 @@ use bevy_render::{
         CachedRenderPipelineId, PipelineCache, RenderPipelineDescriptor, SpecializedMeshPipeline,
         SpecializedMeshPipelineError, SpecializedMeshPipelines,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     sync_world::{MainEntity, MainEntityHashMap},
     view::{ExtractedView, RenderVisibleEntities},
     Extract, ExtractSchedule, Render, RenderApp, RenderStartup, RenderSystems,

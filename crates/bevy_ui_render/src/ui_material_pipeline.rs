@@ -17,7 +17,7 @@ use bevy_render::{
     render_asset::{PrepareAssetError, RenderAsset, RenderAssetPlugin, RenderAssets},
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     sync_world::{MainEntity, TemporaryRenderEntity},
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,

@@ -44,12 +44,13 @@ use bevy_render::{
 };
 use bevy_render::{
     diagnostic::RecordDiagnostics,
+    renderer::RenderContext,
+    gfx_base::{RenderDevice, RenderQueue},
     mesh::RenderMesh,
     render_asset::RenderAssets,
     render_graph::{Node, NodeRunError, RenderGraphContext},
     render_phase::*,
     render_resource::*,
-    renderer::{RenderContext, RenderDevice, RenderQueue},
     texture::*,
     view::ExtractedView,
     Extract,

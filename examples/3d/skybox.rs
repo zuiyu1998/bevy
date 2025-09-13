@@ -11,7 +11,7 @@ use bevy::{
     prelude::*,
     render::{
         render_resource::{TextureViewDescriptor, TextureViewDimension},
-        renderer::RenderDevice,
+        gfx_base::RenderDevice,
     },
 };
 use camera_controller::{CameraController, CameraControllerPlugin};

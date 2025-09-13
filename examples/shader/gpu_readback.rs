@@ -6,6 +6,7 @@ use bevy::{
     prelude::*,
     render::{
         extract_resource::{ExtractResource, ExtractResourcePlugin},
+        gfx_base::RenderDevice,
         gpu_readback::{Readback, ReadbackComplete},
         render_asset::RenderAssets,
         render_graph::{self, RenderGraph, RenderLabel},
@@ -13,7 +14,7 @@ use bevy::{
             binding_types::{storage_buffer, texture_storage_2d},
             *,
         },
-        renderer::{RenderContext, RenderDevice},
+        renderer::RenderContext,
         storage::{GpuShaderStorageBuffer, ShaderStorageBuffer},
         texture::GpuImage,
         Render, RenderApp, RenderStartup, RenderSystems,

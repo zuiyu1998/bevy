@@ -2,7 +2,7 @@ use bevy_ecs::prelude::*;
 use bevy_platform::collections::{hash_map::Entry, HashMap};
 use bevy_render::{
     render_resource::{StorageBuffer, UniformBuffer},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     sync_world::RenderEntity,
     Extract,
 };

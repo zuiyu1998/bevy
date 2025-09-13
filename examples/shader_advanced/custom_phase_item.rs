@@ -33,7 +33,7 @@ use bevy::{
             RenderPipeline, RenderPipelineDescriptor, Specializer, SpecializerKey, TextureFormat,
             Variants, VertexAttribute, VertexFormat, VertexState, VertexStepMode,
         },
-        renderer::{RenderDevice, RenderQueue},
+        gfx_base::{RenderDevice, RenderQueue},
         view::{ExtractedView, RenderVisibleEntities},
         Render, RenderApp, RenderSystems,
     },

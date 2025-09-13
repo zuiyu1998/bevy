@@ -7,7 +7,7 @@ use bevy_render::sync_world::MainEntityHashMap;
 use bevy_render::{
     batching::NoAutomaticBatching,
     render_resource::{BufferUsages, RawBufferVec},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     Extract,
 };
 use bytemuck::NoUninit;

@@ -11,7 +11,7 @@ use bevy::{
             binding_types::{sampler, texture_2d},
             *,
         },
-        renderer::RenderDevice,
+        gfx_base::RenderDevice,
         texture::{FallbackImage, GpuImage},
         RenderApp, RenderStartup,
     },

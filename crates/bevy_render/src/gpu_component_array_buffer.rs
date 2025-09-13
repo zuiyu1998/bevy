@@ -1,6 +1,6 @@
 use crate::{
     render_resource::{GpuArrayBuffer, GpuArrayBufferable},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     Render, RenderApp, RenderSystems,
 };
 use bevy_app::{App, Plugin};

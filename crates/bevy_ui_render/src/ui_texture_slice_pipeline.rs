@@ -18,7 +18,7 @@ use bevy_render::{
     render_asset::RenderAssets,
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     texture::GpuImage,
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,

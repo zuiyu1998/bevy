@@ -105,7 +105,7 @@ use bevy_render::{
         CachedRenderPipelineId, FilterMode, Sampler, SamplerDescriptor, Texture, TextureDescriptor,
         TextureDimension, TextureFormat, TextureUsages, TextureView,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     sync_world::{MainEntity, RenderEntity},
     texture::{ColorAttachment, TextureCache},
     view::{ExtractedView, ViewDepthTexture, ViewTarget},

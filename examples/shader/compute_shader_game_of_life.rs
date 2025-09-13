@@ -8,13 +8,14 @@ use bevy::{
     prelude::*,
     render::{
         extract_resource::{ExtractResource, ExtractResourcePlugin},
+        gfx_base::{RenderDevice, RenderQueue},
         render_asset::RenderAssets,
         render_graph::{self, RenderGraph, RenderLabel},
         render_resource::{
             binding_types::{texture_storage_2d, uniform_buffer},
             *,
         },
-        renderer::{RenderContext, RenderDevice, RenderQueue},
+        renderer::RenderContext,
         texture::GpuImage,
         Render, RenderApp, RenderStartup, RenderSystems,
     },

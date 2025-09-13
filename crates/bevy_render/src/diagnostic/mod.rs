@@ -11,13 +11,14 @@ use core::marker::PhantomData;
 
 use bevy_app::{App, Plugin, PreUpdate};
 
-use crate::{renderer::RenderAdapterInfo, RenderApp};
-
 use self::internal::{
     sync_diagnostics, DiagnosticsRecorder, Pass, RenderDiagnosticsMutex, WriteTimestamp,
 };
 
-use crate::renderer::{RenderDevice, RenderQueue};
+use crate::{
+    gfx_base::{RenderAdapterInfo, RenderDevice, RenderQueue},
+    RenderApp,
+};
 
 /// Enables collecting render diagnostics, such as CPU/GPU elapsed time per render pass,
 /// as well as pipeline statistics (number of primitives, number of shader invocations, etc).

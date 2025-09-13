@@ -1,7 +1,7 @@
 use crate::{
     extract_resource::ExtractResource,
     render_resource::{ShaderType, UniformBuffer},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     Extract, ExtractSchedule, Render, RenderApp, RenderSystems,
 };
 use bevy_app::{App, Plugin};

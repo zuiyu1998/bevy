@@ -1,6 +1,6 @@
 use crate::{
     render_resource::{Texture, TextureView},
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
 };
 use bevy_ecs::{prelude::ResMut, resource::Resource};
 use bevy_platform::collections::{hash_map::Entry, HashMap};

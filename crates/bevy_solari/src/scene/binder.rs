@@ -14,7 +14,7 @@ use bevy_render::{
     mesh::allocator::MeshAllocator,
     render_asset::RenderAssets,
     render_resource::{binding_types::*, *},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     texture::{FallbackImage, GpuImage},
 };
 use bevy_transform::components::GlobalTransform;

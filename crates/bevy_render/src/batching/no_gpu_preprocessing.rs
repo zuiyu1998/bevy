@@ -15,7 +15,7 @@ use crate::{
         ViewBinnedRenderPhases, ViewSortedRenderPhases,
     },
     render_resource::{GpuArrayBuffer, GpuArrayBufferable},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 
 use super::{GetBatchData, GetFullBatchData};

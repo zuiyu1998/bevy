@@ -2,7 +2,7 @@ use core::{iter, marker::PhantomData};
 
 use crate::{
     render_resource::Buffer,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 use bytemuck::{must_cast_slice, NoUninit};
 use encase::{

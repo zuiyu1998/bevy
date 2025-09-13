@@ -55,6 +55,7 @@ use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
     extract_component::{ExtractComponent, ExtractComponentPlugin},
+    gfx_base::{RenderDevice, RenderQueue},
     render_asset::RenderAssets,
     render_graph::{
         NodeRunError, RenderGraphContext, RenderGraphExt as _, ViewNode, ViewNodeRunner,
@@ -71,7 +72,7 @@ use bevy_render::{
         TextureDimension, TextureFormat, TextureSampleType, TextureUsages, TextureView,
         VertexState,
     },
-    renderer::{RenderContext, RenderDevice, RenderQueue},
+    renderer::RenderContext,
     texture::{CachedTexture, GpuImage, TextureCache},
     view::{ExtractedView, ViewTarget},
     Render, RenderApp, RenderStartup, RenderSystems,

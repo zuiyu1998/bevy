@@ -21,6 +21,7 @@ use bevy_render::{
     camera::{ExtractedCamera, TemporalJitter},
     diagnostic::RecordDiagnostics,
     extract_component::ExtractComponent,
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     globals::{GlobalsBuffer, GlobalsUniform},
     render_graph::{NodeRunError, RenderGraphContext, RenderGraphExt, ViewNode, ViewNodeRunner},
     render_resource::{
@@ -29,7 +30,7 @@ use bevy_render::{
         },
         *,
     },
-    renderer::{RenderAdapter, RenderContext, RenderDevice, RenderQueue},
+    renderer::RenderContext,
     sync_component::SyncComponentPlugin,
     sync_world::RenderEntity,
     texture::{CachedTexture, TextureCache},

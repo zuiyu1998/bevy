@@ -29,6 +29,7 @@ use bevy_render::{
     camera::{extract_cameras, ExtractedCamera},
     diagnostic::RecordDiagnostics,
     extract_resource::ExtractResource,
+    gfx_base::RenderDevice,
     mesh::{
         allocator::{MeshAllocator, SlabId},
         RenderMesh,
@@ -45,7 +46,7 @@ use bevy_render::{
         SetItemPipeline, TrackedRenderPass, ViewBinnedRenderPhases,
     },
     render_resource::*,
-    renderer::{RenderContext, RenderDevice},
+    renderer::RenderContext,
     sync_world::{MainEntity, MainEntityHashMap},
     view::{
         ExtractedView, NoIndirectDrawing, RenderVisibilityRanges, RenderVisibleEntities,

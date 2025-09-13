@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     render_resource::batched_uniform_buffer::BatchedUniformBuffer,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 use bevy_ecs::{prelude::Component, resource::Resource};
 use core::marker::PhantomData;

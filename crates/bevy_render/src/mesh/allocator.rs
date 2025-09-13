@@ -30,7 +30,7 @@ use crate::{
     mesh::{Mesh, MeshVertexBufferLayouts, RenderMesh},
     render_asset::{prepare_assets, ExtractedAssets},
     render_resource::Buffer,
-    renderer::{RenderAdapter, RenderDevice, RenderQueue},
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     Render, RenderApp, RenderSystems,
 };
 

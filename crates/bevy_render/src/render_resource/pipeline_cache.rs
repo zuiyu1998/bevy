@@ -1,6 +1,6 @@
 use crate::{
     render_resource::*,
-    renderer::{RenderAdapter, RenderDevice, WgpuWrapper},
+    gfx_base::{RenderAdapter, RenderDevice, WgpuWrapper},
     Extract,
 };
 use alloc::{borrow::Cow, sync::Arc};

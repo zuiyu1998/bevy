@@ -1,4 +1,4 @@
-use crate::renderer::{
+use crate::gfx_base::{
     RenderAdapter, RenderAdapterInfo, RenderDevice, RenderInstance, RenderQueue,
 };
 use alloc::borrow::Cow;

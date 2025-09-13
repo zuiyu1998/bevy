@@ -22,7 +22,7 @@ use bevy_render::{
         binding_types::{sampler, texture_cube, uniform_buffer},
         *,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     texture::GpuImage,
     view::{ExtractedView, Msaa, ViewTarget, ViewUniform, ViewUniforms},
     Render, RenderApp, RenderStartup, RenderSystems,

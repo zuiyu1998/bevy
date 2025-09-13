@@ -952,7 +952,7 @@ pub fn derive_as_bind_group(ast: syn::DeriveInput) -> Result<TokenStream> {
             Some(ref bindless_count) => {
                 let bindless_supported_syntax = quote! {
                         fn bindless_supported(
-                            render_device: &#render_path::renderer::RenderDevice
+                            render_device: &#render_path::gfx_base::RenderDevice
                         ) -> bool {
                             render_device.features().contains(
                                 #render_path::settings::WgpuFeatures::BUFFER_BINDING_ARRAY |
@@ -1058,7 +1058,7 @@ pub fn derive_as_bind_group(ast: syn::DeriveInput) -> Result<TokenStream> {
             fn unprepared_bind_group(
                 &self,
                 layout: &#render_path::render_resource::BindGroupLayout,
-                render_device: &#render_path::renderer::RenderDevice,
+                render_device: &#render_path::gfx_base::RenderDevice,
                 (images, fallback_image, storage_buffers): &mut #ecs_path::system::SystemParamItem<'_, '_, Self::Param>,
                 force_no_bindless: bool,
             ) -> Result<#render_path::render_resource::UnpreparedBindGroup, #render_path::render_resource::AsBindGroupError> {
@@ -1077,7 +1077,7 @@ pub fn derive_as_bind_group(ast: syn::DeriveInput) -> Result<TokenStream> {
             }
 
             fn bind_group_layout_entries(
-                render_device: &#render_path::renderer::RenderDevice,
+                render_device: &#render_path::gfx_base::RenderDevice,
                 force_no_bindless: bool
             ) -> Vec<#render_path::render_resource::BindGroupLayoutEntry> {
                 #actual_bindless_slot_count_declaration

@@ -12,7 +12,7 @@ use bevy_render::sync_world::{MainEntity, MainEntityHashMap, MainEntityHashSet};
 use bevy_render::{
     batching::NoAutomaticBatching,
     render_resource::BufferUsages,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     Extract,
 };
 use bevy_transform::prelude::GlobalTransform;

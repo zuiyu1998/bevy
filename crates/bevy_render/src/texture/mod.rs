@@ -14,7 +14,7 @@ pub use texture_cache::*;
 
 use crate::{
     extract_resource::ExtractResourcePlugin, render_asset::RenderAssetPlugin,
-    renderer::RenderDevice, Render, RenderApp, RenderSystems,
+    gfx_base::RenderDevice, Render, RenderApp, RenderSystems,
 };
 use bevy_app::{App, Plugin};
 use bevy_asset::AssetApp;

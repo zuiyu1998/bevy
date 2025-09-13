@@ -15,7 +15,7 @@ use bevy_render::{
         BlendState, CachedRenderPipelineId, ColorTargetState, ColorWrites, DownlevelFlags,
         FragmentState, PipelineCache, RenderPipelineDescriptor, ShaderStages, TextureFormat,
     },
-    renderer::{RenderAdapter, RenderDevice},
+    gfx_base::{RenderAdapter, RenderDevice},
     view::{ExtractedView, ViewTarget, ViewUniform, ViewUniforms},
     Render, RenderApp, RenderSystems,
 };

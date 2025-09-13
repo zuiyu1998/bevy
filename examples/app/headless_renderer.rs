@@ -19,13 +19,14 @@ use bevy::{
     image::TextureFormatPixelInfo,
     prelude::*,
     render::{
+        gfx_base::{RenderDevice, RenderQueue},
         render_asset::RenderAssets,
         render_graph::{self, NodeRunError, RenderGraph, RenderGraphContext, RenderLabel},
         render_resource::{
             Buffer, BufferDescriptor, BufferUsages, CommandEncoderDescriptor, Extent3d, MapMode,
             PollType, TexelCopyBufferInfo, TexelCopyBufferLayout, TextureFormat, TextureUsages,
         },
-        renderer::{RenderContext, RenderDevice, RenderQueue},
+        renderer::RenderContext,
         Extract, Render, RenderApp, RenderSystems,
     },
     window::ExitCondition,

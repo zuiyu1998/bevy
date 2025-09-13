@@ -7,6 +7,7 @@ use bevy_ecs::{
 };
 use bevy_render::{
     camera::ExtractedCamera,
+    gfx_base::RenderDevice,
     render_graph::{NodeRunError, RenderGraphContext, ViewNode},
     render_resource::{
         binding_types::{texture_storage_2d, uniform_buffer},
@@ -14,7 +15,7 @@ use bevy_render::{
         ComputePassDescriptor, ComputePipelineDescriptor, ImageSubresourceRange, PipelineCache,
         ShaderStages, StorageTextureAccess, TextureFormat,
     },
-    renderer::{RenderContext, RenderDevice},
+    renderer::RenderContext,
     view::{ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms},
 };
 use bevy_utils::default;

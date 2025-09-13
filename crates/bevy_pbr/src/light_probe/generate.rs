@@ -27,6 +27,7 @@ use bevy_image::Image;
 use bevy_math::{Quat, UVec2, Vec2};
 use bevy_render::{
     diagnostic::RecordDiagnostics,
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     render_asset::RenderAssets,
     render_graph::{Node, NodeRunError, RenderGraphContext, RenderGraphExt, RenderLabel},
     render_resource::{
@@ -38,7 +39,7 @@ use bevy_render::{
         TextureFormatFeatureFlags, TextureSampleType, TextureUsages, TextureView,
         TextureViewDescriptor, TextureViewDimension, UniformBuffer,
     },
-    renderer::{RenderAdapter, RenderContext, RenderDevice, RenderQueue},
+    renderer::RenderContext,
     settings::WgpuFeatures,
     sync_component::SyncComponentPlugin,
     sync_world::RenderEntity,

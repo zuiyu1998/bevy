@@ -21,6 +21,7 @@ use bevy_reflect::{std_traits::ReflectDefault, Reflect};
 use bevy_render::{
     camera::{ExtractedCamera, MipBias, TemporalJitter},
     diagnostic::RecordDiagnostics,
+    gfx_base::RenderDevice,
     render_graph::{NodeRunError, RenderGraphContext, RenderGraphExt, ViewNode, ViewNodeRunner},
     render_resource::{
         binding_types::{sampler, texture_2d, texture_depth_2d},
@@ -31,7 +32,7 @@ use bevy_render::{
         SpecializedRenderPipelines, TextureDescriptor, TextureDimension, TextureFormat,
         TextureSampleType, TextureUsages,
     },
-    renderer::{RenderContext, RenderDevice},
+    renderer::RenderContext,
     sync_component::SyncComponentPlugin,
     sync_world::RenderEntity,
     texture::{CachedTexture, TextureCache},

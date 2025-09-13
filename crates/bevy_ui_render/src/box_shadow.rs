@@ -21,7 +21,7 @@ use bevy_render::sync_world::{MainEntity, TemporaryRenderEntity};
 use bevy_render::{
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,
 };

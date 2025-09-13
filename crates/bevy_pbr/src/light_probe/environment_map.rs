@@ -56,7 +56,7 @@ use bevy_render::{
         BindGroupLayoutEntryBuilder, Sampler, SamplerBindingType, ShaderStages, TextureSampleType,
         TextureView,
     },
-    renderer::{RenderAdapter, RenderDevice},
+    gfx_base::{RenderAdapter, RenderDevice},
     texture::{FallbackImage, GpuImage},
 };
 

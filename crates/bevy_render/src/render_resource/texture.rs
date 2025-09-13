@@ -1,5 +1,5 @@
 use crate::define_atomic_id;
-use crate::renderer::WgpuWrapper;
+use crate::gfx_base::WgpuWrapper;
 use bevy_derive::{Deref, DerefMut};
 use bevy_ecs::resource::Resource;
 use core::ops::Deref;

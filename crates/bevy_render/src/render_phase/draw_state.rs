@@ -4,7 +4,7 @@ use crate::{
         BindGroup, BindGroupId, Buffer, BufferId, BufferSlice, RenderPipeline, RenderPipelineId,
         ShaderStages,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
 };
 use bevy_camera::Viewport;
 use bevy_color::LinearRgba;

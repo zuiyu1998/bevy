@@ -25,7 +25,7 @@ use bevy::{
             OwnedBindingResource, Sampler, SamplerBindingType, SamplerDescriptor, ShaderStages,
             TextureSampleType, TextureViewDimension, UnpreparedBindGroup,
         },
-        renderer::RenderDevice,
+        gfx_base::RenderDevice,
         sync_world::MainEntity,
         texture::GpuImage,
         view::ExtractedView,

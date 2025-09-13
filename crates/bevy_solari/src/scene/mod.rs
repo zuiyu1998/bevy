@@ -18,7 +18,7 @@ use bevy_render::{
     },
     render_asset::prepare_assets,
     render_resource::BufferUsages,
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     ExtractSchedule, Render, RenderApp, RenderSystems,
 };
 use binder::prepare_raytracing_scene_bindings;

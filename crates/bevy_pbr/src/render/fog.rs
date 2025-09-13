@@ -5,7 +5,7 @@ use bevy_math::{Vec3, Vec4};
 use bevy_render::{
     extract_component::ExtractComponentPlugin,
     render_resource::{DynamicUniformBuffer, ShaderType},
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     view::ExtractedView,
     Render, RenderApp, RenderSystems,
 };

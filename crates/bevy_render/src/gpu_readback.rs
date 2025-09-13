@@ -1,11 +1,12 @@
 use crate::{
     extract_component::ExtractComponentPlugin,
+    gfx_base::RenderDevice,
     render_asset::RenderAssets,
     render_resource::{
         Buffer, BufferUsages, CommandEncoder, Extent3d, TexelCopyBufferLayout, Texture,
         TextureFormat,
     },
-    renderer::{render_system, RenderDevice},
+    renderer::render_system,
     storage::{GpuShaderStorageBuffer, ShaderStorageBuffer},
     sync_world::MainEntity,
     texture::GpuImage,

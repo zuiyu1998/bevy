@@ -141,7 +141,7 @@ use bevy_render::{
         binding_types, BindGroupLayoutEntryBuilder, Sampler, SamplerBindingType, TextureSampleType,
         TextureView,
     },
-    renderer::{RenderAdapter, RenderDevice},
+    gfx_base::{RenderAdapter, RenderDevice},
     texture::{FallbackImage, GpuImage},
 };
 use core::{num::NonZero, ops::Deref};

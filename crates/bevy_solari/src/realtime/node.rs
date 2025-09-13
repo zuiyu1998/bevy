@@ -17,6 +17,7 @@ use bevy_ecs::{
 use bevy_image::ToExtents;
 use bevy_render::{
     diagnostic::RecordDiagnostics,
+    gfx_base::RenderDevice,
     render_graph::{NodeRunError, RenderGraphContext, ViewNode},
     render_resource::{
         binding_types::{
@@ -26,7 +27,7 @@ use bevy_render::{
         ComputePassDescriptor, ComputePipelineDescriptor, PipelineCache, PushConstantRange,
         ShaderStages, StorageTextureAccess, TextureFormat, TextureSampleType,
     },
-    renderer::{RenderContext, RenderDevice},
+    renderer::RenderContext,
     view::{ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms},
 };
 use bevy_shader::{Shader, ShaderDefVal};

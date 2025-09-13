@@ -7,7 +7,7 @@ use bevy_image::Image;
 use bevy_render::{
     globals::GlobalsUniform,
     render_resource::{binding_types::*, *},
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     view::ViewUniform,
 };
 use bevy_shader::Shader;

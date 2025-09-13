@@ -39,16 +39,15 @@ use bevy_render::erased_render_asset::{
     ErasedRenderAsset, ErasedRenderAssetPlugin, ErasedRenderAssets, PrepareAssetError,
 };
 use bevy_render::render_asset::{prepare_assets, RenderAssets};
-use bevy_render::renderer::RenderQueue;
 use bevy_render::RenderStartup;
 use bevy_render::{
     batching::gpu_preprocessing::GpuPreprocessingSupport,
     extract_resource::ExtractResource,
+    gfx_base::{RenderDevice, RenderQueue},
     mesh::RenderMesh,
     prelude::*,
     render_phase::*,
     render_resource::*,
-    renderer::RenderDevice,
     sync_world::MainEntity,
     view::{ExtractedView, Msaa, RenderVisibilityRanges, RetainedViewEntity},
     Extract,

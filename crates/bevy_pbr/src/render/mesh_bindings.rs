@@ -4,7 +4,7 @@ use bevy_math::Mat4;
 use bevy_mesh::morph::MAX_MORPH_WEIGHTS;
 use bevy_render::{
     render_resource::*,
-    renderer::{RenderAdapter, RenderDevice},
+    gfx_base::{RenderAdapter, RenderDevice},
 };
 
 use crate::{binding_arrays_are_usable, render::skin::MAX_JOINTS, LightmapSlab};
@@ -36,7 +36,7 @@ mod layout_entry {
             BindGroupLayoutEntryBuilder, BufferSize, GpuArrayBuffer, SamplerBindingType,
             ShaderStages, TextureSampleType,
         },
-        renderer::RenderDevice,
+        gfx_base::RenderDevice,
     };
 
     pub(super) fn model(render_device: &RenderDevice) -> BindGroupLayoutEntryBuilder {
@@ -88,7 +88,7 @@ mod entry {
             BindGroupEntry, BindingResource, Buffer, BufferBinding, BufferSize, Sampler,
             TextureView, WgpuSampler, WgpuTextureView,
         },
-        renderer::RenderDevice,
+        gfx_base::RenderDevice,
     };
 
     fn entry(binding: u32, size: Option<u64>, buffer: &Buffer) -> BindGroupEntry<'_> {

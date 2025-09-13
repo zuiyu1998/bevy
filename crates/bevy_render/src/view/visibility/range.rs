@@ -19,7 +19,7 @@ use wgpu::{BufferBindingType, BufferUsages};
 
 use crate::{
     render_resource::BufferVec,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
     sync_world::{MainEntity, MainEntityHashMap},
     Extract, ExtractSchedule, Render, RenderApp, RenderSystems,
 };

@@ -18,6 +18,7 @@ use bevy::{
             ComponentUniforms, DynamicUniformIndex, ExtractComponent, ExtractComponentPlugin,
             UniformComponentPlugin,
         },
+        gfx_base::RenderDevice,
         render_graph::{
             NodeRunError, RenderGraphContext, RenderGraphExt, RenderLabel, ViewNode, ViewNodeRunner,
         },
@@ -25,7 +26,7 @@ use bevy::{
             binding_types::{sampler, texture_2d, uniform_buffer},
             *,
         },
-        renderer::{RenderContext, RenderDevice},
+        renderer::RenderContext,
         view::ViewTarget,
         RenderApp, RenderStartup,
     },

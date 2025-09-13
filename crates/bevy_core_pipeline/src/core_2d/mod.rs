@@ -66,7 +66,7 @@ use bevy_render::{
         BindGroupId, CachedRenderPipelineId, TextureDescriptor, TextureDimension, TextureFormat,
         TextureUsages,
     },
-    renderer::RenderDevice,
+    gfx_base::RenderDevice,
     sync_world::MainEntity,
     texture::TextureCache,
     view::{Msaa, ViewDepthTexture},

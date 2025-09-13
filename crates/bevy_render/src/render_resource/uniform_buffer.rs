@@ -2,7 +2,7 @@ use core::{marker::PhantomData, num::NonZero};
 
 use crate::{
     render_resource::Buffer,
-    renderer::{RenderDevice, RenderQueue},
+    gfx_base::{RenderDevice, RenderQueue},
 };
 use encase::{
     internal::{AlignmentValue, BufferMut, WriteInto},

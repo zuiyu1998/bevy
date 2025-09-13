@@ -23,6 +23,7 @@ use bevy_reflect::{std_traits::ReflectDefault, Reflect};
 use bevy_render::{
     diagnostic::RecordDiagnostics,
     extract_component::{ExtractComponent, ExtractComponentPlugin},
+    gfx_base::{RenderDevice, RenderQueue},
     render_asset::RenderAssets,
     render_graph::{
         NodeRunError, RenderGraphContext, RenderGraphExt as _, ViewNode, ViewNodeRunner,
@@ -36,7 +37,7 @@ use bevy_render::{
         ShaderType, SpecializedRenderPipeline, SpecializedRenderPipelines, TextureDimension,
         TextureFormat, TextureSampleType,
     },
-    renderer::{RenderContext, RenderDevice, RenderQueue},
+    renderer::RenderContext,
     texture::GpuImage,
     view::{ExtractedView, ViewTarget},
     Render, RenderApp, RenderStartup, RenderSystems,
