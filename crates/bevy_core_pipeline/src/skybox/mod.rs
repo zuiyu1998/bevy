@@ -17,12 +17,12 @@ use bevy_render::{
         ComponentUniforms, DynamicUniformIndex, ExtractComponent, ExtractComponentPlugin,
         UniformComponentPlugin,
     },
+    gfx_base::RenderDevice,
     render_asset::RenderAssets,
     render_resource::{
         binding_types::{sampler, texture_cube, uniform_buffer},
         *,
     },
-    gfx_base::RenderDevice,
     texture::GpuImage,
     view::{ExtractedView, Msaa, ViewTarget, ViewUniform, ViewUniforms},
     Render, RenderApp, RenderStartup, RenderSystems,
@@ -286,7 +286,7 @@ fn prepare_skybox_bind_groups(
             view_uniforms.uniforms.binding(),
             skybox_uniforms.binding(),
         ) {
-            let bind_group = render_device.create_bind_group(
+            let bind_group = BindGroup::from(render_device.create_bind_group(
                 "skybox_bind_group",
                 &pipeline.bind_group_layout,
                 &BindGroupEntries::sequential((
@@ -295,7 +295,7 @@ fn prepare_skybox_bind_groups(
                     view_uniforms,
                     skybox_uniforms,
                 )),
-            );
+            ));
 
             commands
                 .entity(entity)

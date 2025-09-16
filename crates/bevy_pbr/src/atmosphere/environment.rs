@@ -107,7 +107,7 @@ pub(super) fn prepare_atmosphere_probe_bind_groups(
     mut commands: Commands,
 ) {
     for (entity, textures) in &probes {
-        let environment = render_device.create_bind_group(
+        let environment = BindGroup::from(render_device.create_bind_group(
             "environment_bind_group",
             &layouts.environment,
             &BindGroupEntries::sequential((
@@ -126,7 +126,7 @@ pub(super) fn prepare_atmosphere_probe_bind_groups(
                 &samplers.aerial_view_lut,
                 &textures.environment,
             )),
-        );
+        ));
 
         commands
             .entity(entity)

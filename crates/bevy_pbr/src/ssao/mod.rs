@@ -654,15 +654,17 @@ fn prepare_ssao_bind_groups(
     };
 
     for (entity, ssao_resources, prepass_textures) in &views {
-        let common_bind_group = render_device.create_bind_group(
-            "ssao_common_bind_group",
-            &pipelines.common_bind_group_layout,
-            &BindGroupEntries::sequential((
-                &pipelines.point_clamp_sampler,
-                &pipelines.linear_clamp_sampler,
-                view_uniforms.clone(),
-            )),
-        );
+        let common_bind_group = render_device
+            .create_bind_group(
+                "ssao_common_bind_group",
+                &pipelines.common_bind_group_layout,
+                &BindGroupEntries::sequential((
+                    &pipelines.point_clamp_sampler,
+                    &pipelines.linear_clamp_sampler,
+                    view_uniforms.clone(),
+                )),
+            )
+            .into();
 
         let create_depth_view = |mip_level| {
             ssao_resources
@@ -678,44 +680,50 @@ fn prepare_ssao_bind_groups(
                 })
         };
 
-        let preprocess_depth_bind_group = render_device.create_bind_group(
-            "ssao_preprocess_depth_bind_group",
-            &pipelines.preprocess_depth_bind_group_layout,
-            &BindGroupEntries::sequential((
-                prepass_textures.depth_view().unwrap(),
-                &create_depth_view(0),
-                &create_depth_view(1),
-                &create_depth_view(2),
-                &create_depth_view(3),
-                &create_depth_view(4),
-            )),
-        );
+        let preprocess_depth_bind_group = render_device
+            .create_bind_group(
+                "ssao_preprocess_depth_bind_group",
+                &pipelines.preprocess_depth_bind_group_layout,
+                &BindGroupEntries::sequential((
+                    prepass_textures.depth_view().unwrap(),
+                    &create_depth_view(0),
+                    &create_depth_view(1),
+                    &create_depth_view(2),
+                    &create_depth_view(3),
+                    &create_depth_view(4),
+                )),
+            )
+            .into();
 
-        let ssao_bind_group = render_device.create_bind_group(
-            "ssao_ssao_bind_group",
-            &pipelines.ssao_bind_group_layout,
-            &BindGroupEntries::sequential((
-                &ssao_resources.preprocessed_depth_texture.default_view,
-                prepass_textures.normal_view().unwrap(),
-                &pipelines.hilbert_index_lut,
-                &ssao_resources.ssao_noisy_texture.default_view,
-                &ssao_resources.depth_differences_texture.default_view,
-                globals_uniforms.clone(),
-                ssao_resources.thickness_buffer.as_entire_binding(),
-            )),
-        );
+        let ssao_bind_group = render_device
+            .create_bind_group(
+                "ssao_ssao_bind_group",
+                &pipelines.ssao_bind_group_layout,
+                &BindGroupEntries::sequential((
+                    &ssao_resources.preprocessed_depth_texture.default_view,
+                    prepass_textures.normal_view().unwrap(),
+                    &pipelines.hilbert_index_lut,
+                    &ssao_resources.ssao_noisy_texture.default_view,
+                    &ssao_resources.depth_differences_texture.default_view,
+                    globals_uniforms.clone(),
+                    ssao_resources.thickness_buffer.as_entire_binding(),
+                )),
+            )
+            .into();
 
-        let spatial_denoise_bind_group = render_device.create_bind_group(
-            "ssao_spatial_denoise_bind_group",
-            &pipelines.spatial_denoise_bind_group_layout,
-            &BindGroupEntries::sequential((
-                &ssao_resources.ssao_noisy_texture.default_view,
-                &ssao_resources.depth_differences_texture.default_view,
-                &ssao_resources
-                    .screen_space_ambient_occlusion_texture
-                    .default_view,
-            )),
-        );
+        let spatial_denoise_bind_group = render_device
+            .create_bind_group(
+                "ssao_spatial_denoise_bind_group",
+                &pipelines.spatial_denoise_bind_group_layout,
+                &BindGroupEntries::sequential((
+                    &ssao_resources.ssao_noisy_texture.default_view,
+                    &ssao_resources.depth_differences_texture.default_view,
+                    &ssao_resources
+                        .screen_space_ambient_occlusion_texture
+                        .default_view,
+                )),
+            )
+            .into();
 
         commands.entity(entity).insert(SsaoBindGroups {
             common_bind_group,

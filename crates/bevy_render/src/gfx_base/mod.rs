@@ -1,7 +1,9 @@
 mod render_device;
 mod wgpu_wrapper;
+mod bind_group;
 
 pub use render_device::*;
+pub use bind_group::*;
 pub use wgpu_wrapper::WgpuWrapper;
 
 use alloc::sync::Arc;

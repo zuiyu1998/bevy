@@ -26,12 +26,12 @@ use bevy_mesh::{Mesh, Mesh3d, MeshVertexBufferLayoutRef};
 use bevy_render::{
     alpha::AlphaMode,
     batching::gpu_preprocessing::GpuPreprocessingSupport,
+    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     globals::{GlobalsBuffer, GlobalsUniform},
     mesh::{allocator::MeshAllocator, RenderMesh},
     render_asset::{prepare_assets, RenderAssets},
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    gfx_base::{RenderAdapter, RenderDevice, RenderQueue},
     sync_world::RenderEntity,
     view::{
         ExtractedView, Msaa, RenderVisibilityRanges, RetainedViewEntity, ViewUniform,
@@ -704,11 +704,11 @@ pub fn init_prepass_view_bind_group(
     render_device: Res<RenderDevice>,
     pipeline: Res<PrepassPipeline>,
 ) {
-    let empty_bind_group = render_device.create_bind_group(
+    let empty_bind_group = BindGroup::from(render_device.create_bind_group(
         "prepass_view_empty_bind_group",
         &pipeline.empty_layout,
         &[],
-    );
+    ));
     commands.insert_resource(PrepassViewBindGroup {
         motion_vectors: None,
         no_motion_vectors: None,
@@ -730,27 +730,29 @@ pub fn prepare_prepass_view_bind_group(
         globals_buffer.buffer.binding(),
         visibility_ranges.buffer().buffer(),
     ) {
-        prepass_view_bind_group.no_motion_vectors = Some(render_device.create_bind_group(
-            "prepass_view_no_motion_vectors_bind_group",
-            &prepass_pipeline.view_layout_no_motion_vectors,
-            &BindGroupEntries::with_indices((
-                (0, view_binding.clone()),
-                (1, globals_binding.clone()),
-                (14, visibility_ranges_buffer.as_entire_binding()),
-            )),
-        ));
-
-        if let Some(previous_view_uniforms_binding) = previous_view_uniforms.uniforms.binding() {
-            prepass_view_bind_group.motion_vectors = Some(render_device.create_bind_group(
-                "prepass_view_motion_vectors_bind_group",
-                &prepass_pipeline.view_layout_motion_vectors,
+        prepass_view_bind_group.no_motion_vectors =
+            Some(BindGroup::from(render_device.create_bind_group(
+                "prepass_view_no_motion_vectors_bind_group",
+                &prepass_pipeline.view_layout_no_motion_vectors,
                 &BindGroupEntries::with_indices((
-                    (0, view_binding),
-                    (1, globals_binding),
-                    (2, previous_view_uniforms_binding),
+                    (0, view_binding.clone()),
+                    (1, globals_binding.clone()),
                     (14, visibility_ranges_buffer.as_entire_binding()),
                 )),
-            ));
+            )));
+
+        if let Some(previous_view_uniforms_binding) = previous_view_uniforms.uniforms.binding() {
+            prepass_view_bind_group.motion_vectors =
+                Some(BindGroup::from(render_device.create_bind_group(
+                    "prepass_view_motion_vectors_bind_group",
+                    &prepass_pipeline.view_layout_motion_vectors,
+                    &BindGroupEntries::with_indices((
+                        (0, view_binding),
+                        (1, globals_binding),
+                        (2, previous_view_uniforms_binding),
+                        (14, visibility_ranges_buffer.as_entire_binding()),
+                    )),
+                )));
         }
     }
 }

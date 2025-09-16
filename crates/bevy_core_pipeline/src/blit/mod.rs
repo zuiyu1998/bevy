@@ -3,11 +3,11 @@ use bevy_app::{App, Plugin};
 use bevy_asset::{embedded_asset, load_embedded_asset, AssetServer, Handle};
 use bevy_ecs::prelude::*;
 use bevy_render::{
+    gfx_base::RenderDevice,
     render_resource::{
         binding_types::{sampler, texture_2d},
         *,
     },
-    gfx_base::RenderDevice,
     RenderApp, RenderStartup,
 };
 use bevy_shader::Shader;
@@ -72,11 +72,11 @@ impl BlitPipeline {
         render_device: &RenderDevice,
         src_texture: &TextureView,
     ) -> BindGroup {
-        render_device.create_bind_group(
+        BindGroup::from(render_device.create_bind_group(
             None,
             &self.layout,
             &BindGroupEntries::sequential((src_texture, &self.sampler)),
-        )
+        ))
     }
 }
 

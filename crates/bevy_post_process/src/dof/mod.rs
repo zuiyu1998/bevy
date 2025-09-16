@@ -377,7 +377,7 @@ impl ViewNode for DepthOfFieldNode {
             // managed by the postprocessing logic.
             let postprocess = view_target.post_process_write();
 
-            let view_bind_group = if pipeline_render_info.is_dual_input {
+            let view_bind_group: BindGroup = if pipeline_render_info.is_dual_input {
                 let (Some(auxiliary_dof_texture), Some(dual_input_bind_group_layout)) = (
                     auxiliary_dof_texture,
                     view_bind_group_layouts.dual_input.as_ref(),
@@ -387,26 +387,32 @@ impl ViewNode for DepthOfFieldNode {
                     ));
                     continue;
                 };
-                render_context.render_device().create_bind_group(
-                    Some(pipeline_render_info.view_bind_group_label),
-                    dual_input_bind_group_layout,
-                    &BindGroupEntries::sequential((
-                        view_uniforms_binding,
-                        view_depth_texture.view(),
-                        postprocess.source,
-                        &auxiliary_dof_texture.default_view,
-                    )),
-                )
+                render_context
+                    .render_device()
+                    .create_bind_group(
+                        Some(pipeline_render_info.view_bind_group_label),
+                        dual_input_bind_group_layout,
+                        &BindGroupEntries::sequential((
+                            view_uniforms_binding,
+                            view_depth_texture.view(),
+                            postprocess.source,
+                            &auxiliary_dof_texture.default_view,
+                        )),
+                    )
+                    .into()
             } else {
-                render_context.render_device().create_bind_group(
-                    Some(pipeline_render_info.view_bind_group_label),
-                    &view_bind_group_layouts.single_input,
-                    &BindGroupEntries::sequential((
-                        view_uniforms_binding,
-                        view_depth_texture.view(),
-                        postprocess.source,
-                    )),
-                )
+                render_context
+                    .render_device()
+                    .create_bind_group(
+                        Some(pipeline_render_info.view_bind_group_label),
+                        &view_bind_group_layouts.single_input,
+                        &BindGroupEntries::sequential((
+                            view_uniforms_binding,
+                            view_depth_texture.view(),
+                            postprocess.source,
+                        )),
+                    )
+                    .into()
             };
 
             // Push the first input attachment.
@@ -623,14 +629,18 @@ pub fn prepare_depth_of_field_global_bind_group(
         return;
     };
 
-    **dof_bind_group = Some(render_device.create_bind_group(
-        Some("depth of field global bind group"),
-        &global_bind_group_layout.layout,
-        &BindGroupEntries::sequential((
-            depth_of_field_uniforms,                         // `dof_params`
-            &global_bind_group_layout.color_texture_sampler, // `color_texture_sampler`
-        )),
-    ));
+    **dof_bind_group = Some(
+        render_device
+            .create_bind_group(
+                Some("depth of field global bind group"),
+                &global_bind_group_layout.layout,
+                &BindGroupEntries::sequential((
+                    depth_of_field_uniforms,                         // `dof_params`
+                    &global_bind_group_layout.color_texture_sampler, // `color_texture_sampler`
+                )),
+            )
+            .into(),
+    );
 }
 
 /// Creates the second render target texture that the first pass of the bokeh

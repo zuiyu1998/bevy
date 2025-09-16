@@ -11,9 +11,9 @@ use bevy_render::{
     render_graph::{NodeRunError, RenderGraphContext, ViewNode},
     render_resource::{
         binding_types::{texture_storage_2d, uniform_buffer},
-        BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries, CachedComputePipelineId,
-        ComputePassDescriptor, ComputePipelineDescriptor, ImageSubresourceRange, PipelineCache,
-        ShaderStages, StorageTextureAccess, TextureFormat,
+        BindGroup, BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries,
+        CachedComputePipelineId, ComputePassDescriptor, ComputePipelineDescriptor,
+        ImageSubresourceRange, PipelineCache, ShaderStages, StorageTextureAccess, TextureFormat,
     },
     renderer::RenderContext,
     view::{ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms},
@@ -62,15 +62,18 @@ impl ViewNode for PathtracerNode {
             return Ok(());
         };
 
-        let bind_group = render_context.render_device().create_bind_group(
-            "pathtracer_bind_group",
-            &self.bind_group_layout,
-            &BindGroupEntries::sequential((
-                &accumulation_texture.0.default_view,
-                view_target.get_unsampled_color_attachment().view,
-                view_uniforms,
-            )),
-        );
+        let bind_group: BindGroup = render_context
+            .render_device()
+            .create_bind_group(
+                "pathtracer_bind_group",
+                &self.bind_group_layout,
+                &BindGroupEntries::sequential((
+                    &accumulation_texture.0.default_view,
+                    view_target.get_unsampled_color_attachment().view,
+                    view_uniforms,
+                )),
+            )
+            .into();
 
         let command_encoder = render_context.command_encoder();
 

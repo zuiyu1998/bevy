@@ -3,8 +3,8 @@
 use bevy_math::Mat4;
 use bevy_mesh::morph::MAX_MORPH_WEIGHTS;
 use bevy_render::{
-    render_resource::*,
     gfx_base::{RenderAdapter, RenderDevice},
+    render_resource::*,
 };
 
 use crate::{binding_arrays_are_usable, render::skin::MAX_JOINTS, LightmapSlab};
@@ -28,6 +28,7 @@ mod layout_entry {
     use super::{JOINT_BUFFER_SIZE, MORPH_BUFFER_SIZE};
     use crate::{render::skin, MeshUniform, LIGHTMAPS_PER_SLAB};
     use bevy_render::{
+        gfx_base::RenderDevice,
         render_resource::{
             binding_types::{
                 sampler, storage_buffer_read_only_sized, texture_2d, texture_3d,
@@ -36,7 +37,6 @@ mod layout_entry {
             BindGroupLayoutEntryBuilder, BufferSize, GpuArrayBuffer, SamplerBindingType,
             ShaderStages, TextureSampleType,
         },
-        gfx_base::RenderDevice,
     };
 
     pub(super) fn model(render_device: &RenderDevice) -> BindGroupLayoutEntryBuilder {
@@ -84,11 +84,11 @@ mod entry {
 
     use super::{JOINT_BUFFER_SIZE, MORPH_BUFFER_SIZE};
     use bevy_render::{
+        gfx_base::RenderDevice,
         render_resource::{
             BindGroupEntry, BindingResource, Buffer, BufferBinding, BufferSize, Sampler,
             TextureView, WgpuSampler, WgpuTextureView,
         },
-        gfx_base::RenderDevice,
     };
 
     fn entry(binding: u32, size: Option<u64>, buffer: &Buffer) -> BindGroupEntry<'_> {
@@ -370,11 +370,11 @@ impl MeshLayouts {
     // ---------- BindGroup methods ----------
 
     pub fn model_only(&self, render_device: &RenderDevice, model: &BindingResource) -> BindGroup {
-        render_device.create_bind_group(
+        BindGroup::from(render_device.create_bind_group(
             "model_only_mesh_bind_group",
             &self.model_only,
             &[entry::model(0, model.clone())],
-        )
+        ))
     }
 
     pub fn lightmapped(
@@ -386,7 +386,7 @@ impl MeshLayouts {
     ) -> BindGroup {
         if bindless_lightmaps {
             let (texture_views, samplers) = lightmap_slab.build_binding_arrays();
-            render_device.create_bind_group(
+            BindGroup::from(render_device.create_bind_group(
                 "lightmapped_mesh_bind_group",
                 &self.lightmapped,
                 &[
@@ -394,10 +394,10 @@ impl MeshLayouts {
                     entry::lightmaps_texture_view_array(4, &texture_views),
                     entry::lightmaps_sampler_array(5, &samplers),
                 ],
-            )
+            ))
         } else {
             let (texture_view, sampler) = lightmap_slab.bindings_for_first_lightmap();
-            render_device.create_bind_group(
+            BindGroup::from(render_device.create_bind_group(
                 "lightmapped_mesh_bind_group",
                 &self.lightmapped,
                 &[
@@ -405,7 +405,7 @@ impl MeshLayouts {
                     entry::lightmaps_texture_view(4, texture_view),
                     entry::lightmaps_sampler(5, sampler),
                 ],
-            )
+            ))
         }
     }
 
@@ -416,14 +416,16 @@ impl MeshLayouts {
         model: &BindingResource,
         current_skin: &Buffer,
     ) -> BindGroup {
-        render_device.create_bind_group(
-            "skinned_mesh_bind_group",
-            &self.skinned,
-            &[
-                entry::model(0, model.clone()),
-                entry::skinning(render_device, 1, current_skin),
-            ],
-        )
+        render_device
+            .create_bind_group(
+                "skinned_mesh_bind_group",
+                &self.skinned,
+                &[
+                    entry::model(0, model.clone()),
+                    entry::skinning(render_device, 1, current_skin),
+                ],
+            )
+            .into()
     }
 
     /// Creates the bind group for skinned meshes with no morph targets, with
@@ -440,15 +442,17 @@ impl MeshLayouts {
         current_skin: &Buffer,
         prev_skin: &Buffer,
     ) -> BindGroup {
-        render_device.create_bind_group(
-            "skinned_motion_mesh_bind_group",
-            &self.skinned_motion,
-            &[
-                entry::model(0, model.clone()),
-                entry::skinning(render_device, 1, current_skin),
-                entry::skinning(render_device, 6, prev_skin),
-            ],
-        )
+        render_device
+            .create_bind_group(
+                "skinned_motion_mesh_bind_group",
+                &self.skinned_motion,
+                &[
+                    entry::model(0, model.clone()),
+                    entry::skinning(render_device, 1, current_skin),
+                    entry::skinning(render_device, 6, prev_skin),
+                ],
+            )
+            .into()
     }
 
     /// Creates the bind group for meshes with no skins but morph targets.
@@ -459,15 +463,17 @@ impl MeshLayouts {
         current_weights: &Buffer,
         targets: &TextureView,
     ) -> BindGroup {
-        render_device.create_bind_group(
-            "morphed_mesh_bind_group",
-            &self.morphed,
-            &[
-                entry::model(0, model.clone()),
-                entry::weights(2, current_weights),
-                entry::targets(3, targets),
-            ],
-        )
+        render_device
+            .create_bind_group(
+                "morphed_mesh_bind_group",
+                &self.morphed,
+                &[
+                    entry::model(0, model.clone()),
+                    entry::weights(2, current_weights),
+                    entry::targets(3, targets),
+                ],
+            )
+            .into()
     }
 
     /// Creates the bind group for meshes with no skins but morph targets, in
@@ -485,16 +491,18 @@ impl MeshLayouts {
         targets: &TextureView,
         prev_weights: &Buffer,
     ) -> BindGroup {
-        render_device.create_bind_group(
-            "morphed_motion_mesh_bind_group",
-            &self.morphed_motion,
-            &[
-                entry::model(0, model.clone()),
-                entry::weights(2, current_weights),
-                entry::targets(3, targets),
-                entry::weights(7, prev_weights),
-            ],
-        )
+        render_device
+            .create_bind_group(
+                "morphed_motion_mesh_bind_group",
+                &self.morphed_motion,
+                &[
+                    entry::model(0, model.clone()),
+                    entry::weights(2, current_weights),
+                    entry::targets(3, targets),
+                    entry::weights(7, prev_weights),
+                ],
+            )
+            .into()
     }
 
     /// Creates the bind group for meshes with skins and morph targets.
@@ -506,16 +514,18 @@ impl MeshLayouts {
         current_weights: &Buffer,
         targets: &TextureView,
     ) -> BindGroup {
-        render_device.create_bind_group(
-            "morphed_skinned_mesh_bind_group",
-            &self.morphed_skinned,
-            &[
-                entry::model(0, model.clone()),
-                entry::skinning(render_device, 1, current_skin),
-                entry::weights(2, current_weights),
-                entry::targets(3, targets),
-            ],
-        )
+        render_device
+            .create_bind_group(
+                "morphed_skinned_mesh_bind_group",
+                &self.morphed_skinned,
+                &[
+                    entry::model(0, model.clone()),
+                    entry::skinning(render_device, 1, current_skin),
+                    entry::weights(2, current_weights),
+                    entry::targets(3, targets),
+                ],
+            )
+            .into()
     }
 
     /// Creates the bind group for meshes with skins and morph targets, in
@@ -535,17 +545,19 @@ impl MeshLayouts {
         prev_skin: &Buffer,
         prev_weights: &Buffer,
     ) -> BindGroup {
-        render_device.create_bind_group(
-            "morphed_skinned_motion_mesh_bind_group",
-            &self.morphed_skinned_motion,
-            &[
-                entry::model(0, model.clone()),
-                entry::skinning(render_device, 1, current_skin),
-                entry::weights(2, current_weights),
-                entry::targets(3, targets),
-                entry::skinning(render_device, 6, prev_skin),
-                entry::weights(7, prev_weights),
-            ],
-        )
+        render_device
+            .create_bind_group(
+                "morphed_skinned_motion_mesh_bind_group",
+                &self.morphed_skinned_motion,
+                &[
+                    entry::model(0, model.clone()),
+                    entry::skinning(render_device, 1, current_skin),
+                    entry::weights(2, current_weights),
+                    entry::targets(3, targets),
+                    entry::skinning(render_device, 6, prev_skin),
+                    entry::weights(7, prev_weights),
+                ],
+            )
+            .into()
     }
 }

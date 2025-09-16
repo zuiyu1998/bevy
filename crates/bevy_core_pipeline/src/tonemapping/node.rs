@@ -94,7 +94,7 @@ impl ViewNode for TonemappingNode {
                 let lut_bindings =
                     get_lut_bindings(gpu_images, tonemapping_luts, tonemapping, fallback_image);
 
-                let bind_group = render_context.render_device().create_bind_group(
+                let bind_group = BindGroup::from(render_context.render_device().create_bind_group(
                     None,
                     &tonemapping_pipeline.texture_bind_group,
                     &BindGroupEntries::sequential((
@@ -104,7 +104,7 @@ impl ViewNode for TonemappingNode {
                         lut_bindings.0,
                         lut_bindings.1,
                     )),
-                );
+                ));
 
                 let (_, _, _, bind_group) = cached_bind_group.insert((
                     view_uniforms_id,

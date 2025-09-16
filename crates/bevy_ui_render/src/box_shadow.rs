@@ -19,9 +19,9 @@ use bevy_math::{vec2, Affine2, FloatOrd, Rect, Vec2};
 use bevy_mesh::VertexBufferLayout;
 use bevy_render::sync_world::{MainEntity, TemporaryRenderEntity};
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    gfx_base::{RenderDevice, RenderQueue},
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,
 };
@@ -372,11 +372,15 @@ pub fn prepare_shadows(
 
         ui_meta.vertices.clear();
         ui_meta.indices.clear();
-        ui_meta.view_bind_group = Some(render_device.create_bind_group(
-            "box_shadow_view_bind_group",
-            &box_shadow_pipeline.view_layout,
-            &BindGroupEntries::single(view_binding),
-        ));
+        ui_meta.view_bind_group = Some(
+            render_device
+                .create_bind_group(
+                    "box_shadow_view_bind_group",
+                    &box_shadow_pipeline.view_layout,
+                    &BindGroupEntries::single(view_binding),
+                )
+                .into(),
+        );
 
         // Buffer indexes
         let mut vertices_index = 0;

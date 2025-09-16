@@ -161,14 +161,16 @@ fn prepare_bind_group(
 ) {
     let buffer = buffers.get(&buffer.0).unwrap();
     let image = images.get(&image.0).unwrap();
-    let bind_group = render_device.create_bind_group(
-        None,
-        &pipeline.layout,
-        &BindGroupEntries::sequential((
-            buffer.buffer.as_entire_buffer_binding(),
-            image.texture_view.into_binding(),
-        )),
-    );
+    let bind_group: BindGroup = render_device
+        .create_bind_group(
+            None,
+            &pipeline.layout,
+            &BindGroupEntries::sequential((
+                buffer.buffer.as_entire_buffer_binding(),
+                image.texture_view.into_binding(),
+            )),
+        )
+        .into();
     commands.insert_resource(GpuBufferBindGroup(bind_group));
 }
 

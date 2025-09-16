@@ -753,34 +753,40 @@ fn prepare_smaa_bind_groups(
         });
 
         commands.entity(entity).insert(SmaaBindGroups {
-            edge_detection_bind_group: render_device.create_bind_group(
-                Some("SMAA edge detection bind group"),
-                &smaa_pipelines
-                    .edge_detection
-                    .edge_detection_bind_group_layout,
-                &BindGroupEntries::sequential((&sampler,)),
+            edge_detection_bind_group: BindGroup::from(
+                render_device.create_bind_group(
+                    Some("SMAA edge detection bind group"),
+                    &smaa_pipelines
+                        .edge_detection
+                        .edge_detection_bind_group_layout,
+                    &BindGroupEntries::sequential((&sampler,)),
+                ),
             ),
-            blending_weight_calculation_bind_group: render_device.create_bind_group(
-                Some("SMAA blending weight calculation bind group"),
-                &smaa_pipelines
-                    .blending_weight_calculation
-                    .blending_weight_calculation_bind_group_layout,
-                &BindGroupEntries::sequential((
-                    &smaa_textures.edge_detection_color_texture.default_view,
-                    &sampler,
-                    &search_texture.texture_view,
-                    &area_texture.texture_view,
-                )),
+            blending_weight_calculation_bind_group: BindGroup::from(
+                render_device.create_bind_group(
+                    Some("SMAA blending weight calculation bind group"),
+                    &smaa_pipelines
+                        .blending_weight_calculation
+                        .blending_weight_calculation_bind_group_layout,
+                    &BindGroupEntries::sequential((
+                        &smaa_textures.edge_detection_color_texture.default_view,
+                        &sampler,
+                        &search_texture.texture_view,
+                        &area_texture.texture_view,
+                    )),
+                ),
             ),
-            neighborhood_blending_bind_group: render_device.create_bind_group(
-                Some("SMAA neighborhood blending bind group"),
-                &smaa_pipelines
-                    .neighborhood_blending
-                    .neighborhood_blending_bind_group_layout,
-                &BindGroupEntries::sequential((
-                    &smaa_textures.blend_texture.default_view,
-                    &sampler,
-                )),
+            neighborhood_blending_bind_group: BindGroup::from(
+                render_device.create_bind_group(
+                    Some("SMAA neighborhood blending bind group"),
+                    &smaa_pipelines
+                        .neighborhood_blending
+                        .neighborhood_blending_bind_group_layout,
+                    &BindGroupEntries::sequential((
+                        &smaa_textures.blend_texture.default_view,
+                        &sampler,
+                    )),
+                ),
             ),
         });
     }
@@ -895,11 +901,11 @@ fn perform_edge_detection(
     source: &TextureView,
 ) {
     // Create the edge detection bind group.
-    let postprocess_bind_group = render_context.render_device().create_bind_group(
+    let postprocess_bind_group = BindGroup::from(render_context.render_device().create_bind_group(
         None,
         &smaa_pipelines.edge_detection.postprocess_bind_group_layout,
         &BindGroupEntries::sequential((source, &**smaa_info_uniform_buffer)),
-    );
+    ));
 
     // Create the edge detection pass descriptor.
     let pass_descriptor = RenderPassDescriptor {
@@ -949,12 +955,14 @@ fn perform_blending_weight_calculation(
     source: &TextureView,
 ) {
     // Create the blending weight calculation bind group.
-    let postprocess_bind_group = render_context.render_device().create_bind_group(
-        None,
-        &smaa_pipelines
-            .blending_weight_calculation
-            .postprocess_bind_group_layout,
-        &BindGroupEntries::sequential((source, &**smaa_info_uniform_buffer)),
+    let postprocess_bind_group = BindGroup::from(
+        render_context.render_device().create_bind_group(
+            None,
+            &smaa_pipelines
+                .blending_weight_calculation
+                .postprocess_bind_group_layout,
+            &BindGroupEntries::sequential((source, &**smaa_info_uniform_buffer)),
+        ),
     );
 
     // Create the blending weight calculation pass descriptor.
@@ -1007,12 +1015,14 @@ fn perform_neighborhood_blending(
     source: &TextureView,
     destination: &TextureView,
 ) {
-    let postprocess_bind_group = render_context.render_device().create_bind_group(
-        None,
-        &smaa_pipelines
-            .neighborhood_blending
-            .postprocess_bind_group_layout,
-        &BindGroupEntries::sequential((source, &**smaa_info_uniform_buffer)),
+    let postprocess_bind_group = BindGroup::from(
+        render_context.render_device().create_bind_group(
+            None,
+            &smaa_pipelines
+                .neighborhood_blending
+                .postprocess_bind_group_layout,
+            &BindGroupEntries::sequential((source, &**smaa_info_uniform_buffer)),
+        ),
     );
 
     let pass_descriptor = RenderPassDescriptor {

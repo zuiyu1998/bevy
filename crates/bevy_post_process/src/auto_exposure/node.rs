@@ -101,7 +101,7 @@ impl Node for AutoExposureNode {
 
         let diagnostics = render_context.diagnostic_recorder();
 
-        let compute_bind_group = render_context.render_device().create_bind_group(
+        let compute_bind_group: BindGroup = render_context.render_device().create_bind_group(
             None,
             &pipeline.histogram_layout,
             &BindGroupEntries::sequential((
@@ -119,7 +119,7 @@ impl Node for AutoExposureNode {
                     offset: 0,
                 },
             )),
-        );
+        ).into();
 
         let mut compute_pass =
             render_context

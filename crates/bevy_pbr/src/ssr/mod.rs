@@ -291,16 +291,19 @@ impl ViewNode for ScreenSpaceReflectionsNode {
 
         // Create the bind group for this view.
         let ssr_pipeline = world.resource::<ScreenSpaceReflectionsPipeline>();
-        let ssr_bind_group = render_context.render_device().create_bind_group(
-            "SSR bind group",
-            &ssr_pipeline.bind_group_layout,
-            &BindGroupEntries::sequential((
-                postprocess.source,
-                &ssr_pipeline.color_sampler,
-                &ssr_pipeline.depth_linear_sampler,
-                &ssr_pipeline.depth_nearest_sampler,
-            )),
-        );
+        let ssr_bind_group = render_context
+            .render_device()
+            .create_bind_group(
+                "SSR bind group",
+                &ssr_pipeline.bind_group_layout,
+                &BindGroupEntries::sequential((
+                    postprocess.source,
+                    &ssr_pipeline.color_sampler,
+                    &ssr_pipeline.depth_linear_sampler,
+                    &ssr_pipeline.depth_nearest_sampler,
+                )),
+            )
+            .into();
 
         // Build the SSR render pass.
         let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {

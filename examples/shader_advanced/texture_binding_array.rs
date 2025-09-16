@@ -6,12 +6,12 @@ use bevy::{
     prelude::*,
     reflect::TypePath,
     render::{
+        gfx_base::RenderDevice,
         render_asset::RenderAssets,
         render_resource::{
             binding_types::{sampler, texture_2d},
             *,
         },
-        gfx_base::RenderDevice,
         texture::{FallbackImage, GpuImage},
         RenderApp, RenderStartup,
     },
@@ -127,11 +127,13 @@ impl AsBindGroup for BindlessMaterial {
             textures[id] = &*image.texture_view;
         }
 
-        let bind_group = render_device.create_bind_group(
-            "bindless_material_bind_group",
-            layout,
-            &BindGroupEntries::sequential((&textures[..], &fallback_image.sampler)),
-        );
+        let bind_group: BindGroup = render_device
+            .create_bind_group(
+                "bindless_material_bind_group",
+                layout,
+                &BindGroupEntries::sequential((&textures[..], &fallback_image.sampler)),
+            )
+            .into();
 
         Ok(PreparedBindGroup {
             bindings: BindingResources(vec![]),

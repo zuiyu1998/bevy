@@ -15,10 +15,10 @@ use bevy_math::{Affine2, FloatOrd, Rect, Vec2};
 use bevy_mesh::VertexBufferLayout;
 use bevy_platform::collections::HashMap;
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     render_asset::RenderAssets,
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    gfx_base::{RenderDevice, RenderQueue},
     texture::GpuImage,
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,
@@ -388,11 +388,15 @@ pub fn prepare_ui_slices(
 
         ui_meta.vertices.clear();
         ui_meta.indices.clear();
-        ui_meta.view_bind_group = Some(render_device.create_bind_group(
-            "ui_texture_slice_view_bind_group",
-            &texture_slicer_pipeline.view_layout,
-            &BindGroupEntries::single(view_binding),
-        ));
+        ui_meta.view_bind_group = Some(
+            render_device
+                .create_bind_group(
+                    "ui_texture_slice_view_bind_group",
+                    &texture_slicer_pipeline.view_layout,
+                    &BindGroupEntries::single(view_binding),
+                )
+                .into(),
+        );
 
         // Buffer indexes
         let mut vertices_index = 0;
@@ -434,14 +438,16 @@ pub fn prepare_ui_slices(
                                 .values
                                 .entry(batch_image_handle)
                                 .or_insert_with(|| {
-                                    render_device.create_bind_group(
-                                        "ui_texture_slice_image_layout",
-                                        &texture_slicer_pipeline.image_layout,
-                                        &BindGroupEntries::sequential((
-                                            &gpu_image.texture_view,
-                                            &gpu_image.sampler,
-                                        )),
-                                    )
+                                    render_device
+                                        .create_bind_group(
+                                            "ui_texture_slice_image_layout",
+                                            &texture_slicer_pipeline.image_layout,
+                                            &BindGroupEntries::sequential((
+                                                &gpu_image.texture_view,
+                                                &gpu_image.sampler,
+                                            )),
+                                        )
+                                        .into()
                                 });
 
                             existing_batch = batches.last_mut();
@@ -461,14 +467,16 @@ pub fn prepare_ui_slices(
                                 .values
                                 .entry(batch_image_handle)
                                 .or_insert_with(|| {
-                                    render_device.create_bind_group(
-                                        "ui_texture_slice_image_layout",
-                                        &texture_slicer_pipeline.image_layout,
-                                        &BindGroupEntries::sequential((
-                                            &gpu_image.texture_view,
-                                            &gpu_image.sampler,
-                                        )),
-                                    )
+                                    render_device
+                                        .create_bind_group(
+                                            "ui_texture_slice_image_layout",
+                                            &texture_slicer_pipeline.image_layout,
+                                            &BindGroupEntries::sequential((
+                                                &gpu_image.texture_view,
+                                                &gpu_image.sampler,
+                                            )),
+                                        )
+                                        .into()
                                 });
                         } else {
                             continue;

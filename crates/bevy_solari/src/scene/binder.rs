@@ -273,7 +273,7 @@ pub fn prepare_raytracing_scene_bindings(
             directional_lights.binding().unwrap(),
             previous_frame_light_id_translations.binding().unwrap(),
         )),
-    ));
+    ).into());
 }
 
 impl FromWorld for RaytracingSceneBindings {

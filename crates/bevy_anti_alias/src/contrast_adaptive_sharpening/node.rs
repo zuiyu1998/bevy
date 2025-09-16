@@ -81,7 +81,7 @@ impl Node for CasNode {
                 bind_group
             }
             cached_bind_group => {
-                let bind_group = render_context.render_device().create_bind_group(
+                let bind_group = BindGroup::from(render_context.render_device().create_bind_group(
                     "cas_bind_group",
                     &sharpening_pipeline.texture_bind_group,
                     &BindGroupEntries::sequential((
@@ -89,7 +89,7 @@ impl Node for CasNode {
                         &sharpening_pipeline.sampler,
                         uniforms,
                     )),
-                );
+                ));
 
                 let (_, _, bind_group) =
                     cached_bind_group.insert((uniforms_id, source.id(), bind_group));

@@ -30,12 +30,12 @@ use bevy_render::{
     },
     render_resource::{
         binding_types::{sampler, texture_2d, uniform_buffer},
-        BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries, CachedRenderPipelineId,
-        ColorTargetState, ColorWrites, DynamicUniformBuffer, Extent3d, FilterMode, FragmentState,
-        Operations, PipelineCache, RenderPassColorAttachment, RenderPassDescriptor,
-        RenderPipelineDescriptor, Sampler, SamplerBindingType, SamplerDescriptor, ShaderStages,
-        ShaderType, SpecializedRenderPipeline, SpecializedRenderPipelines, TextureDimension,
-        TextureFormat, TextureSampleType,
+        BindGroup, BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries,
+        CachedRenderPipelineId, ColorTargetState, ColorWrites, DynamicUniformBuffer, Extent3d,
+        FilterMode, FragmentState, Operations, PipelineCache, RenderPassColorAttachment,
+        RenderPassDescriptor, RenderPipelineDescriptor, Sampler, SamplerBindingType,
+        SamplerDescriptor, ShaderStages, ShaderType, SpecializedRenderPipeline,
+        SpecializedRenderPipelines, TextureDimension, TextureFormat, TextureSampleType,
     },
     renderer::RenderContext,
     texture::GpuImage,
@@ -394,17 +394,20 @@ impl ViewNode for PostProcessingNode {
             occlusion_query_set: None,
         };
 
-        let bind_group = render_context.render_device().create_bind_group(
-            Some("postprocessing bind group"),
-            &post_processing_pipeline.bind_group_layout,
-            &BindGroupEntries::sequential((
-                post_process.source,
-                &post_processing_pipeline.source_sampler,
-                &chromatic_aberration_lut.texture_view,
-                &post_processing_pipeline.chromatic_aberration_lut_sampler,
-                chromatic_aberration_uniform_buffer_binding,
-            )),
-        );
+        let bind_group: BindGroup = render_context
+            .render_device()
+            .create_bind_group(
+                Some("postprocessing bind group"),
+                &post_processing_pipeline.bind_group_layout,
+                &BindGroupEntries::sequential((
+                    post_process.source,
+                    &post_processing_pipeline.source_sampler,
+                    &chromatic_aberration_lut.texture_view,
+                    &post_processing_pipeline.chromatic_aberration_lut_sampler,
+                    chromatic_aberration_uniform_buffer_binding,
+                )),
+            )
+            .into();
 
         let mut render_pass = render_context
             .command_encoder()

@@ -23,9 +23,9 @@ use bevy_math::{
 use bevy_math::{Affine2, Vec2Swizzles};
 use bevy_mesh::VertexBufferLayout;
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    gfx_base::{RenderDevice, RenderQueue},
     sync_world::TemporaryRenderEntity,
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,
@@ -709,11 +709,15 @@ pub fn prepare_gradient(
 
         ui_meta.vertices.clear();
         ui_meta.indices.clear();
-        ui_meta.view_bind_group = Some(render_device.create_bind_group(
-            "gradient_view_bind_group",
-            &gradients_pipeline.view_layout,
-            &BindGroupEntries::single(view_binding),
-        ));
+        ui_meta.view_bind_group = Some(
+            render_device
+                .create_bind_group(
+                    "gradient_view_bind_group",
+                    &gradients_pipeline.view_layout,
+                    &BindGroupEntries::single(view_binding),
+                )
+                .into(),
+        );
 
         // Buffer indexes
         let mut vertices_index = 0;

@@ -70,18 +70,21 @@ impl ViewNode for MotionBlurNode {
             &motion_blur_pipeline.layout_msaa
         };
 
-        let bind_group = render_context.render_device().create_bind_group(
-            Some("motion_blur_bind_group"),
-            layout,
-            &BindGroupEntries::sequential((
-                post_process.source,
-                &prepass_motion_vectors_texture.texture.default_view,
-                &prepass_depth_texture.texture.default_view,
-                &motion_blur_pipeline.sampler,
-                settings_binding.clone(),
-                globals_uniforms.clone(),
-            )),
-        );
+        let bind_group = render_context
+            .render_device()
+            .create_bind_group(
+                Some("motion_blur_bind_group"),
+                layout,
+                &BindGroupEntries::sequential((
+                    post_process.source,
+                    &prepass_motion_vectors_texture.texture.default_view,
+                    &prepass_depth_texture.texture.default_view,
+                    &motion_blur_pipeline.sampler,
+                    settings_binding.clone(),
+                    globals_uniforms.clone(),
+                )),
+            )
+            .into();
 
         let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {
             label: Some("motion_blur"),

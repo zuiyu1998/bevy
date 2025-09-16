@@ -23,6 +23,7 @@ use bevy_mesh::VertexBufferLayout;
 use bevy_platform::collections::HashMap;
 use bevy_render::view::{RenderVisibleEntities, RetainedViewEntity};
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     render_asset::RenderAssets,
     render_phase::{
         DrawFunctions, PhaseItem, PhaseItemExtraIndex, RenderCommand, RenderCommandResult,
@@ -32,7 +33,6 @@ use bevy_render::{
         binding_types::{sampler, texture_2d, uniform_buffer},
         *,
     },
-    gfx_base::{RenderDevice, RenderQueue},
     sync_world::RenderEntity,
     texture::{DefaultImageSampler, FallbackImage, GpuImage},
     view::{ExtractedView, Msaa, ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms},
@@ -617,11 +617,17 @@ pub fn prepare_sprite_view_bind_groups(
     for (entity, tonemapping) in &views {
         let lut_bindings =
             get_lut_bindings(&images, &tonemapping_luts, tonemapping, &fallback_image);
-        let view_bind_group = render_device.create_bind_group(
-            "mesh2d_view_bind_group",
-            &sprite_pipeline.view_layout,
-            &BindGroupEntries::sequential((view_binding.clone(), lut_bindings.0, lut_bindings.1)),
-        );
+        let view_bind_group = render_device
+            .create_bind_group(
+                "mesh2d_view_bind_group",
+                &sprite_pipeline.view_layout,
+                &BindGroupEntries::sequential((
+                    view_binding.clone(),
+                    lut_bindings.0,
+                    lut_bindings.1,
+                )),
+            )
+            .into();
 
         commands.entity(entity).insert(SpriteViewBindGroup {
             value: view_bind_group,
@@ -699,14 +705,16 @@ pub fn prepare_sprite_image_bind_groups(
                     .values
                     .entry(batch_image_handle)
                     .or_insert_with(|| {
-                        render_device.create_bind_group(
-                            "sprite_material_bind_group",
-                            &sprite_pipeline.material_layout,
-                            &BindGroupEntries::sequential((
-                                &gpu_image.texture_view,
-                                &gpu_image.sampler,
-                            )),
-                        )
+                        render_device
+                            .create_bind_group(
+                                "sprite_material_bind_group",
+                                &sprite_pipeline.material_layout,
+                                &BindGroupEntries::sequential((
+                                    &gpu_image.texture_view,
+                                    &gpu_image.sampler,
+                                )),
+                            )
+                            .into()
                     });
 
                 batch_item_index = item_index;

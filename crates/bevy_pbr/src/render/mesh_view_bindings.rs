@@ -20,10 +20,10 @@ use bevy_image::BevyDefault as _;
 use bevy_light::{EnvironmentMapLight, IrradianceVolume};
 use bevy_math::Vec4;
 use bevy_render::{
+    gfx_base::{RenderAdapter, RenderDevice},
     globals::{GlobalsBuffer, GlobalsUniform},
     render_asset::RenderAssets,
     render_resource::{binding_types::*, *},
-    gfx_base::{RenderAdapter, RenderDevice},
     texture::{FallbackImage, FallbackImageMsaa, FallbackImageZero, GpuImage},
     view::{
         Msaa, RenderVisibilityRanges, ViewUniform, ViewUniforms,
@@ -797,21 +797,19 @@ pub fn prepare_mesh_view_bind_groups(
             }
 
             commands.entity(entity).insert(MeshViewBindGroup {
-                main: render_device.create_bind_group(
-                    "mesh_view_bind_group",
-                    &layout.main_layout,
-                    &entries,
-                ),
-                binding_array: render_device.create_bind_group(
-                    "mesh_view_bind_group_binding_array",
-                    &layout.binding_array_layout,
-                    &entries_binding_array,
-                ),
-                empty: render_device.create_bind_group(
-                    "mesh_view_bind_group_empty",
-                    &layout.empty_layout,
-                    &[],
-                ),
+                main: render_device
+                    .create_bind_group("mesh_view_bind_group", &layout.main_layout, &entries)
+                    .into(),
+                binding_array: render_device
+                    .create_bind_group(
+                        "mesh_view_bind_group_binding_array",
+                        &layout.binding_array_layout,
+                        &entries_binding_array,
+                    )
+                    .into(),
+                empty: render_device
+                    .create_bind_group("mesh_view_bind_group_empty", &layout.empty_layout, &[])
+                    .into(),
             });
         }
     }

@@ -386,7 +386,7 @@ fn prepare_screenshot_state(
         ScreenshotPreparedState {
             texture,
             buffer,
-            bind_group,
+            bind_group: BindGroup::from(bind_group),
             pipeline_id,
             size,
         },

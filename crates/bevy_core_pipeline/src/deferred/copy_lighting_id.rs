@@ -9,8 +9,8 @@ use bevy_image::ToExtents;
 use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
-    render_resource::{binding_types::texture_2d, *},
     gfx_base::RenderDevice,
+    render_resource::{binding_types::texture_2d, *},
     texture::{CachedTexture, TextureCache},
     view::ViewTarget,
     Render, RenderApp, RenderStartup, RenderSystems,
@@ -80,11 +80,11 @@ impl ViewNode for CopyDeferredLightingIdNode {
 
         let diagnostics = render_context.diagnostic_recorder();
 
-        let bind_group = render_context.render_device().create_bind_group(
+        let bind_group = BindGroup::from(render_context.render_device().create_bind_group(
             "copy_deferred_lighting_id_bind_group",
             &copy_deferred_lighting_id_pipeline.layout,
             &BindGroupEntries::single(&deferred_lighting_pass_id_texture.texture.default_view),
-        );
+        ));
 
         let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {
             label: Some("copy_deferred_lighting_id"),

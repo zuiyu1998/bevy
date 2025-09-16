@@ -115,6 +115,7 @@ use {
     bevy_math::{Affine3, Affine3A, Vec4},
     bevy_render::{
         extract_component::{ComponentUniforms, DynamicUniformIndex, UniformComponentPlugin},
+        gfx_base::RenderDevice,
         render_asset::{PrepareAssetError, RenderAsset, RenderAssetPlugin, RenderAssets},
         render_phase::{PhaseItem, RenderCommand, RenderCommandResult, TrackedRenderPass},
         render_resource::{
@@ -122,7 +123,6 @@ use {
             BindGroupLayoutEntries, Buffer, BufferInitDescriptor, BufferUsages, ShaderStages,
             ShaderType, VertexFormat,
         },
-        gfx_base::RenderDevice,
         sync_world::{MainEntity, TemporaryRenderEntity},
         Extract, ExtractSchedule, Render, RenderApp, RenderStartup, RenderSystems,
     },
@@ -610,11 +610,13 @@ fn prepare_line_gizmo_bind_group(
 ) {
     if let Some(binding) = line_gizmo_uniforms.uniforms().binding() {
         commands.insert_resource(LineGizmoUniformBindgroup {
-            bindgroup: render_device.create_bind_group(
-                "LineGizmoUniform bindgroup",
-                &line_gizmo_uniform_layout.layout,
-                &BindGroupEntries::single(binding),
-            ),
+            bindgroup: render_device
+                .create_bind_group(
+                    "LineGizmoUniform bindgroup",
+                    &line_gizmo_uniform_layout.layout,
+                    &BindGroupEntries::single(binding),
+                )
+                .into(),
         });
     }
 }

@@ -25,12 +25,12 @@ use bevy_render::{
     render_graph::{NodeRunError, RenderGraphContext, RenderGraphExt, ViewNode, ViewNodeRunner},
     render_resource::{
         binding_types::{sampler, texture_2d, texture_depth_2d},
-        BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries, CachedRenderPipelineId,
-        ColorTargetState, ColorWrites, FilterMode, FragmentState, Operations, PipelineCache,
-        RenderPassColorAttachment, RenderPassDescriptor, RenderPipelineDescriptor, Sampler,
-        SamplerBindingType, SamplerDescriptor, ShaderStages, SpecializedRenderPipeline,
-        SpecializedRenderPipelines, TextureDescriptor, TextureDimension, TextureFormat,
-        TextureSampleType, TextureUsages,
+        BindGroup, BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries,
+        CachedRenderPipelineId, ColorTargetState, ColorWrites, FilterMode, FragmentState,
+        Operations, PipelineCache, RenderPassColorAttachment, RenderPassDescriptor,
+        RenderPipelineDescriptor, Sampler, SamplerBindingType, SamplerDescriptor, ShaderStages,
+        SpecializedRenderPipeline, SpecializedRenderPipelines, TextureDescriptor, TextureDimension,
+        TextureFormat, TextureSampleType, TextureUsages,
     },
     renderer::RenderContext,
     sync_component::SyncComponentPlugin,
@@ -185,7 +185,7 @@ impl ViewNode for TemporalAntiAliasNode {
 
         let view_target = view_target.post_process_write();
 
-        let taa_bind_group = render_context.render_device().create_bind_group(
+        let taa_bind_group = BindGroup::from(render_context.render_device().create_bind_group(
             "taa_bind_group",
             &pipelines.taa_bind_group_layout,
             &BindGroupEntries::sequential((
@@ -196,7 +196,7 @@ impl ViewNode for TemporalAntiAliasNode {
                 &pipelines.nearest_sampler,
                 &pipelines.linear_sampler,
             )),
-        );
+        ));
 
         {
             let mut taa_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {

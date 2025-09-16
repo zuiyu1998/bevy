@@ -1942,24 +1942,26 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
         .ok();
 
         Some(PhasePreprocessBindGroups::Direct(
-            self.render_device.create_bind_group(
-                "preprocess_direct_bind_group",
-                &self.pipelines.direct_preprocess.bind_group_layout,
-                &BindGroupEntries::with_indices((
-                    (0, self.view_uniforms.uniforms.binding()?),
-                    (3, self.current_input_buffer.as_entire_binding()),
-                    (4, self.previous_input_buffer.as_entire_binding()),
-                    (
-                        5,
-                        BindingResource::Buffer(BufferBinding {
-                            buffer: work_item_buffer.buffer()?,
-                            offset: 0,
-                            size: work_item_buffer_size,
-                        }),
-                    ),
-                    (6, self.data_buffer.as_entire_binding()),
-                )),
-            ),
+            self.render_device
+                .create_bind_group(
+                    "preprocess_direct_bind_group",
+                    &self.pipelines.direct_preprocess.bind_group_layout,
+                    &BindGroupEntries::with_indices((
+                        (0, self.view_uniforms.uniforms.binding()?),
+                        (3, self.current_input_buffer.as_entire_binding()),
+                        (4, self.previous_input_buffer.as_entire_binding()),
+                        (
+                            5,
+                            BindingResource::Buffer(BufferBinding {
+                                buffer: work_item_buffer.buffer()?,
+                                offset: 0,
+                                size: work_item_buffer_size,
+                            }),
+                        ),
+                        (6, self.data_buffer.as_entire_binding()),
+                    )),
+                )
+                .into(),
         ))
     }
 
@@ -2051,57 +2053,59 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
                 .ok();
 
                 Some(
-                    self.render_device.create_bind_group(
-                        "preprocess_early_indexed_gpu_occlusion_culling_bind_group",
-                        &self
-                            .pipelines
-                            .early_gpu_occlusion_culling_preprocess
-                            .bind_group_layout,
-                        &BindGroupEntries::with_indices((
-                            (3, self.current_input_buffer.as_entire_binding()),
-                            (4, self.previous_input_buffer.as_entire_binding()),
-                            (
-                                5,
-                                BindingResource::Buffer(BufferBinding {
-                                    buffer: indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: indexed_work_item_buffer_size,
-                                }),
-                            ),
-                            (6, self.data_buffer.as_entire_binding()),
-                            (7, indexed_cpu_metadata_buffer.as_entire_binding()),
-                            (8, indexed_gpu_metadata_buffer.as_entire_binding()),
-                            (9, mesh_culling_data_buffer.as_entire_binding()),
-                            (0, view_uniforms_binding.clone()),
-                            (10, &view_depth_pyramid.all_mips),
-                            (
-                                2,
-                                BufferBinding {
-                                    buffer: previous_view_buffer,
-                                    offset: previous_view_uniform_offset.offset as u64,
-                                    size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
-                                },
-                            ),
-                            (
-                                11,
-                                BufferBinding {
-                                    buffer: late_indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: indexed_work_item_buffer_size,
-                                },
-                            ),
-                            (
-                                12,
-                                BufferBinding {
-                                    buffer: late_indexed_indirect_parameters_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        late_indexed_indirect_parameters_buffer.size(),
-                                    ),
-                                },
-                            ),
-                        )),
-                    ),
+                    self.render_device
+                        .create_bind_group(
+                            "preprocess_early_indexed_gpu_occlusion_culling_bind_group",
+                            &self
+                                .pipelines
+                                .early_gpu_occlusion_culling_preprocess
+                                .bind_group_layout,
+                            &BindGroupEntries::with_indices((
+                                (3, self.current_input_buffer.as_entire_binding()),
+                                (4, self.previous_input_buffer.as_entire_binding()),
+                                (
+                                    5,
+                                    BindingResource::Buffer(BufferBinding {
+                                        buffer: indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: indexed_work_item_buffer_size,
+                                    }),
+                                ),
+                                (6, self.data_buffer.as_entire_binding()),
+                                (7, indexed_cpu_metadata_buffer.as_entire_binding()),
+                                (8, indexed_gpu_metadata_buffer.as_entire_binding()),
+                                (9, mesh_culling_data_buffer.as_entire_binding()),
+                                (0, view_uniforms_binding.clone()),
+                                (10, &view_depth_pyramid.all_mips),
+                                (
+                                    2,
+                                    BufferBinding {
+                                        buffer: previous_view_buffer,
+                                        offset: previous_view_uniform_offset.offset as u64,
+                                        size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
+                                    },
+                                ),
+                                (
+                                    11,
+                                    BufferBinding {
+                                        buffer: late_indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: indexed_work_item_buffer_size,
+                                    },
+                                ),
+                                (
+                                    12,
+                                    BufferBinding {
+                                        buffer: late_indexed_indirect_parameters_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            late_indexed_indirect_parameters_buffer.size(),
+                                        ),
+                                    },
+                                ),
+                            )),
+                        )
+                        .into(),
                 )
             }
             _ => None,
@@ -2149,57 +2153,59 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
                 .ok();
 
                 Some(
-                    self.render_device.create_bind_group(
-                        "preprocess_early_non_indexed_gpu_occlusion_culling_bind_group",
-                        &self
-                            .pipelines
-                            .early_gpu_occlusion_culling_preprocess
-                            .bind_group_layout,
-                        &BindGroupEntries::with_indices((
-                            (3, self.current_input_buffer.as_entire_binding()),
-                            (4, self.previous_input_buffer.as_entire_binding()),
-                            (
-                                5,
-                                BindingResource::Buffer(BufferBinding {
-                                    buffer: non_indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: non_indexed_work_item_buffer_size,
-                                }),
-                            ),
-                            (6, self.data_buffer.as_entire_binding()),
-                            (7, non_indexed_cpu_metadata_buffer.as_entire_binding()),
-                            (8, non_indexed_gpu_metadata_buffer.as_entire_binding()),
-                            (9, mesh_culling_data_buffer.as_entire_binding()),
-                            (0, view_uniforms_binding.clone()),
-                            (10, &view_depth_pyramid.all_mips),
-                            (
-                                2,
-                                BufferBinding {
-                                    buffer: previous_view_buffer,
-                                    offset: previous_view_uniform_offset.offset as u64,
-                                    size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
-                                },
-                            ),
-                            (
-                                11,
-                                BufferBinding {
-                                    buffer: late_non_indexed_work_item_buffer,
-                                    offset: 0,
-                                    size: non_indexed_work_item_buffer_size,
-                                },
-                            ),
-                            (
-                                12,
-                                BufferBinding {
-                                    buffer: late_non_indexed_indirect_parameters_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        late_non_indexed_indirect_parameters_buffer.size(),
-                                    ),
-                                },
-                            ),
-                        )),
-                    ),
+                    self.render_device
+                        .create_bind_group(
+                            "preprocess_early_non_indexed_gpu_occlusion_culling_bind_group",
+                            &self
+                                .pipelines
+                                .early_gpu_occlusion_culling_preprocess
+                                .bind_group_layout,
+                            &BindGroupEntries::with_indices((
+                                (3, self.current_input_buffer.as_entire_binding()),
+                                (4, self.previous_input_buffer.as_entire_binding()),
+                                (
+                                    5,
+                                    BindingResource::Buffer(BufferBinding {
+                                        buffer: non_indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: non_indexed_work_item_buffer_size,
+                                    }),
+                                ),
+                                (6, self.data_buffer.as_entire_binding()),
+                                (7, non_indexed_cpu_metadata_buffer.as_entire_binding()),
+                                (8, non_indexed_gpu_metadata_buffer.as_entire_binding()),
+                                (9, mesh_culling_data_buffer.as_entire_binding()),
+                                (0, view_uniforms_binding.clone()),
+                                (10, &view_depth_pyramid.all_mips),
+                                (
+                                    2,
+                                    BufferBinding {
+                                        buffer: previous_view_buffer,
+                                        offset: previous_view_uniform_offset.offset as u64,
+                                        size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
+                                    },
+                                ),
+                                (
+                                    11,
+                                    BufferBinding {
+                                        buffer: late_non_indexed_work_item_buffer,
+                                        offset: 0,
+                                        size: non_indexed_work_item_buffer_size,
+                                    },
+                                ),
+                                (
+                                    12,
+                                    BufferBinding {
+                                        buffer: late_non_indexed_indirect_parameters_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            late_non_indexed_indirect_parameters_buffer.size(),
+                                        ),
+                                    },
+                                ),
+                            )),
+                        )
+                        .into(),
                 )
             }
             _ => None,
@@ -2244,49 +2250,51 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
                 .ok();
 
                 Some(
-                    self.render_device.create_bind_group(
-                        "preprocess_late_indexed_gpu_occlusion_culling_bind_group",
-                        &self
-                            .pipelines
-                            .late_gpu_occlusion_culling_preprocess
-                            .bind_group_layout,
-                        &BindGroupEntries::with_indices((
-                            (3, self.current_input_buffer.as_entire_binding()),
-                            (4, self.previous_input_buffer.as_entire_binding()),
-                            (
-                                5,
-                                BindingResource::Buffer(BufferBinding {
-                                    buffer: late_indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: late_indexed_work_item_buffer_size,
-                                }),
-                            ),
-                            (6, self.data_buffer.as_entire_binding()),
-                            (7, indexed_cpu_metadata_buffer.as_entire_binding()),
-                            (8, indexed_gpu_metadata_buffer.as_entire_binding()),
-                            (9, mesh_culling_data_buffer.as_entire_binding()),
-                            (0, view_uniforms_binding.clone()),
-                            (10, &view_depth_pyramid.all_mips),
-                            (
-                                2,
-                                BufferBinding {
-                                    buffer: previous_view_buffer,
-                                    offset: previous_view_uniform_offset.offset as u64,
-                                    size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
-                                },
-                            ),
-                            (
-                                12,
-                                BufferBinding {
-                                    buffer: late_indexed_indirect_parameters_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        late_indexed_indirect_parameters_buffer.size(),
-                                    ),
-                                },
-                            ),
-                        )),
-                    ),
+                    self.render_device
+                        .create_bind_group(
+                            "preprocess_late_indexed_gpu_occlusion_culling_bind_group",
+                            &self
+                                .pipelines
+                                .late_gpu_occlusion_culling_preprocess
+                                .bind_group_layout,
+                            &BindGroupEntries::with_indices((
+                                (3, self.current_input_buffer.as_entire_binding()),
+                                (4, self.previous_input_buffer.as_entire_binding()),
+                                (
+                                    5,
+                                    BindingResource::Buffer(BufferBinding {
+                                        buffer: late_indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: late_indexed_work_item_buffer_size,
+                                    }),
+                                ),
+                                (6, self.data_buffer.as_entire_binding()),
+                                (7, indexed_cpu_metadata_buffer.as_entire_binding()),
+                                (8, indexed_gpu_metadata_buffer.as_entire_binding()),
+                                (9, mesh_culling_data_buffer.as_entire_binding()),
+                                (0, view_uniforms_binding.clone()),
+                                (10, &view_depth_pyramid.all_mips),
+                                (
+                                    2,
+                                    BufferBinding {
+                                        buffer: previous_view_buffer,
+                                        offset: previous_view_uniform_offset.offset as u64,
+                                        size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
+                                    },
+                                ),
+                                (
+                                    12,
+                                    BufferBinding {
+                                        buffer: late_indexed_indirect_parameters_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            late_indexed_indirect_parameters_buffer.size(),
+                                        ),
+                                    },
+                                ),
+                            )),
+                        )
+                        .into(),
                 )
             }
             _ => None,
@@ -2331,49 +2339,51 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
                 .ok();
 
                 Some(
-                    self.render_device.create_bind_group(
-                        "preprocess_late_non_indexed_gpu_occlusion_culling_bind_group",
-                        &self
-                            .pipelines
-                            .late_gpu_occlusion_culling_preprocess
-                            .bind_group_layout,
-                        &BindGroupEntries::with_indices((
-                            (3, self.current_input_buffer.as_entire_binding()),
-                            (4, self.previous_input_buffer.as_entire_binding()),
-                            (
-                                5,
-                                BindingResource::Buffer(BufferBinding {
-                                    buffer: non_indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: non_indexed_work_item_buffer_size,
-                                }),
-                            ),
-                            (6, self.data_buffer.as_entire_binding()),
-                            (7, non_indexed_cpu_metadata_buffer.as_entire_binding()),
-                            (8, non_indexed_gpu_metadata_buffer.as_entire_binding()),
-                            (9, mesh_culling_data_buffer.as_entire_binding()),
-                            (0, view_uniforms_binding.clone()),
-                            (10, &view_depth_pyramid.all_mips),
-                            (
-                                2,
-                                BufferBinding {
-                                    buffer: previous_view_buffer,
-                                    offset: previous_view_uniform_offset.offset as u64,
-                                    size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
-                                },
-                            ),
-                            (
-                                12,
-                                BufferBinding {
-                                    buffer: late_non_indexed_indirect_parameters_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        late_non_indexed_indirect_parameters_buffer.size(),
-                                    ),
-                                },
-                            ),
-                        )),
-                    ),
+                    self.render_device
+                        .create_bind_group(
+                            "preprocess_late_non_indexed_gpu_occlusion_culling_bind_group",
+                            &self
+                                .pipelines
+                                .late_gpu_occlusion_culling_preprocess
+                                .bind_group_layout,
+                            &BindGroupEntries::with_indices((
+                                (3, self.current_input_buffer.as_entire_binding()),
+                                (4, self.previous_input_buffer.as_entire_binding()),
+                                (
+                                    5,
+                                    BindingResource::Buffer(BufferBinding {
+                                        buffer: non_indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: non_indexed_work_item_buffer_size,
+                                    }),
+                                ),
+                                (6, self.data_buffer.as_entire_binding()),
+                                (7, non_indexed_cpu_metadata_buffer.as_entire_binding()),
+                                (8, non_indexed_gpu_metadata_buffer.as_entire_binding()),
+                                (9, mesh_culling_data_buffer.as_entire_binding()),
+                                (0, view_uniforms_binding.clone()),
+                                (10, &view_depth_pyramid.all_mips),
+                                (
+                                    2,
+                                    BufferBinding {
+                                        buffer: previous_view_buffer,
+                                        offset: previous_view_uniform_offset.offset as u64,
+                                        size: NonZeroU64::new(size_of::<PreviousViewData>() as u64),
+                                    },
+                                ),
+                                (
+                                    12,
+                                    BufferBinding {
+                                        buffer: late_non_indexed_indirect_parameters_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            late_non_indexed_indirect_parameters_buffer.size(),
+                                        ),
+                                    },
+                                ),
+                            )),
+                        )
+                        .into(),
                 )
             }
             _ => None,
@@ -2429,30 +2439,32 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
                 .ok();
 
                 Some(
-                    self.render_device.create_bind_group(
-                        "preprocess_gpu_indexed_frustum_culling_bind_group",
-                        &self
-                            .pipelines
-                            .gpu_frustum_culling_preprocess
-                            .bind_group_layout,
-                        &BindGroupEntries::with_indices((
-                            (3, self.current_input_buffer.as_entire_binding()),
-                            (4, self.previous_input_buffer.as_entire_binding()),
-                            (
-                                5,
-                                BindingResource::Buffer(BufferBinding {
-                                    buffer: indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: indexed_work_item_buffer_size,
-                                }),
-                            ),
-                            (6, self.data_buffer.as_entire_binding()),
-                            (7, indexed_cpu_metadata_buffer.as_entire_binding()),
-                            (8, indexed_gpu_metadata_buffer.as_entire_binding()),
-                            (9, mesh_culling_data_buffer.as_entire_binding()),
-                            (0, view_uniforms_binding.clone()),
-                        )),
-                    ),
+                    self.render_device
+                        .create_bind_group(
+                            "preprocess_gpu_indexed_frustum_culling_bind_group",
+                            &self
+                                .pipelines
+                                .gpu_frustum_culling_preprocess
+                                .bind_group_layout,
+                            &BindGroupEntries::with_indices((
+                                (3, self.current_input_buffer.as_entire_binding()),
+                                (4, self.previous_input_buffer.as_entire_binding()),
+                                (
+                                    5,
+                                    BindingResource::Buffer(BufferBinding {
+                                        buffer: indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: indexed_work_item_buffer_size,
+                                    }),
+                                ),
+                                (6, self.data_buffer.as_entire_binding()),
+                                (7, indexed_cpu_metadata_buffer.as_entire_binding()),
+                                (8, indexed_gpu_metadata_buffer.as_entire_binding()),
+                                (9, mesh_culling_data_buffer.as_entire_binding()),
+                                (0, view_uniforms_binding.clone()),
+                            )),
+                        )
+                        .into(),
                 )
             }
             _ => None,
@@ -2492,30 +2504,32 @@ impl<'a> PreprocessBindGroupBuilder<'a> {
                 .ok();
 
                 Some(
-                    self.render_device.create_bind_group(
-                        "preprocess_gpu_non_indexed_frustum_culling_bind_group",
-                        &self
-                            .pipelines
-                            .gpu_frustum_culling_preprocess
-                            .bind_group_layout,
-                        &BindGroupEntries::with_indices((
-                            (3, self.current_input_buffer.as_entire_binding()),
-                            (4, self.previous_input_buffer.as_entire_binding()),
-                            (
-                                5,
-                                BindingResource::Buffer(BufferBinding {
-                                    buffer: non_indexed_work_item_gpu_buffer,
-                                    offset: 0,
-                                    size: non_indexed_work_item_buffer_size,
-                                }),
-                            ),
-                            (6, self.data_buffer.as_entire_binding()),
-                            (7, non_indexed_cpu_metadata_buffer.as_entire_binding()),
-                            (8, non_indexed_gpu_metadata_buffer.as_entire_binding()),
-                            (9, mesh_culling_data_buffer.as_entire_binding()),
-                            (0, view_uniforms_binding.clone()),
-                        )),
-                    ),
+                    self.render_device
+                        .create_bind_group(
+                            "preprocess_gpu_non_indexed_frustum_culling_bind_group",
+                            &self
+                                .pipelines
+                                .gpu_frustum_culling_preprocess
+                                .bind_group_layout,
+                            &BindGroupEntries::with_indices((
+                                (3, self.current_input_buffer.as_entire_binding()),
+                                (4, self.previous_input_buffer.as_entire_binding()),
+                                (
+                                    5,
+                                    BindingResource::Buffer(BufferBinding {
+                                        buffer: non_indexed_work_item_gpu_buffer,
+                                        offset: 0,
+                                        size: non_indexed_work_item_buffer_size,
+                                    }),
+                                ),
+                                (6, self.data_buffer.as_entire_binding()),
+                                (7, non_indexed_cpu_metadata_buffer.as_entire_binding()),
+                                (8, non_indexed_gpu_metadata_buffer.as_entire_binding()),
+                                (9, mesh_culling_data_buffer.as_entire_binding()),
+                                (0, view_uniforms_binding.clone()),
+                            )),
+                        )
+                        .into(),
                 )
             }
             _ => None,
@@ -2544,18 +2558,20 @@ fn create_build_indirect_parameters_bind_groups(
                     .batch_sets_buffer(),)
                 {
                     (Some(indexed_batch_sets_buffer),) => Some(
-                        render_device.create_bind_group(
-                            "reset_indexed_indirect_batch_sets_bind_group",
-                            // The early bind group is good for the main phase and late
-                            // phase too. They bind the same buffers.
-                            &pipelines
-                                .early_phase
-                                .reset_indirect_batch_sets
-                                .bind_group_layout,
-                            &BindGroupEntries::sequential((
-                                indexed_batch_sets_buffer.as_entire_binding(),
-                            )),
-                        ),
+                        render_device
+                            .create_bind_group(
+                                "reset_indexed_indirect_batch_sets_bind_group",
+                                // The early bind group is good for the main phase and late
+                                // phase too. They bind the same buffers.
+                                &pipelines
+                                    .early_phase
+                                    .reset_indirect_batch_sets
+                                    .bind_group_layout,
+                                &BindGroupEntries::sequential((
+                                    indexed_batch_sets_buffer.as_entire_binding(),
+                                )),
+                            )
+                            .into(),
                     ),
                     _ => None,
                 },
@@ -2565,18 +2581,20 @@ fn create_build_indirect_parameters_bind_groups(
                     .batch_sets_buffer(),)
                 {
                     (Some(non_indexed_batch_sets_buffer),) => Some(
-                        render_device.create_bind_group(
-                            "reset_non_indexed_indirect_batch_sets_bind_group",
-                            // The early bind group is good for the main phase and late
-                            // phase too. They bind the same buffers.
-                            &pipelines
-                                .early_phase
-                                .reset_indirect_batch_sets
-                                .bind_group_layout,
-                            &BindGroupEntries::sequential((
-                                non_indexed_batch_sets_buffer.as_entire_binding(),
-                            )),
-                        ),
+                        render_device
+                            .create_bind_group(
+                                "reset_non_indexed_indirect_batch_sets_bind_group",
+                                // The early bind group is good for the main phase and late
+                                // phase too. They bind the same buffers.
+                                &pipelines
+                                    .early_phase
+                                    .reset_indirect_batch_sets
+                                    .bind_group_layout,
+                                &BindGroupEntries::sequential((
+                                    non_indexed_batch_sets_buffer.as_entire_binding(),
+                                )),
+                            )
+                            .into(),
                     ),
                     _ => None,
                 },
@@ -2597,39 +2615,41 @@ fn create_build_indirect_parameters_bind_groups(
                         Some(indexed_indirect_parameters_data_buffer),
                         Some(indexed_batch_sets_buffer),
                     ) => Some(
-                        render_device.create_bind_group(
-                            "build_indexed_indirect_parameters_bind_group",
-                            // The frustum culling bind group is good for occlusion culling
-                            // too. They bind the same buffers.
-                            &pipelines
-                                .gpu_frustum_culling_build_indexed_indirect_params
-                                .bind_group_layout,
-                            &BindGroupEntries::sequential((
-                                current_input_buffer.as_entire_binding(),
-                                // Don't use `as_entire_binding` here; the shader reads
-                                // the length and `RawBufferVec` overallocates.
-                                BufferBinding {
-                                    buffer: indexed_indirect_parameters_cpu_metadata_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        phase_indirect_parameters_buffer.indexed.batch_count()
-                                            as u64
-                                            * size_of::<IndirectParametersCpuMetadata>() as u64,
-                                    ),
-                                },
-                                BufferBinding {
-                                    buffer: indexed_indirect_parameters_gpu_metadata_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        phase_indirect_parameters_buffer.indexed.batch_count()
-                                            as u64
-                                            * size_of::<IndirectParametersGpuMetadata>() as u64,
-                                    ),
-                                },
-                                indexed_batch_sets_buffer.as_entire_binding(),
-                                indexed_indirect_parameters_data_buffer.as_entire_binding(),
-                            )),
-                        ),
+                        render_device
+                            .create_bind_group(
+                                "build_indexed_indirect_parameters_bind_group",
+                                // The frustum culling bind group is good for occlusion culling
+                                // too. They bind the same buffers.
+                                &pipelines
+                                    .gpu_frustum_culling_build_indexed_indirect_params
+                                    .bind_group_layout,
+                                &BindGroupEntries::sequential((
+                                    current_input_buffer.as_entire_binding(),
+                                    // Don't use `as_entire_binding` here; the shader reads
+                                    // the length and `RawBufferVec` overallocates.
+                                    BufferBinding {
+                                        buffer: indexed_indirect_parameters_cpu_metadata_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            phase_indirect_parameters_buffer.indexed.batch_count()
+                                                as u64
+                                                * size_of::<IndirectParametersCpuMetadata>() as u64,
+                                        ),
+                                    },
+                                    BufferBinding {
+                                        buffer: indexed_indirect_parameters_gpu_metadata_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            phase_indirect_parameters_buffer.indexed.batch_count()
+                                                as u64
+                                                * size_of::<IndirectParametersGpuMetadata>() as u64,
+                                        ),
+                                    },
+                                    indexed_batch_sets_buffer.as_entire_binding(),
+                                    indexed_indirect_parameters_data_buffer.as_entire_binding(),
+                                )),
+                            )
+                            .into(),
                     ),
                     _ => None,
                 },
@@ -2652,39 +2672,45 @@ fn create_build_indirect_parameters_bind_groups(
                         Some(non_indexed_indirect_parameters_data_buffer),
                         Some(non_indexed_batch_sets_buffer),
                     ) => Some(
-                        render_device.create_bind_group(
-                            "build_non_indexed_indirect_parameters_bind_group",
-                            // The frustum culling bind group is good for occlusion culling
-                            // too. They bind the same buffers.
-                            &pipelines
-                                .gpu_frustum_culling_build_non_indexed_indirect_params
-                                .bind_group_layout,
-                            &BindGroupEntries::sequential((
-                                current_input_buffer.as_entire_binding(),
-                                // Don't use `as_entire_binding` here; the shader reads
-                                // the length and `RawBufferVec` overallocates.
-                                BufferBinding {
-                                    buffer: non_indexed_indirect_parameters_cpu_metadata_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        phase_indirect_parameters_buffer.non_indexed.batch_count()
-                                            as u64
-                                            * size_of::<IndirectParametersCpuMetadata>() as u64,
-                                    ),
-                                },
-                                BufferBinding {
-                                    buffer: non_indexed_indirect_parameters_gpu_metadata_buffer,
-                                    offset: 0,
-                                    size: NonZeroU64::new(
-                                        phase_indirect_parameters_buffer.non_indexed.batch_count()
-                                            as u64
-                                            * size_of::<IndirectParametersGpuMetadata>() as u64,
-                                    ),
-                                },
-                                non_indexed_batch_sets_buffer.as_entire_binding(),
-                                non_indexed_indirect_parameters_data_buffer.as_entire_binding(),
-                            )),
-                        ),
+                        render_device
+                            .create_bind_group(
+                                "build_non_indexed_indirect_parameters_bind_group",
+                                // The frustum culling bind group is good for occlusion culling
+                                // too. They bind the same buffers.
+                                &pipelines
+                                    .gpu_frustum_culling_build_non_indexed_indirect_params
+                                    .bind_group_layout,
+                                &BindGroupEntries::sequential((
+                                    current_input_buffer.as_entire_binding(),
+                                    // Don't use `as_entire_binding` here; the shader reads
+                                    // the length and `RawBufferVec` overallocates.
+                                    BufferBinding {
+                                        buffer: non_indexed_indirect_parameters_cpu_metadata_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            phase_indirect_parameters_buffer
+                                                .non_indexed
+                                                .batch_count()
+                                                as u64
+                                                * size_of::<IndirectParametersCpuMetadata>() as u64,
+                                        ),
+                                    },
+                                    BufferBinding {
+                                        buffer: non_indexed_indirect_parameters_gpu_metadata_buffer,
+                                        offset: 0,
+                                        size: NonZeroU64::new(
+                                            phase_indirect_parameters_buffer
+                                                .non_indexed
+                                                .batch_count()
+                                                as u64
+                                                * size_of::<IndirectParametersGpuMetadata>() as u64,
+                                        ),
+                                    },
+                                    non_indexed_batch_sets_buffer.as_entire_binding(),
+                                    non_indexed_indirect_parameters_data_buffer.as_entire_binding(),
+                                )),
+                            )
+                            .into(),
                     ),
                     _ => None,
                 },

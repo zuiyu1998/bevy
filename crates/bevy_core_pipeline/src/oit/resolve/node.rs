@@ -4,7 +4,7 @@ use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
     render_graph::{NodeRunError, RenderGraphContext, RenderLabel, ViewNode},
-    render_resource::{BindGroupEntries, PipelineCache, RenderPassDescriptor},
+    render_resource::{BindGroup, BindGroupEntries, PipelineCache, RenderPassDescriptor},
     renderer::RenderContext,
     view::{ViewDepthTexture, ViewTarget, ViewUniformOffset},
 };
@@ -53,11 +53,12 @@ impl ViewNode for OitResolveNode {
 
             let diagnostics = render_context.diagnostic_recorder();
 
-            let depth_bind_group = render_context.render_device().create_bind_group(
-                "oit_resolve_depth_bind_group",
-                &resolve_pipeline.oit_depth_bind_group_layout,
-                &BindGroupEntries::single(depth.view()),
-            );
+            let depth_bind_group =
+                BindGroup::from(render_context.render_device().create_bind_group(
+                    "oit_resolve_depth_bind_group",
+                    &resolve_pipeline.oit_depth_bind_group_layout,
+                    &BindGroupEntries::single(depth.view()),
+                ));
 
             let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {
                 label: Some("oit_resolve"),

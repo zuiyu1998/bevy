@@ -14,8 +14,8 @@ use bevy_image::ToExtents;
 use bevy_math::{Affine3A, Mat4, Vec3A};
 use bevy_render::{
     extract_component::ComponentUniforms,
-    render_resource::{binding_types::*, *},
     gfx_base::{RenderDevice, RenderQueue},
+    render_resource::{binding_types::*, *},
     texture::{CachedTexture, TextureCache},
     view::{ExtractedView, Msaa, ViewDepthTexture, ViewUniform, ViewUniforms},
 };
@@ -609,7 +609,7 @@ pub(super) fn prepare_atmosphere_bind_groups(
         .expect("Failed to prepare atmosphere bind groups. Lights uniform buffer missing");
 
     for (entity, textures, view_depth_texture, msaa) in &views {
-        let transmittance_lut = render_device.create_bind_group(
+        let transmittance_lut = BindGroup::from(render_device.create_bind_group(
             "transmittance_lut_bind_group",
             &layouts.transmittance_lut,
             &BindGroupEntries::with_indices((
@@ -617,9 +617,9 @@ pub(super) fn prepare_atmosphere_bind_groups(
                 (1, settings_binding.clone()),
                 (13, &textures.transmittance_lut.default_view),
             )),
-        );
+        ));
 
-        let multiscattering_lut = render_device.create_bind_group(
+        let multiscattering_lut = BindGroup::from(render_device.create_bind_group(
             "multiscattering_lut_bind_group",
             &layouts.multiscattering_lut,
             &BindGroupEntries::with_indices((
@@ -629,9 +629,9 @@ pub(super) fn prepare_atmosphere_bind_groups(
                 (6, &samplers.transmittance_lut),
                 (13, &textures.multiscattering_lut.default_view),
             )),
-        );
+        ));
 
-        let sky_view_lut = render_device.create_bind_group(
+        let sky_view_lut = BindGroup::from(render_device.create_bind_group(
             "sky_view_lut_bind_group",
             &layouts.sky_view_lut,
             &BindGroupEntries::with_indices((
@@ -646,9 +646,9 @@ pub(super) fn prepare_atmosphere_bind_groups(
                 (8, &samplers.multiscattering_lut),
                 (13, &textures.sky_view_lut.default_view),
             )),
-        );
+        ));
 
-        let aerial_view_lut = render_device.create_bind_group(
+        let aerial_view_lut = BindGroup::from(render_device.create_bind_group(
             "sky_view_lut_bind_group",
             &layouts.aerial_view_lut,
             &BindGroupEntries::with_indices((
@@ -662,9 +662,9 @@ pub(super) fn prepare_atmosphere_bind_groups(
                 (8, &samplers.multiscattering_lut),
                 (13, &textures.aerial_view_lut.default_view),
             )),
-        );
+        ));
 
-        let render_sky = render_device.create_bind_group(
+        let render_sky = BindGroup::from(render_device.create_bind_group(
             "render_sky_bind_group",
             if *msaa == Msaa::Off {
                 &render_sky_layouts.render_sky
@@ -687,7 +687,7 @@ pub(super) fn prepare_atmosphere_bind_groups(
                 (12, &samplers.aerial_view_lut),
                 (13, view_depth_texture.view()),
             )),
-        );
+        ));
 
         commands.entity(entity).insert(AtmosphereBindGroups {
             transmittance_lut,

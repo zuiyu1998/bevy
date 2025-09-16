@@ -34,6 +34,7 @@ use bevy_render::{
         },
         GetBatchData, GetFullBatchData, NoAutomaticBatching,
     },
+    gfx_base::{RenderDevice, RenderQueue},
     globals::{GlobalsBuffer, GlobalsUniform},
     mesh::{allocator::MeshAllocator, RenderMesh, RenderMeshBufferInfo},
     render_asset::RenderAssets,
@@ -42,7 +43,6 @@ use bevy_render::{
         TrackedRenderPass,
     },
     render_resource::{binding_types::uniform_buffer, *},
-    gfx_base::{RenderDevice, RenderQueue},
     sync_world::{MainEntity, MainEntityHashMap},
     texture::{DefaultImageSampler, FallbackImage, GpuImage},
     view::{ExtractedView, ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms},
@@ -714,11 +714,13 @@ pub fn prepare_mesh2d_bind_group(
 ) {
     if let Some(binding) = mesh2d_uniforms.instance_data_binding() {
         commands.insert_resource(Mesh2dBindGroup {
-            value: render_device.create_bind_group(
-                "mesh2d_bind_group",
-                &mesh2d_pipeline.mesh_layout,
-                &BindGroupEntries::single(binding),
-            ),
+            value: render_device
+                .create_bind_group(
+                    "mesh2d_bind_group",
+                    &mesh2d_pipeline.mesh_layout,
+                    &BindGroupEntries::single(binding),
+                )
+                .into(),
         });
     }
 }
@@ -758,7 +760,7 @@ pub fn prepare_mesh2d_view_bind_groups(
                 lut_bindings.0,
                 lut_bindings.1,
             )),
-        );
+        ).into();
 
         commands.entity(entity).insert(Mesh2dViewBindGroup {
             value: view_bind_group,

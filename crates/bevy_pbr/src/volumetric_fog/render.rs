@@ -30,14 +30,7 @@ use bevy_render::{
     render_resource::{
         binding_types::{
             sampler, texture_3d, texture_depth_2d, texture_depth_2d_multisampled, uniform_buffer,
-        },
-        BindGroupLayout, BindGroupLayoutEntries, BindingResource, BlendComponent, BlendFactor,
-        BlendOperation, BlendState, CachedRenderPipelineId, ColorTargetState, ColorWrites,
-        DynamicBindGroupEntries, DynamicUniformBuffer, Face, FragmentState, LoadOp, Operations,
-        PipelineCache, PrimitiveState, RenderPassColorAttachment, RenderPassDescriptor,
-        RenderPipelineDescriptor, SamplerBindingType, ShaderStages, ShaderType,
-        SpecializedRenderPipeline, SpecializedRenderPipelines, StoreOp, TextureFormat,
-        TextureSampleType, TextureUsages, VertexState,
+        }, BindGroup, BindGroupLayout, BindGroupLayoutEntries, BindingResource, BlendComponent, BlendFactor, BlendOperation, BlendState, CachedRenderPipelineId, ColorTargetState, ColorWrites, DynamicBindGroupEntries, DynamicUniformBuffer, Face, FragmentState, LoadOp, Operations, PipelineCache, PrimitiveState, RenderPassColorAttachment, RenderPassDescriptor, RenderPipelineDescriptor, SamplerBindingType, ShaderStages, ShaderType, SpecializedRenderPipeline, SpecializedRenderPipelines, StoreOp, TextureFormat, TextureSampleType, TextureUsages, VertexState
     },
     renderer::RenderContext,
     sync_world::RenderEntity,
@@ -430,11 +423,10 @@ impl ViewNode for VolumetricFogNode {
             let volumetric_view_bind_group_layout = &volumetric_lighting_pipeline
                 .volumetric_view_bind_group_layouts[bind_group_layout_key.bits() as usize];
 
-            let volumetric_view_bind_group = render_context.render_device().create_bind_group(
-                None,
-                volumetric_view_bind_group_layout,
-                &bind_group_entries,
-            );
+            let volumetric_view_bind_group: BindGroup = render_context
+                .render_device()
+                .create_bind_group(None, volumetric_view_bind_group_layout, &bind_group_entries)
+                .into();
 
             let render_pass_descriptor = RenderPassDescriptor {
                 label: Some("volumetric lighting pass"),

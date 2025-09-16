@@ -181,11 +181,11 @@ impl ViewNode for DeferredOpaquePass3dPbrLightingNode {
 
         let diagnostics = render_context.diagnostic_recorder();
 
-        let bind_group_2 = render_context.render_device().create_bind_group(
+        let bind_group_2 = BindGroup::from(render_context.render_device().create_bind_group(
             "deferred_lighting_layout_group_2",
             &deferred_lighting_layout.bind_group_layout_2,
             &BindGroupEntries::single(deferred_lighting_pass_id_binding),
-        );
+        ));
 
         let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {
             label: Some("deferred_lighting"),

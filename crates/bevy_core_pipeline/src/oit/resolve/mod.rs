@@ -9,13 +9,13 @@ use bevy_ecs::{
 };
 use bevy_image::BevyDefault as _;
 use bevy_render::{
+    gfx_base::{RenderAdapter, RenderDevice},
     render_resource::{
         binding_types::{storage_buffer_sized, texture_depth_2d, uniform_buffer},
         BindGroup, BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries, BlendComponent,
         BlendState, CachedRenderPipelineId, ColorTargetState, ColorWrites, DownlevelFlags,
         FragmentState, PipelineCache, RenderPipelineDescriptor, ShaderStages, TextureFormat,
     },
-    gfx_base::{RenderAdapter, RenderDevice},
     view::{ExtractedView, ViewTarget, ViewUniform, ViewUniforms},
     Render, RenderApp, RenderSystems,
 };
@@ -245,11 +245,11 @@ pub fn prepare_oit_resolve_bind_group(
         buffers.layers.binding(),
         buffers.layer_ids.binding(),
     ) {
-        let bind_group = render_device.create_bind_group(
+        let bind_group = BindGroup::from(render_device.create_bind_group(
             "oit_resolve_bind_group",
             &resolve_pipeline.view_bind_group_layout,
             &BindGroupEntries::sequential((binding.clone(), layers_binding, layer_ids_binding)),
-        );
+        ));
         commands.insert_resource(OitResolveBindGroup(bind_group));
     }
 }

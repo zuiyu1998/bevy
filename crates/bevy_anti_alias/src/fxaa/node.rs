@@ -52,11 +52,11 @@ impl ViewNode for FxaaNode {
         let bind_group = match &mut *cached_bind_group {
             Some((id, bind_group)) if source.id() == *id => bind_group,
             cached_bind_group => {
-                let bind_group = render_context.render_device().create_bind_group(
+                let bind_group = BindGroup::from(render_context.render_device().create_bind_group(
                     None,
                     &fxaa_pipeline.texture_bind_group,
                     &BindGroupEntries::sequential((source, &fxaa_pipeline.sampler)),
-                );
+                ));
 
                 let (_, bind_group) = cached_bind_group.insert((source.id(), bind_group));
                 bind_group

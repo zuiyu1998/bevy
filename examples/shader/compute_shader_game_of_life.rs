@@ -147,24 +147,28 @@ fn prepare_bind_group(
     let mut uniform_buffer = UniformBuffer::from(game_of_life_uniforms.into_inner());
     uniform_buffer.write_buffer(&render_device, &queue);
 
-    let bind_group_0 = render_device.create_bind_group(
-        None,
-        &pipeline.texture_bind_group_layout,
-        &BindGroupEntries::sequential((
-            &view_a.texture_view,
-            &view_b.texture_view,
-            &uniform_buffer,
-        )),
-    );
-    let bind_group_1 = render_device.create_bind_group(
-        None,
-        &pipeline.texture_bind_group_layout,
-        &BindGroupEntries::sequential((
-            &view_b.texture_view,
-            &view_a.texture_view,
-            &uniform_buffer,
-        )),
-    );
+    let bind_group_0 = render_device
+        .create_bind_group(
+            None,
+            &pipeline.texture_bind_group_layout,
+            &BindGroupEntries::sequential((
+                &view_a.texture_view,
+                &view_b.texture_view,
+                &uniform_buffer,
+            )),
+        )
+        .into();
+    let bind_group_1 = render_device
+        .create_bind_group(
+            None,
+            &pipeline.texture_bind_group_layout,
+            &BindGroupEntries::sequential((
+                &view_b.texture_view,
+                &view_a.texture_view,
+                &uniform_buffer,
+            )),
+        )
+        .into();
     commands.insert_resource(GameOfLifeImageBindGroups([bind_group_0, bind_group_1]));
 }
 

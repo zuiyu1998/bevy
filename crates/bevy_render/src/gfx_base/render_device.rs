@@ -1,7 +1,7 @@
-use super::{RenderQueue, WgpuWrapper};
+use super::{GpuBindGroup, RenderQueue, WgpuWrapper};
 use crate::render_resource::{
-    BindGroup, BindGroupLayout, Buffer, ComputePipeline, RawRenderPipelineDescriptor,
-    RenderPipeline, Sampler, Texture,
+    BindGroupLayout, Buffer, ComputePipeline, RawRenderPipelineDescriptor, RenderPipeline, Sampler,
+    Texture,
 };
 use bevy_ecs::resource::Resource;
 use wgpu::{
@@ -149,13 +149,13 @@ impl RenderDevice {
         label: impl Into<wgpu::Label<'a>>,
         layout: &'a BindGroupLayout,
         entries: &'a [BindGroupEntry<'a>],
-    ) -> BindGroup {
+    ) -> GpuBindGroup {
         let wgpu_bind_group = self.device.create_bind_group(&BindGroupDescriptor {
             label: label.into(),
             layout,
             entries,
         });
-        BindGroup::from(wgpu_bind_group)
+        GpuBindGroup::from(wgpu_bind_group)
     }
 
     /// Creates a [`BindGroupLayout`](wgpu::BindGroupLayout).

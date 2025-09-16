@@ -1,8 +1,8 @@
 use crate::{
     define_atomic_id,
+    gfx_base::{GpuBindGroup, RenderDevice, WgpuWrapper},
     render_asset::RenderAssets,
     render_resource::{BindGroupLayout, Buffer, Sampler, TextureView},
-    gfx_base::{RenderDevice, WgpuWrapper},
     texture::GpuImage,
 };
 use bevy_derive::{Deref, DerefMut};
@@ -31,7 +31,7 @@ define_atomic_id!(BindGroupId);
 #[derive(Clone, Debug)]
 pub struct BindGroup {
     id: BindGroupId,
-    value: WgpuWrapper<wgpu::BindGroup>,
+    value: WgpuWrapper<GpuBindGroup>,
 }
 
 impl BindGroup {
@@ -56,8 +56,8 @@ impl core::hash::Hash for BindGroup {
     }
 }
 
-impl From<wgpu::BindGroup> for BindGroup {
-    fn from(value: wgpu::BindGroup) -> Self {
+impl From<GpuBindGroup> for BindGroup {
+    fn from(value: GpuBindGroup) -> Self {
         BindGroup {
             id: BindGroupId::new(),
             value: WgpuWrapper::new(value),
@@ -82,7 +82,7 @@ impl Deref for BindGroup {
 
     #[inline]
     fn deref(&self) -> &Self::Target {
-        &self.value
+        self.value.get_bind_group()
     }
 }
 
@@ -549,7 +549,7 @@ pub trait AsBindGroup {
 
         Ok(PreparedBindGroup {
             bindings,
-            bind_group,
+            bind_group: BindGroup::from(bind_group),
         })
     }
 

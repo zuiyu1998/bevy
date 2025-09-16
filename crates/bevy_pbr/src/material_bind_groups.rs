@@ -14,6 +14,7 @@ use bevy_platform::collections::{HashMap, HashSet};
 use bevy_reflect::{prelude::ReflectDefault, Reflect};
 use bevy_render::render_resource::BindlessSlabResourceLimit;
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     render_resource::{
         BindGroup, BindGroupEntry, BindGroupLayout, BindingNumber, BindingResource,
         BindingResources, BindlessDescriptor, BindlessIndex, BindlessIndexTableDescriptor,
@@ -22,7 +23,6 @@ use bevy_render::{
         PreparedBindGroup, RawBufferVec, Sampler, SamplerDescriptor, SamplerId, TextureView,
         TextureViewDimension, TextureViewId, UnpreparedBindGroup, WgpuSampler, WgpuTextureView,
     },
-    gfx_base::{RenderDevice, RenderQueue},
     settings::WgpuFeatures,
     texture::FallbackImage,
 };
@@ -1263,8 +1263,11 @@ impl MaterialBindlessSlab {
             });
         }
 
-        self.bind_group =
-            Some(render_device.create_bind_group(label, bind_group_layout, &bind_group_entries));
+        self.bind_group = Some(BindGroup::from(render_device.create_bind_group(
+            label,
+            bind_group_layout,
+            &bind_group_entries,
+        )));
     }
 
     /// Writes any buffers that we're managing to the GPU.
@@ -1903,11 +1906,11 @@ impl MaterialBindGroupNonBindlessAllocator {
             }
 
             // Create the bind group.
-            let bind_group = render_device.create_bind_group(
+            let bind_group = BindGroup::from(render_device.create_bind_group(
                 self.label,
                 &bind_group_layout,
                 &bind_group_entries,
-            );
+            ));
 
             self.bind_groups[*bind_group_index as usize] =
                 Some(MaterialNonBindlessAllocatedBindGroup::Prepared {

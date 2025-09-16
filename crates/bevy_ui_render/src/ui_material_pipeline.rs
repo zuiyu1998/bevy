@@ -13,11 +13,11 @@ use bevy_image::BevyDefault as _;
 use bevy_math::{Affine2, FloatOrd, Rect, Vec2};
 use bevy_mesh::VertexBufferLayout;
 use bevy_render::{
+    gfx_base::{RenderDevice, RenderQueue},
     globals::{GlobalsBuffer, GlobalsUniform},
     render_asset::{PrepareAssetError, RenderAsset, RenderAssetPlugin, RenderAssets},
     render_phase::*,
     render_resource::{binding_types::uniform_buffer, *},
-    gfx_base::{RenderDevice, RenderQueue},
     sync_world::{MainEntity, TemporaryRenderEntity},
     view::*,
     Extract, ExtractSchedule, Render, RenderSystems,
@@ -395,11 +395,15 @@ pub fn prepare_uimaterial_nodes<M: UiMaterial>(
         let mut batches: Vec<(Entity, UiMaterialBatch<M>)> = Vec::with_capacity(*previous_len);
 
         ui_meta.vertices.clear();
-        ui_meta.view_bind_group = Some(render_device.create_bind_group(
-            "ui_material_view_bind_group",
-            &ui_material_pipeline.view_layout,
-            &BindGroupEntries::sequential((view_binding, globals_binding)),
-        ));
+        ui_meta.view_bind_group = Some(
+            render_device
+                .create_bind_group(
+                    "ui_material_view_bind_group",
+                    &ui_material_pipeline.view_layout,
+                    &BindGroupEntries::sequential((view_binding, globals_binding)),
+                )
+                .into(),
+        );
         let mut index = 0;
 
         for ui_phase in phases.values_mut() {

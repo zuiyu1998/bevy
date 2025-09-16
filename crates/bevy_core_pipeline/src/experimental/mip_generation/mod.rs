@@ -654,7 +654,7 @@ impl ViewDepthPyramid {
     where
         R: IntoBinding<'a>,
     {
-        render_device.create_bind_group(
+        BindGroup::from(render_device.create_bind_group(
             label,
             bind_group_layout,
             &BindGroupEntries::sequential((
@@ -673,7 +673,7 @@ impl ViewDepthPyramid {
                 &self.mips[11],
                 sampler,
             )),
-        )
+        ))
     }
 
     /// Invokes the shaders to generate the hierarchical Z-buffer.

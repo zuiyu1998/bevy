@@ -23,9 +23,9 @@ use bevy_render::{
         binding_types::{
             storage_buffer_sized, texture_2d, texture_depth_2d, texture_storage_2d, uniform_buffer,
         },
-        BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries, CachedComputePipelineId,
-        ComputePassDescriptor, ComputePipelineDescriptor, PipelineCache, PushConstantRange,
-        ShaderStages, StorageTextureAccess, TextureFormat, TextureSampleType,
+        BindGroup, BindGroupEntries, BindGroupLayout, BindGroupLayoutEntries,
+        CachedComputePipelineId, ComputePassDescriptor, ComputePipelineDescriptor, PipelineCache,
+        PushConstantRange, ShaderStages, StorageTextureAccess, TextureFormat, TextureSampleType,
     },
     renderer::RenderContext,
     view::{ViewTarget, ViewUniform, ViewUniformOffset, ViewUniforms},
@@ -158,41 +158,44 @@ impl ViewNode for SolariLightingNode {
         };
 
         let s = solari_lighting_resources;
-        let bind_group = render_context.render_device().create_bind_group(
-            "solari_lighting_bind_group",
-            &self.bind_group_layout,
-            &BindGroupEntries::sequential((
-                view_target.get_unsampled_color_attachment().view,
-                s.light_tile_samples.as_entire_binding(),
-                s.light_tile_resolved_samples.as_entire_binding(),
-                &s.di_reservoirs_a.1,
-                &s.di_reservoirs_b.1,
-                s.gi_reservoirs_a.as_entire_binding(),
-                s.gi_reservoirs_b.as_entire_binding(),
-                gbuffer,
-                depth_buffer,
-                motion_vectors,
-                &s.previous_gbuffer.1,
-                &s.previous_depth.1,
-                view_uniforms,
-                previous_view_uniforms,
-                s.world_cache_checksums.as_entire_binding(),
-                s.world_cache_life.as_entire_binding(),
-                s.world_cache_radiance.as_entire_binding(),
-                s.world_cache_geometry_data.as_entire_binding(),
-                s.world_cache_active_cells_new_radiance.as_entire_binding(),
-                s.world_cache_a.as_entire_binding(),
-                s.world_cache_b.as_entire_binding(),
-                s.world_cache_active_cell_indices.as_entire_binding(),
-                s.world_cache_active_cells_count.as_entire_binding(),
-            )),
-        );
-        let bind_group_world_cache_active_cells_dispatch =
+        let bind_group: BindGroup = render_context
+            .render_device()
+            .create_bind_group(
+                "solari_lighting_bind_group",
+                &self.bind_group_layout,
+                &BindGroupEntries::sequential((
+                    view_target.get_unsampled_color_attachment().view,
+                    s.light_tile_samples.as_entire_binding(),
+                    s.light_tile_resolved_samples.as_entire_binding(),
+                    &s.di_reservoirs_a.1,
+                    &s.di_reservoirs_b.1,
+                    s.gi_reservoirs_a.as_entire_binding(),
+                    s.gi_reservoirs_b.as_entire_binding(),
+                    gbuffer,
+                    depth_buffer,
+                    motion_vectors,
+                    &s.previous_gbuffer.1,
+                    &s.previous_depth.1,
+                    view_uniforms,
+                    previous_view_uniforms,
+                    s.world_cache_checksums.as_entire_binding(),
+                    s.world_cache_life.as_entire_binding(),
+                    s.world_cache_radiance.as_entire_binding(),
+                    s.world_cache_geometry_data.as_entire_binding(),
+                    s.world_cache_active_cells_new_radiance.as_entire_binding(),
+                    s.world_cache_a.as_entire_binding(),
+                    s.world_cache_b.as_entire_binding(),
+                    s.world_cache_active_cell_indices.as_entire_binding(),
+                    s.world_cache_active_cells_count.as_entire_binding(),
+                )),
+            )
+            .into();
+        let bind_group_world_cache_active_cells_dispatch: BindGroup =
             render_context.render_device().create_bind_group(
                 "solari_lighting_bind_group_world_cache_active_cells_dispatch",
                 &self.bind_group_layout_world_cache_active_cells_dispatch,
                 &BindGroupEntries::single(s.world_cache_active_cells_dispatch.as_entire_binding()),
-            );
+            ).into();
         #[cfg(all(feature = "dlss", not(feature = "force_disable_dlss")))]
         let bind_group_resolve_dlss_rr_textures = view_dlss_rr_textures.map(|d| {
             render_context.render_device().create_bind_group(

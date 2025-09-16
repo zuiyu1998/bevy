@@ -177,19 +177,22 @@ impl ViewNode for PostProcessNode {
         // The reason it doesn't work is because each post_process_write will alternate the source/destination.
         // The only way to have the correct source/destination for the bind_group
         // is to make sure you get it during the node execution.
-        let bind_group = render_context.render_device().create_bind_group(
-            "post_process_bind_group",
-            &post_process_pipeline.layout,
-            // It's important for this to match the BindGroupLayout defined in the PostProcessPipeline
-            &BindGroupEntries::sequential((
-                // Make sure to use the source view
-                post_process.source,
-                // Use the sampler created for the pipeline
-                &post_process_pipeline.sampler,
-                // Set the settings binding
-                settings_binding.clone(),
-            )),
-        );
+        let bind_group = render_context
+            .render_device()
+            .create_bind_group(
+                "post_process_bind_group",
+                &post_process_pipeline.layout,
+                // It's important for this to match the BindGroupLayout defined in the PostProcessPipeline
+                &BindGroupEntries::sequential((
+                    // Make sure to use the source view
+                    post_process.source,
+                    // Use the sampler created for the pipeline
+                    &post_process_pipeline.sampler,
+                    // Set the settings binding
+                    settings_binding.clone(),
+                )),
+            )
+            .into();
 
         // Begin the render pass
         let mut render_pass = render_context.begin_tracked_render_pass(RenderPassDescriptor {

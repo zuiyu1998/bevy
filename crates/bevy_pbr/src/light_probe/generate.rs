@@ -653,7 +653,7 @@ pub fn prepare_generated_environment_map_bind_groups(
         let (downsampling_first_bind_group, downsampling_second_bind_group) =
             if config.combine_bind_group {
                 // Combined layout expects destinations 1–12 in both bind groups
-                let bind_group = render_device.create_bind_group(
+                let bind_group = BindGroup::from(render_device.create_bind_group(
                     "downsampling_bind_group_combined_first",
                     &layouts.downsampling_first,
                     &BindGroupEntries::sequential((
@@ -673,7 +673,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                         &mip_storage(11),
                         &mip_storage(12),
                     )),
-                );
+                ));
 
                 (bind_group.clone(), bind_group)
             } else {
@@ -686,7 +686,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                 });
 
                 // Split layout (current behavior)
-                let first = render_device.create_bind_group(
+                let first = BindGroup::from(render_device.create_bind_group(
                     "downsampling_first_bind_group",
                     &layouts.downsampling_first,
                     &BindGroupEntries::sequential((
@@ -700,9 +700,9 @@ pub fn prepare_generated_environment_map_bind_groups(
                         &mip_storage(5),
                         &mip_storage(6),
                     )),
-                );
+                ));
 
-                let second = render_device.create_bind_group(
+                let second = BindGroup::from(render_device.create_bind_group(
                     "downsampling_second_bind_group",
                     &layouts.downsampling_second,
                     &BindGroupEntries::sequential((
@@ -716,7 +716,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                         &mip_storage(11),
                         &mip_storage(12),
                     )),
-                );
+                ));
 
                 (first, second)
             };
@@ -755,7 +755,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                 mip as u32,
                 &render_device,
             );
-            let bind_group = render_device.create_bind_group(
+            let bind_group = BindGroup::from(render_device.create_bind_group(
                 Some(format!("radiance_bind_group_mip_{mip}").as_str()),
                 &layouts.radiance,
                 &BindGroupEntries::sequential((
@@ -765,7 +765,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                     &radiance_constants_buffer,
                     &stbn_texture_view,
                 )),
-            );
+            ));
 
             radiance_bind_groups.push(bind_group);
         }
@@ -792,7 +792,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                     ..Default::default()
                 });
 
-        let irradiance_bind_group = render_device.create_bind_group(
+        let irradiance_bind_group = BindGroup::from(render_device.create_bind_group(
             "irradiance_bind_group",
             &layouts.irradiance,
             &BindGroupEntries::sequential((
@@ -802,7 +802,7 @@ pub fn prepare_generated_environment_map_bind_groups(
                 &irradiance_constants_buffer,
                 &stbn_texture_view,
             )),
-        );
+        ));
 
         // Create copy bind group (source env map → destination mip0)
         let src_view = env_map_light
@@ -815,11 +815,11 @@ pub fn prepare_generated_environment_map_bind_groups(
 
         let dst_view = create_storage_view(&textures.environment_map.texture, 0, &render_device);
 
-        let copy_bind_group = render_device.create_bind_group(
+        let copy_bind_group = BindGroup::from(render_device.create_bind_group(
             "copy_bind_group",
             &layouts.copy,
             &BindGroupEntries::with_indices(((0, &src_view), (1, &dst_view))),
-        );
+        ));
 
         commands.entity(entity).insert(GeneratorBindGroups {
             downsampling_first: downsampling_first_bind_group,

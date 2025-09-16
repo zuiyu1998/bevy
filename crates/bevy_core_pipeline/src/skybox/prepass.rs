@@ -9,13 +9,13 @@ use bevy_ecs::{
     system::{Commands, Query, Res, ResMut},
 };
 use bevy_render::{
+    gfx_base::RenderDevice,
     render_resource::{
         binding_types::uniform_buffer, BindGroup, BindGroupEntries, BindGroupLayout,
         BindGroupLayoutEntries, CachedRenderPipelineId, CompareFunction, DepthStencilState,
         FragmentState, MultisampleState, PipelineCache, RenderPipelineDescriptor, ShaderStages,
         SpecializedRenderPipeline, SpecializedRenderPipelines,
     },
-    gfx_base::RenderDevice,
     view::{Msaa, ViewUniform, ViewUniforms},
 };
 use bevy_shader::Shader;
@@ -151,11 +151,11 @@ pub fn prepare_skybox_prepass_bind_groups(
         ) else {
             continue;
         };
-        let bind_group = render_device.create_bind_group(
+        let bind_group = BindGroup::from(render_device.create_bind_group(
             "skybox_prepass_bind_group",
             &pipeline.bind_group_layout,
             &BindGroupEntries::sequential((view_uniforms, prev_view_uniforms)),
-        );
+        ));
 
         commands
             .entity(entity)
