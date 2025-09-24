@@ -62,6 +62,7 @@ pub mod sync_component;
 pub mod sync_world;
 pub mod texture;
 pub mod view;
+pub mod frame_graph;
 
 /// The render prelude.
 ///
