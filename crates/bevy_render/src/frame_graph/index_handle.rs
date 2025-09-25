@@ -27,6 +27,12 @@ impl<T> IndexHandle<T> {
     }
 }
 
+impl<T> PartialEq for IndexHandle<T> {
+    fn eq(&self, other: &Self) -> bool {
+        self.index == other.index
+    }
+}
+
 impl<T> Clone for IndexHandle<T> {
     fn clone(&self) -> Self {
         Self {
