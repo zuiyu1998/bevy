@@ -6,6 +6,7 @@ mod pass;
 mod pass_node;
 mod resource;
 mod resource_node;
+mod resource_board;
 
 pub use color_attachment::*;
 pub use depth_stencil_attachment::*;
@@ -13,6 +14,6 @@ pub use graph::*;
 pub use index_handle::*;
 pub use pass::*;
 pub use resource::*;
-
 pub use pass_node::*;
 pub use resource_node::*;
+pub use resource_board::*;
