@@ -1,14 +1,34 @@
 mod buffer;
 mod cache;
+mod table;
 mod texture;
 
 pub use buffer::*;
 pub use cache::*;
+pub use table::*;
 pub use texture::*;
 
 use alloc::sync::Arc;
 
 use crate::renderer::RenderDevice;
+
+#[derive(Clone)]
+pub enum VirtualResource {
+    Setuped(AnyTransientResourceDescriptor),
+    Imported(ArcTransientResource),
+}
+
+impl VirtualResource {
+    pub fn get_desc<ResourceType: TransientResource>(&self) -> ResourceType::Descriptor {
+        let desc = match self {
+            VirtualResource::Imported(resource) => resource.get_desc(),
+            VirtualResource::Setuped(desc) => desc.clone(),
+        };
+
+        <ResourceType::Descriptor as TransientResourceDescriptor>::borrow_resource_descriptor(&desc)
+            .clone()
+    }
+}
 
 pub trait TransientResourceCreator {
     fn create_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource;

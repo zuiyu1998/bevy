@@ -1,11 +1,18 @@
 mod color_attachment;
 mod depth_stencil_attachment;
-mod pass;
+mod graph;
 mod index_handle;
+mod pass;
+mod pass_node;
 mod resource;
+mod resource_node;
 
 pub use color_attachment::*;
 pub use depth_stencil_attachment::*;
-pub use pass::*;
+pub use graph::*;
 pub use index_handle::*;
+pub use pass::*;
 pub use resource::*;
+
+pub use pass_node::*;
+pub use resource_node::*;

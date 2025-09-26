@@ -1,11 +1,11 @@
+mod parameter;
 mod render_pass;
 
+pub use parameter::*;
 pub use render_pass::*;
 
-use crate::renderer::RenderDevice;
+use crate::{frame_graph::ResourceTable, renderer::RenderDevice};
 use wgpu::CommandEncoder;
-
-pub struct ResourceTable;
 
 pub struct Pass {
     pub name: Option<String>,
