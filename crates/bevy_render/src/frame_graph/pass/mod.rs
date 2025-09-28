@@ -20,6 +20,10 @@ impl Pass {
         }
     }
 
+    pub fn set_name(&mut self, name: &str) {
+        self.name = Some(name.to_string());
+    }
+
     pub fn add_command(&mut self, command: Box<dyn PassCommand>) {
         self.commands.push(command);
     }

@@ -26,15 +26,11 @@ pub struct Handle<ResourceType: TransientResource> {
 
 impl<ResourceType: TransientResource, ViewType> Ref<ResourceType, ViewType> {
     pub fn new(
-        index: IndexHandle<ResourceNode>,
-        version: u32,
+        resource_handle: ResourceHandle,
         desc: <ResourceType as TransientResource>::Descriptor,
     ) -> Self {
         Ref {
-            resource_handle: ResourceHandle {
-                index: index.clone(),
-                version,
-            },
+            resource_handle,
             desc,
             _marker: PhantomData,
         }
@@ -74,6 +70,7 @@ impl<ResourceType: TransientResource> Handle<ResourceType> {
     }
 }
 
+#[derive(Clone, PartialEq)]
 pub struct ResourceHandle {
     index: IndexHandle<ResourceNode>,
     version: u32,

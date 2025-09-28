@@ -1,11 +1,6 @@
 mod device_pass;
 
-use bevy_ecs::component::Component;
 pub use device_pass::*;
-
-use alloc::sync::Arc;
-
-use wgpu::CommandBuffer;
 
 use crate::{
     frame_graph::{
@@ -15,6 +10,9 @@ use crate::{
     },
     renderer::RenderDevice,
 };
+use alloc::sync::Arc;
+use bevy_ecs::component::Component;
+use wgpu::CommandBuffer;
 
 pub struct PipelineContainer {}
 

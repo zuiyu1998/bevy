@@ -8,6 +8,7 @@ mod resource;
 mod resource_node;
 mod resource_board;
 mod resource_table;
+mod pass_node_builder;
 
 pub use color_attachment::*;
 pub use depth_stencil_attachment::*;
@@ -19,3 +20,4 @@ pub use pass_node::*;
 pub use resource_node::*;
 pub use resource_board::*;
 pub use resource_table::*;
+pub use pass_node_builder::*;
