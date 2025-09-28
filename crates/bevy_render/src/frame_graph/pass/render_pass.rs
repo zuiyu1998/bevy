@@ -57,7 +57,7 @@ impl PassCommand for RenderPass {
         let render_pass = create_render_pass(command_encoder, &self.desc);
         let mut ctx = RenderPassContext {
             render_pass,
-            resource_table: &ctx.resource_table,
+            resource_table: ctx.resource_table,
             render_device: ctx.render_device.clone(),
         };
 
@@ -73,6 +73,6 @@ pub struct RenderPassContext<'a> {
     pub render_device: RenderDevice,
 }
 
-pub trait RenderPassCommand {
+pub trait RenderPassCommand: 'static + Send + Sync {
     fn execute(&self, _ctx: &mut RenderPassContext);
 }

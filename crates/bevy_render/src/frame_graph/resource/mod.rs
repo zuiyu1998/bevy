@@ -1,11 +1,9 @@
 mod buffer;
 mod cache;
-mod table;
 mod texture;
 
 pub use buffer::*;
 pub use cache::*;
-pub use table::*;
 pub use texture::*;
 
 use alloc::sync::Arc;

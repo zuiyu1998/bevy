@@ -2,7 +2,7 @@ use crate::frame_graph::{IndexHandle, Pass, ResourceHandle, ResourceNode};
 
 pub struct PassNode {
     pub name: String,
-    pub index: IndexHandle<PassNode>,
+    pub handle: IndexHandle<PassNode>,
     pub writes: Vec<ResourceHandle>,
     pub reads: Vec<ResourceHandle>,
     pub resource_request_array: Vec<IndexHandle<ResourceNode>>,
@@ -11,10 +11,10 @@ pub struct PassNode {
 }
 
 impl PassNode {
-    pub fn new(name: &str, index: IndexHandle<PassNode>) -> Self {
+    pub fn new(name: &str, handle: IndexHandle<PassNode>) -> Self {
         Self {
             name: name.to_string(),
-            index,
+            handle,
             writes: Default::default(),
             reads: Default::default(),
             resource_request_array: Default::default(),

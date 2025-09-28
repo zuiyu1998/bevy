@@ -1,4 +1,4 @@
-use std::marker::PhantomData;
+use core::marker::PhantomData;
 
 use crate::frame_graph::{IndexHandle, PassNode, TransientResource, VirtualResource};
 
@@ -84,6 +84,10 @@ impl ResourceHandle {
         Self { index, version }
     }
 
+    pub fn handle(&self) -> &IndexHandle<ResourceNode> {
+        &self.index
+    }
+
     pub fn index(&self) -> usize {
         self.index.index()
     }
@@ -94,16 +98,16 @@ impl ResourceHandle {
 }
 
 pub struct ResourceRequese {
-    pub index: IndexHandle<ResourceNode>,
+    pub handle: IndexHandle<ResourceNode>,
     pub resource: VirtualResource,
 }
 
 pub struct ResourceRelease {
-    pub index: IndexHandle<ResourceNode>,
+    pub handle: IndexHandle<ResourceNode>,
 }
 
 pub struct ResourceNode {
-    pub index: IndexHandle<ResourceNode>,
+    pub handle: IndexHandle<ResourceNode>,
     pub name: String,
     pub first_use_pass: Option<IndexHandle<PassNode>>,
     pub last_user_pass: Option<IndexHandle<PassNode>>,
@@ -112,10 +116,10 @@ pub struct ResourceNode {
 }
 
 impl ResourceNode {
-    pub fn new(name: &str, index: IndexHandle<ResourceNode>, resource: VirtualResource) -> Self {
+    pub fn new(name: &str, handle: IndexHandle<ResourceNode>, resource: VirtualResource) -> Self {
         ResourceNode {
             name: name.to_string(),
-            index,
+            handle,
             version: 0,
             first_use_pass: None,
             last_user_pass: None,
@@ -125,23 +129,22 @@ impl ResourceNode {
 
     pub fn request(&self) -> ResourceRequese {
         ResourceRequese {
-            index: self.index.clone(),
+            handle: self.handle.clone(),
             resource: self.resource.clone(),
         }
     }
 
     pub fn get_handle<ResourceType: TransientResource>(&self) -> Handle<ResourceType> {
         let desc = self.get_desc::<ResourceType>().clone();
-        Handle::new(self.index.clone(), self.version, desc)
+        Handle::new(self.handle.clone(), self.version, desc)
     }
-
     pub fn get_desc<ResourceType: TransientResource>(&self) -> ResourceType::Descriptor {
         self.resource.get_desc::<ResourceType>()
     }
 
     pub fn release(&self) -> ResourceRelease {
         ResourceRelease {
-            index: self.index.clone(),
+            handle: self.handle.clone(),
         }
     }
 
