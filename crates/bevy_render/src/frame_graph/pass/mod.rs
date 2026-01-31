@@ -1,3 +1,7 @@
+mod render_pass;
+
+pub use render_pass::*;
+
 use wgpu::{CommandBuffer, CommandEncoder, CommandEncoderDescriptor, RenderPipeline};
 
 use crate::{
