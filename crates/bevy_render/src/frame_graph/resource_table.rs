@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
-use wgpu::Device;
-
 use crate::{
-    AnyTransientResource, ArcAnyTransientResource, IndexHandle, ResourceNode, ResourceRef,
-    ResourceRelease, ResourceRequese, ResourceView, TransientResource, TransientResourceCache,
-    TransientResourceCreator, VirtualResource,
+    frame_graph::{
+        AnyArcTransientResource, AnyTransientResource, IndexHandle, ResourceNode, ResourceRef,
+        ResourceRelease, ResourceRequese, ResourceView, TransientResource, TransientResourceCache,
+        TransientResourceCreator, VirtualResource,
+    },
+    renderer::RenderDevice,
 };
 
 #[derive(Default)]
@@ -27,22 +28,22 @@ impl ResourceTable {
     pub fn request_resource(
         &mut self,
         request: &ResourceRequese,
-        device: &Device,
+        render_dervice: &RenderDevice,
         transient_resource_cache: &mut TransientResourceCache,
     ) {
         let index = request.index;
         let resource = match &request.resource {
             VirtualResource::Imported(resource) => match &resource {
-                ArcAnyTransientResource::Texture(resource) => {
+                AnyArcTransientResource::Texture(resource) => {
                     AnyTransientResource::ImportedTexture(resource.clone())
                 }
-                ArcAnyTransientResource::Buffer(resource) => {
+                AnyArcTransientResource::Buffer(resource) => {
                     AnyTransientResource::ImportedBuffer(resource.clone())
                 }
             },
             VirtualResource::Setuped(desc) => transient_resource_cache
                 .get_resource(desc)
-                .unwrap_or_else(|| device.create_resource(desc)),
+                .unwrap_or_else(|| render_dervice.create_transient_resource(desc)),
         };
 
         self.resources.insert(index, resource);

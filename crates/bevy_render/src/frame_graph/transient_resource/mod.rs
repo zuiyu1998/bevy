@@ -1,13 +1,98 @@
+mod bind_group;
 mod buffer;
 mod cache;
 mod texture;
+mod texture_view;
 
+pub use bind_group::*;
 pub use buffer::*;
 pub use cache::*;
 pub use texture::*;
+pub use texture_view::*;
 
 use alloc::sync::Arc;
 use core::fmt::Debug;
+use wgpu::{BindGroup, BindGroupEntry};
+
+use crate::renderer::RenderDevice;
+
+pub trait TransientResourceCreator {
+    fn create_transient_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource;
+    fn create_transient_bind_group(&self, desc: &TransientBindGroupDescriptor) -> BindGroup;
+}
+
+impl TransientResourceCreator for RenderDevice {
+    fn create_transient_bind_group(&self, desc: &TransientBindGroupDescriptor) -> BindGroup {
+        let entries = desc
+            .entries
+            .iter()
+            .map(|entry| match entry.resource {
+                GpuBindingResource::Buffer(ref binding) => (
+                    entry.binding,
+                    TransientBindingResource::Buffer(binding.get_binding()),
+                ),
+                GpuBindingResource::BufferArray(ref bindings) => (
+                    entry.binding,
+                    TransientBindingResource::BufferArray(
+                        bindings
+                            .iter()
+                            .map(|binding| binding.get_binding())
+                            .collect(),
+                    ),
+                ),
+                GpuBindingResource::Sampler(ref binding) => {
+                    (entry.binding, TransientBindingResource::Sampler(binding))
+                }
+                GpuBindingResource::SamplerArray(ref bindings) => (
+                    entry.binding,
+                    TransientBindingResource::SamplerArray(bindings.iter().collect()),
+                ),
+                GpuBindingResource::TextureView(ref binding) => (
+                    entry.binding,
+                    TransientBindingResource::TextureView(binding),
+                ),
+                GpuBindingResource::TextureViewArray(ref bindings) => (
+                    entry.binding,
+                    TransientBindingResource::TextureViewArray(bindings.iter().collect()),
+                ),
+            })
+            .collect::<Vec<_>>();
+
+        self.wgpu_device()
+            .create_bind_group(&wgpu::BindGroupDescriptor {
+                label: desc.label.as_deref(),
+                layout: &desc.layout,
+                entries: &entries
+                    .iter()
+                    .map(|(binding, resource)| BindGroupEntry {
+                        binding: *binding,
+                        resource: resource.get_binding_resource(),
+                    })
+                    .collect::<Vec<_>>(),
+            })
+    }
+
+    fn create_transient_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource {
+        match desc {
+            AnyTransientResourceDescriptor::Texture(desc) => {
+                let resource = self.wgpu_device().create_texture(&desc.get_desc());
+                TransientTexture {
+                    resource,
+                    desc: desc.clone(),
+                }
+                .into()
+            }
+            AnyTransientResourceDescriptor::Buffer(desc) => {
+                let resource = self.wgpu_device().create_buffer(&desc.get_desc());
+                TransientBuffer {
+                    resource,
+                    desc: desc.clone(),
+                }
+                .into()
+            }
+        }
+    }
+}
 
 #[derive(Clone)]
 pub enum VirtualResource {

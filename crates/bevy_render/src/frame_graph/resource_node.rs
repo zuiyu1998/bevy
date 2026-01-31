@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-use crate::{IndexHandle, PassNode, TransientResource, VirtualResource};
+use crate::frame_graph::{IndexHandle, PassNode, TransientResource, VirtualResource};
 
 pub struct ResourceRef<ResourceType: TransientResource, VieType> {
     pub raw: RawResourceHandle,

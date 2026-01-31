@@ -1,4 +1,4 @@
-use crate::{IndexHandle, Pass, RawResourceHandle, ResourceNode};
+use crate::frame_graph::{IndexHandle, Pass, RawResourceHandle, ResourceNode};
 
 pub struct PassNode {
     pub name: String,
