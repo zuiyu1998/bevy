@@ -1,7 +1,6 @@
 use super::WgpuWrapper;
 use crate::diagnostic::internal::DiagnosticsRecorder;
-use crate::render_phase::TrackedRenderPass;
-use crate::render_resource::{CommandEncoder, RenderPassDescriptor};
+use crate::render_resource::CommandEncoder;
 use crate::renderer::RenderDevice;
 use bevy_derive::{Deref, DerefMut};
 use bevy_ecs::change_detection::Tick;
@@ -155,22 +154,6 @@ impl<'w, 's> RenderContext<'w, 's> {
     pub fn command_encoder(&mut self) -> &mut CommandEncoder {
         self.ensure_device();
         self.state.command_encoder()
-    }
-
-    /// Begins a tracked render pass with the given descriptor.
-    pub fn begin_tracked_render_pass<'a>(
-        &'a mut self,
-        descriptor: RenderPassDescriptor<'_>,
-    ) -> TrackedRenderPass<'a> {
-        self.ensure_device();
-
-        let command_encoder = self.state.0.command_encoder.get_or_insert_with(|| {
-            self.render_device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor::default())
-        });
-
-        let render_pass = command_encoder.begin_render_pass(&descriptor);
-        TrackedRenderPass::new(&self.render_device, render_pass)
     }
 
     /// Adds a finished command buffer to be submitted later.

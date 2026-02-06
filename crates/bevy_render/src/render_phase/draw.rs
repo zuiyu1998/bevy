@@ -32,10 +32,10 @@ pub trait Draw<P: PhaseItem>: Send + Sync + 'static {
     fn prepare(&mut self, world: &'_ World) {}
 
     /// Draws a [`PhaseItem`] by issuing zero or more `draw` calls via the [`TrackedRenderPass`].
-    fn draw<'w>(
+    fn draw<'w, 'b>(
         &mut self,
         world: &'w World,
-        pass: &mut TrackedRenderPass<'w>,
+        pass: &mut TrackedRenderPass<'w, 'b>,
         view: Entity,
         item: &P,
     ) -> Result<(), DrawError>;
@@ -210,12 +210,12 @@ pub trait RenderCommand<P: PhaseItem> {
 
     /// Renders a [`PhaseItem`] by recording commands (e.g. setting pipelines, binding bind groups,
     /// issuing draw calls, etc.) via the [`TrackedRenderPass`].
-    fn render<'w>(
+    fn render<'w, 'b>(
         item: &P,
         view: ROQueryItem<'w, '_, Self::ViewQuery>,
         entity: Option<ROQueryItem<'w, '_, Self::ItemQuery>>,
         param: SystemParamItem<'w, '_, Self::Param>,
-        pass: &mut TrackedRenderPass<'w>,
+        pass: &mut TrackedRenderPass<'w, 'b>,
     ) -> RenderCommandResult;
 }
 
@@ -243,12 +243,12 @@ macro_rules! render_command_tuple_impl {
                 non_snake_case,
                 reason = "Parameter and variable names are provided by the macro invocation, not by us."
             )]
-            fn render<'w>(
+            fn render<'w, 'b>(
                 _item: &P,
                 ($($view,)*): ROQueryItem<'w, '_, Self::ViewQuery>,
                 maybe_entities: Option<ROQueryItem<'w, '_, Self::ItemQuery>>,
                 ($($name,)*): SystemParamItem<'w, '_, Self::Param>,
-                _pass: &mut TrackedRenderPass<'w>,
+                _pass: &mut TrackedRenderPass<'w, 'b>,
             ) -> RenderCommandResult {
                 match maybe_entities {
                     None => {
@@ -319,10 +319,10 @@ where
     }
 
     /// Fetches the ECS parameters for the wrapped [`RenderCommand`] and then renders it.
-    fn draw<'w>(
+    fn draw<'w, 'b>(
         &mut self,
         world: &'w World,
-        pass: &mut TrackedRenderPass<'w>,
+        pass: &mut TrackedRenderPass<'w, 'b>,
         view: Entity,
         item: &P,
     ) -> Result<(), DrawError> {
