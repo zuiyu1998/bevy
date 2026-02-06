@@ -1,13 +1,11 @@
-use std::collections::HashMap;
+use bevy_platform::collections::HashMap;
 
-use crate::{
-    frame_graph::{
-        AnyArcTransientResource, AnyTransientResource, IndexHandle, ResourceNode, ResourceRef,
-        ResourceRelease, ResourceRequese, ResourceView, TransientResource, TransientResourceCache,
-        TransientResourceCreator, VirtualResource,
-    },
-    renderer::RenderDevice,
+use crate::frame_graph::{
+    AnyArcTransientResource, AnyTransientResource, IndexHandle, ResourceNode, ResourceRef,
+    ResourceRelease, ResourceRequese, ResourceView, TransientResource, TransientResourceCache,
+    TransientResourceCreator, VirtualResource,
 };
+use bevy_render::renderer::RenderDevice;
 
 #[derive(Default)]
 pub struct ResourceTable {

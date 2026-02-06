@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use bevy_platform::collections::HashMap;
 
 use super::{AnyTransientResource, AnyTransientResourceDescriptor};
 

@@ -6,7 +6,7 @@ use wgpu::{
 };
 
 use super::{
-    AnyTransientResource, AnyTransientResourceDescriptor, AnyArcTransientResource,
+    AnyArcTransientResource, AnyTransientResource, AnyTransientResourceDescriptor,
     IntoAnyArcTransientResource, TransientResource, TransientResourceDescriptor,
 };
 
@@ -46,6 +46,18 @@ pub struct TransientBufferDescriptor {
     pub size: BufferAddress,
     pub usage: BufferUsages,
     pub mapped_at_creation: bool,
+}
+
+//todo update bevy
+impl Default for TransientBufferDescriptor {
+    fn default() -> Self {
+        TransientBufferDescriptor {
+            label: None,
+            size: 0,
+            usage: BufferUsages::all(),
+            mapped_at_creation: false,
+        }
+    }
 }
 
 impl TransientBufferDescriptor {

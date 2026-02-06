@@ -1,5 +1,5 @@
 use super::{
-    AnyTransientResource, AnyTransientResourceDescriptor, AnyArcTransientResource,
+    AnyArcTransientResource, AnyTransientResource, AnyTransientResourceDescriptor,
     IntoAnyArcTransientResource, TransientResource, TransientResourceDescriptor,
 };
 use alloc::sync::Arc;

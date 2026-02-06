@@ -1,10 +1,11 @@
-use std::{mem::take, ops::Range};
+use core::{mem::take, ops::Range};
 
-use wgpu::{IndexFormat, RenderPipeline};
+use wgpu::{Color, IndexFormat, RenderPipeline};
 
 use crate::frame_graph::{
     PassNodeBuilderExt, RenderPass, ResourceHandle, ResourceMaterial, ResourceRead, ResourceRef,
-    ResourceWrite, TransientBuffer, TransientRenderPassColorAttachment, TransientResource,
+    ResourceWrite, TransientBindGroup, TransientBuffer, TransientRenderPassColorAttachment,
+    TransientRenderPassDepthStencilAttachment, TransientResource,
 };
 
 use super::{PassBuilder, RenderPassExt};
@@ -61,6 +62,156 @@ impl<'a, 'b> RenderPassBuilder<'a, 'b> {
         }
     }
 
+    pub fn set_blend_constant(&mut self, color: &Color) -> &mut Self {
+        self.render_pass.set_blend_constant(color);
+
+        self
+    }
+
+    pub fn pop_debug_group(&mut self) -> &mut Self {
+        self.render_pass.pop_debug_group();
+
+        self
+    }
+
+    pub fn push_debug_group(&mut self, label: &str) -> &mut Self {
+        self.render_pass.push_debug_group(label);
+
+        self
+    }
+
+    pub fn insert_debug_marker(&mut self, label: &str) -> &mut Self {
+        self.render_pass.insert_debug_marker(label);
+
+        self
+    }
+
+    pub fn set_viewport(
+        &mut self,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        min_depth: f32,
+        max_depth: f32,
+    ) -> &mut Self {
+        self.render_pass
+            .set_viewport(x, y, width, height, min_depth, max_depth);
+
+        self
+    }
+
+    pub fn set_immediates(&mut self, offset: u32, data: &[u8]) -> &mut Self {
+        self.render_pass.set_immediates(offset, data);
+
+        self
+    }
+
+    pub fn set_stencil_reference(&mut self, reference: u32) -> &mut Self {
+        self.render_pass.set_stencil_reference(reference);
+
+        self
+    }
+
+    pub fn set_scissor_rect(&mut self, x: u32, y: u32, width: u32, height: u32) -> &mut Self {
+        self.render_pass.set_scissor_rect(x, y, width, height);
+
+        self
+    }
+
+    pub fn multi_draw_indexed_indirect_count(
+        &mut self,
+        indirect_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        indirect_offset: u64,
+        count_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        count_offset: u64,
+        max_count: u32,
+    ) -> &mut Self {
+        self.render_pass.multi_draw_indexed_indirect_count(
+            indirect_buffer_ref,
+            indirect_offset,
+            count_buffer_ref,
+            count_offset,
+            max_count,
+        );
+        self
+    }
+
+    pub fn multi_draw_indexed_indirect(
+        &mut self,
+        indirect_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        indirect_offset: u64,
+        count: u32,
+    ) -> &mut Self {
+        self.render_pass
+            .multi_draw_indexed_indirect(indirect_buffer_ref, indirect_offset, count);
+        self
+    }
+
+    pub fn multi_draw_indirect_count(
+        &mut self,
+        indirect_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        indirect_offset: u64,
+        count_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        count_offset: u64,
+        max_count: u32,
+    ) -> &mut Self {
+        self.render_pass.multi_draw_indirect_count(
+            indirect_buffer_ref,
+            indirect_offset,
+            count_buffer_ref,
+            count_offset,
+            max_count,
+        );
+        self
+    }
+
+    pub fn draw_indexed_indirect(
+        &mut self,
+        indirect_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        indirect_offset: u64,
+    ) -> &mut Self {
+        self.render_pass
+            .draw_indexed_indirect(indirect_buffer_ref, indirect_offset);
+
+        self
+    }
+
+    pub fn multi_draw_indirect(
+        &mut self,
+        indirect_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        indirect_offset: u64,
+        count: u32,
+    ) -> &mut Self {
+        self.render_pass
+            .multi_draw_indirect(indirect_buffer_ref, indirect_offset, count);
+
+        self
+    }
+
+    pub fn draw_indirect(
+        &mut self,
+        indirect_buffer_ref: &ResourceRef<TransientBuffer, ResourceRead>,
+        indirect_offset: u64,
+    ) -> &mut Self {
+        self.render_pass
+            .draw_indirect(indirect_buffer_ref, indirect_offset);
+
+        self
+    }
+
+    pub fn set_bind_group(
+        &mut self,
+        index: usize,
+        bind_group: &'a TransientBindGroup,
+        dynamic_uniform_indices: &[u32],
+    ) -> &mut Self {
+        self.render_pass
+            .set_bind_group(index as u32, bind_group, dynamic_uniform_indices);
+
+        self
+    }
+
     pub fn draw_indexed(
         &mut self,
         indices: Range<u32>,
@@ -85,6 +236,15 @@ impl<'a, 'b> RenderPassBuilder<'a, 'b> {
     ) -> &mut Self {
         self.render_pass
             .add_color_attachment(Some(color_attachment));
+        self
+    }
+
+    pub fn set_depth_stencil_attachment(
+        &mut self,
+        depth_stencil_attachment: TransientRenderPassDepthStencilAttachment,
+    ) -> &mut Self {
+        self.render_pass
+            .set_depth_stencil_attachment(Some(depth_stencil_attachment));
         self
     }
 

@@ -4,10 +4,10 @@ pub use render_pass::*;
 
 use wgpu::{CommandBuffer, CommandEncoder, CommandEncoderDescriptor, RenderPipeline};
 
-use crate::{
-    frame_graph::{PipelineContainer, ResourceRef, ResourceTable, ResourceView, TransientResource},
-    renderer::RenderDevice,
+use crate::frame_graph::{
+    PipelineContainer, ResourceRef, ResourceTable, ResourceView, TransientResource,
 };
+use bevy_render::renderer::RenderDevice;
 
 pub struct PassContext<'a> {
     render_device: &'a RenderDevice,

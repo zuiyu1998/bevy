@@ -1,4 +1,5 @@
 mod device_pass;
+mod impls;
 mod pass_node_builder;
 mod resource_board;
 
@@ -6,17 +7,15 @@ pub use device_pass::*;
 pub use pass_node_builder::*;
 pub use resource_board::*;
 
-use std::sync::Arc;
+use alloc::sync::Arc;
 use wgpu::CommandBuffer;
 
-use crate::{
-    frame_graph::{
-        IndexHandle, IntoAnyArcTransientResource, PassNode, PipelineContainer, ResourceHandle,
-        ResourceNode, ResourceTable, TransientResource, TransientResourceCache,
-        TransientResourceDescriptor, TypeEquals, VirtualResource,
-    },
-    renderer::RenderDevice,
+use crate::frame_graph::{
+    IndexHandle, IntoAnyArcTransientResource, PassNode, PipelineContainer, ResourceHandle,
+    ResourceNode, ResourceTable, TransientResource, TransientResourceCache,
+    TransientResourceDescriptor, TypeEquals, VirtualResource,
 };
+use bevy_render::renderer::RenderDevice;
 
 pub struct FrameGraphContext<'a> {
     pub resource_table: ResourceTable,

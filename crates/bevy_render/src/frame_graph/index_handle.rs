@@ -1,3 +1,4 @@
+use core::fmt::Debug;
 use core::{
     any::{Any, TypeId},
     hash::{Hash, Hasher},
@@ -7,6 +8,14 @@ use core::{
 pub struct IndexHandle<T> {
     pub index: usize,
     _marker: PhantomData<T>,
+}
+
+impl<T> Debug for IndexHandle<T> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("IndexHandle")
+            .field("index", &self.index)
+            .finish()
+    }
 }
 
 impl<T: Any> Hash for IndexHandle<T> {

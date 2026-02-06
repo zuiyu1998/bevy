@@ -1,4 +1,4 @@
-use std::mem::take;
+use core::mem::take;
 
 use crate::frame_graph::{
     Pass, PassCommand, PassNodeBuilderExt, RenderPassBuilder, ResourceHandle, ResourceMaterial,

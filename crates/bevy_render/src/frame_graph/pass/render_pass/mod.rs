@@ -95,6 +95,13 @@ impl RenderPass {
         self.desc.label = Some(name.to_string());
     }
 
+    pub fn set_depth_stencil_attachment(
+        &mut self,
+        depth_stencil_attachment: Option<TransientRenderPassDepthStencilAttachment>,
+    ) {
+        self.desc.depth_stencil_attachment = depth_stencil_attachment;
+    }
+
     pub fn add_color_attachment(
         &mut self,
         color_attachment: Option<TransientRenderPassColorAttachment>,

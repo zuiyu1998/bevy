@@ -1,6 +1,8 @@
 use wgpu::IndexFormat;
 
-use crate::frame_graph::{RenderPassCommand, RenderPassContext, ResourceRead, ResourceRef, TransientBuffer};
+use crate::frame_graph::{
+    RenderPassCommand, RenderPassContext, ResourceRead, ResourceRef, TransientBuffer,
+};
 
 pub struct SetIndexBufferParameter {
     pub buffer_ref: ResourceRef<TransientBuffer, ResourceRead>,

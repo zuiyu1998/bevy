@@ -11,13 +11,15 @@ pub use texture::*;
 pub use texture_view::*;
 
 use alloc::sync::Arc;
+use bevy_render::renderer::RenderDevice;
 use core::fmt::Debug;
 use wgpu::{BindGroup, BindGroupEntry};
 
-use crate::renderer::RenderDevice;
-
 pub trait TransientResourceCreator {
-    fn create_transient_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource;
+    fn create_transient_resource(
+        &self,
+        desc: &AnyTransientResourceDescriptor,
+    ) -> AnyTransientResource;
     fn create_transient_bind_group(&self, desc: &TransientBindGroupDescriptor) -> BindGroup;
 }
 
@@ -72,7 +74,10 @@ impl TransientResourceCreator for RenderDevice {
             })
     }
 
-    fn create_transient_resource(&self, desc: &AnyTransientResourceDescriptor) -> AnyTransientResource {
+    fn create_transient_resource(
+        &self,
+        desc: &AnyTransientResourceDescriptor,
+    ) -> AnyTransientResource {
         match desc {
             AnyTransientResourceDescriptor::Texture(desc) => {
                 let resource = self.wgpu_device().create_texture(&desc.get_desc());

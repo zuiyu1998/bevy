@@ -1,4 +1,4 @@
-use std::num::NonZero;
+use core::num::NonZero;
 
 use wgpu::{
     BindGroup, BindGroupLayout, BindingResource, Buffer, BufferAddress, BufferSize, Sampler,
@@ -10,20 +10,20 @@ use crate::frame_graph::{
     TransientTexture, TransientTextureViewDescriptor,
 };
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct TransientBindGroupBuffer {
     pub buffer: ResourceRef<TransientBuffer, ResourceRead>,
     pub size: Option<NonZero<u64>>,
     pub offset: u64,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct TransientBindGroupTextureView {
     pub texture: ResourceRef<TransientTexture, ResourceRead>,
     pub texture_view_desc: TransientTextureViewDescriptor,
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum TransientBindGroupResource {
     Buffer(TransientBindGroupBuffer),
     Sampler(Sampler),
@@ -31,7 +31,7 @@ pub enum TransientBindGroupResource {
     TextureViewArray(Vec<TransientBindGroupTextureView>),
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub struct TransientBindGroupEntry {
     pub binding: u32,
     pub resource: TransientBindGroupResource,
@@ -149,7 +149,7 @@ pub struct TransientBindGroupDescriptor {
     pub entries: Vec<GpuBindGroupEntry>,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub struct TransientBindGroup {
     pub label: Option<String>,
     pub layout: BindGroupLayout,

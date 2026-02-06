@@ -1,3 +1,4 @@
+use core::fmt::Debug;
 use core::marker::PhantomData;
 
 use crate::frame_graph::{IndexHandle, PassNode, TransientResource, VirtualResource};
@@ -6,6 +7,14 @@ pub struct ResourceRef<ResourceType: TransientResource, VieType> {
     pub raw: RawResourceHandle,
     pub desc: <ResourceType as TransientResource>::Descriptor,
     _marker: PhantomData<(ResourceType, VieType)>,
+}
+
+impl<ResourceType: TransientResource, VieType> Debug for ResourceRef<ResourceType, VieType> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("ResourceRef")
+            .field("raw", &self.raw)
+            .finish()
+    }
 }
 
 impl<ResourceType: TransientResource, VieType> ResourceRef<ResourceType, VieType> {
@@ -79,7 +88,7 @@ impl<ResourceType: TransientResource> ResourceHandle<ResourceType> {
     }
 }
 
-#[derive(PartialEq, Eq, Hash, Clone)]
+#[derive(PartialEq, Eq, Hash, Clone, Debug)]
 pub struct RawResourceHandle {
     pub index: IndexHandle<ResourceNode>,
     pub version: u32,
