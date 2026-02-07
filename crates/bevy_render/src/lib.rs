@@ -432,6 +432,7 @@ unsafe fn initialize_render_app(app: &mut App) {
         .add_schedule(extract_schedule)
         .add_schedule(Schedule::new(RenderRecovery))
         .add_schedule(Render::base_schedule())
+        .init_resource::<renderer::FrameGraphs>()
         .init_resource::<renderer::PendingCommandBuffers>()
         .insert_resource(app.world().resource::<AssetServer>().clone())
         .insert_resource(RenderState::Initializing)

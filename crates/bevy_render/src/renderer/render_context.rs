@@ -1,10 +1,12 @@
 use super::WgpuWrapper;
 use crate::diagnostic::internal::DiagnosticsRecorder;
+use crate::frame_graph::FrameGraph;
 use crate::render_resource::CommandEncoder;
 use crate::renderer::RenderDevice;
 use bevy_derive::{Deref, DerefMut};
 use bevy_ecs::change_detection::Tick;
 use bevy_ecs::component::ComponentId;
+use bevy_ecs::entity::EntityHashMap;
 use bevy_ecs::prelude::*;
 use bevy_ecs::query::{FilteredAccessSet, QueryData, QueryFilter, QueryState};
 use bevy_ecs::system::{
@@ -15,6 +17,19 @@ use bevy_ecs::world::DeferredWorld;
 use bevy_log::info_span;
 use core::marker::PhantomData;
 use wgpu::CommandBuffer;
+
+#[derive(Resource, Default)]
+pub struct FrameGraphs(EntityHashMap<FrameGraph>);
+
+impl FrameGraphs {
+    pub fn get_or_insert(&mut self, entity: Entity) -> &mut FrameGraph {
+        if let None = self.0.get(&entity) {
+            self.0.insert(entity, FrameGraph::default());
+        }
+
+        self.0.get_mut(&entity).unwrap()
+    }
+}
 
 #[derive(Default)]
 struct PendingCommandBuffersInner {
