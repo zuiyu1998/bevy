@@ -46,6 +46,22 @@ pub struct TransientTextureDescriptor {
     pub view_formats: Vec<TextureFormat>,
 }
 
+//todo delete
+impl Default for TransientTextureDescriptor {
+    fn default() -> Self {
+        TransientTextureDescriptor {
+            label: None,
+            size: Extent3d::default(),
+            mip_level_count: Default::default(),
+            sample_count: Default::default(),
+            dimension: TextureDimension::D1,
+            format: TextureFormat::Bc1RgbaUnorm,
+            usage: TextureUsages::all(),
+            view_formats: Default::default(),
+        }
+    }
+}
+
 impl TransientTextureDescriptor {
     pub fn from_desc(desc: &TextureDescriptor) -> Self {
         TransientTextureDescriptor {

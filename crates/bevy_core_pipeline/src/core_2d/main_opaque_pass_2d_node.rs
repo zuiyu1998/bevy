@@ -3,9 +3,9 @@ use bevy_ecs::prelude::*;
 use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
-    render_phase::ViewBinnedRenderPhases,
-    render_resource::{RenderPassDescriptor, StoreOp},
-    renderer::{RenderContext, ViewQuery},
+    render_phase::{TrackedRenderPass, ViewBinnedRenderPhases},
+    render_resource::StoreOp,
+    renderer::{FrameGraphs, RenderContext, ViewQuery},
     view::{ExtractedView, ViewDepthTexture, ViewTarget},
 };
 use tracing::error;
@@ -24,7 +24,8 @@ pub fn main_opaque_pass_2d(
     )>,
     opaque_phases: Res<ViewBinnedRenderPhases<Opaque2d>>,
     alpha_mask_phases: Res<ViewBinnedRenderPhases<AlphaMask2d>>,
-    mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
+    ctx: RenderContext,
 ) {
     let view_entity = view.entity();
     let (camera, extracted_view, target, depth) = view.into_inner();
@@ -46,17 +47,21 @@ pub fn main_opaque_pass_2d(
     let diagnostics = ctx.diagnostic_recorder();
     let diagnostics = diagnostics.as_deref();
 
-    let color_attachments = [Some(target.get_color_attachment())];
-    let depth_stencil_attachment = Some(depth.get_attachment(StoreOp::Store));
+    let frame_graph = frame_graphs.get_or_insert(view_entity);
 
-    let mut render_pass = ctx.begin_tracked_render_pass(RenderPassDescriptor {
-        label: Some("main_opaque_pass_2d"),
-        color_attachments: &color_attachments,
-        depth_stencil_attachment,
-        timestamp_writes: None,
-        occlusion_query_set: None,
-        multiview_mask: None,
-    });
+    let mut pass_builder = frame_graph.create_pass_buidlder("main_opaque_pass_2d_node");
+
+    let color_attachment = target.create_transient_render_pass_color_attachment(&mut pass_builder);
+    let depth_stencil_attachment = depth
+        .create_transient_render_pass_depth_stencil_attachment(StoreOp::Store, &mut pass_builder);
+
+    let mut render_pass_builder = pass_builder.create_render_pass_builder("main_opaque_pass_2d");
+
+    render_pass_builder.add_color_attachment(color_attachment);
+    render_pass_builder.set_depth_stencil_attachment(depth_stencil_attachment);
+
+    let mut render_pass = TrackedRenderPass::new(ctx.render_device(), render_pass_builder);
+
     let pass_span = diagnostics.pass_span(&mut render_pass, "main_opaque_pass_2d");
 
     if let Some(viewport) = camera.viewport.as_ref() {

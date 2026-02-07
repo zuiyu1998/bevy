@@ -1,6 +1,6 @@
 use core::{mem::take, ops::Range};
 
-use wgpu::{Color, IndexFormat, RenderPipeline};
+use wgpu::{Color, IndexFormat, QuerySet, RenderPipeline};
 
 use crate::frame_graph::{
     PassNodeBuilderExt, RenderPass, ResourceHandle, ResourceMaterial, ResourceRead, ResourceRef,
@@ -60,6 +60,29 @@ impl<'a, 'b> RenderPassBuilder<'a, 'b> {
             render_pass,
             pass_builder,
         }
+    }
+
+    pub fn end_pipeline_statistics_query(&mut self) -> &mut Self {
+        self.render_pass.end_pipeline_statistics_query();
+
+        self
+    }
+
+    pub fn begin_pipeline_statistics_query(
+        &mut self,
+        query_set: &QuerySet,
+        query_index: u32,
+    ) -> &mut Self {
+        self.render_pass
+            .begin_pipeline_statistics_query(query_set, query_index);
+
+        self
+    }
+
+    pub fn write_timestamp(&mut self, query_set: &QuerySet, query_index: u32) -> &mut Self {
+        self.render_pass.write_timestamp(query_set, query_index);
+
+        self
     }
 
     pub fn set_blend_constant(&mut self, color: &Color) -> &mut Self {

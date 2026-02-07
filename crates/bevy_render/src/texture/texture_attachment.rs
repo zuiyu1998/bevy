@@ -1,5 +1,12 @@
 use super::CachedTexture;
-use crate::render_resource::{TextureFormat, TextureView};
+use crate::{
+    frame_graph::{
+        PassBuilder, PassNodeBuilderExt, TextureViewEdge, TransientRenderPassColorAttachment,
+        TransientRenderPassDepthStencilAttachment, TransientTextureView,
+        TransientTextureViewDescriptor,
+    },
+    render_resource::{Texture, TextureFormat, TextureView},
+};
 use alloc::sync::Arc;
 use bevy_color::LinearRgba;
 use core::sync::atomic::{AtomicBool, Ordering};
@@ -30,6 +37,67 @@ impl ColorAttachment {
             previous_frame_texture,
             clear_color,
             is_first_call: Arc::new(AtomicBool::new(true)),
+        }
+    }
+
+    pub fn create_unsampled_transient_render_pass_color_attachment(
+        &self,
+        pass_builder: &mut PassBuilder,
+    ) -> TransientRenderPassColorAttachment {
+        let first_call = self.is_first_call.fetch_and(false, Ordering::SeqCst);
+        let view_ref = pass_builder.read_material(&self.texture.texture);
+        let view = TextureViewEdge::Read(TransientTextureView {
+            texture: view_ref,
+            desc: TransientTextureViewDescriptor::default(),
+        });
+
+        TransientRenderPassColorAttachment {
+            view,
+            depth_slice: None,
+            resolve_target: None,
+            ops: Operations {
+                load: match (self.clear_color, first_call) {
+                    (Some(clear_color), true) => LoadOp::Clear(clear_color.into()),
+                    (None, _) | (Some(_), false) => LoadOp::Load,
+                },
+                store: StoreOp::Store,
+            },
+        }
+    }
+
+    pub fn create_transient_render_pass_color_attachment(
+        &self,
+        pass_builder: &mut PassBuilder,
+    ) -> TransientRenderPassColorAttachment {
+        if let Some(view) = self.resolve_target.as_ref() {
+            let first_call = self.is_first_call.fetch_and(false, Ordering::SeqCst);
+
+            let view_ref = pass_builder.read_material(&view.texture);
+            let view = TextureViewEdge::Read(TransientTextureView {
+                texture: view_ref,
+                desc: TransientTextureViewDescriptor::default(),
+            });
+
+            let resolve_target_ref = pass_builder.read_material(&self.texture.texture);
+            let resolve_target_view = TextureViewEdge::Read(TransientTextureView {
+                texture: resolve_target_ref,
+                desc: TransientTextureViewDescriptor::default(),
+            });
+
+            TransientRenderPassColorAttachment {
+                view,
+                depth_slice: None,
+                resolve_target: Some(resolve_target_view),
+                ops: Operations {
+                    load: match (self.clear_color, first_call) {
+                        (Some(clear_color), true) => LoadOp::Clear(clear_color.into()),
+                        (None, _) | (Some(_), false) => LoadOp::Load,
+                    },
+                    store: StoreOp::Store,
+                },
+            }
+        } else {
+            self.create_unsampled_transient_render_pass_color_attachment(pass_builder)
         }
     }
 
@@ -98,6 +166,37 @@ impl DepthAttachment {
             view,
             clear_value,
             is_first_call: Arc::new(AtomicBool::new(clear_value.is_some())),
+        }
+    }
+
+    pub fn create_transient_render_pass_depth_stencil_attachment(
+        &self,
+        store: StoreOp,
+        texture: &Texture,
+        pass_builder: &mut PassBuilder,
+    ) -> TransientRenderPassDepthStencilAttachment {
+        let first_call = self
+            .is_first_call
+            .fetch_and(store != StoreOp::Store, Ordering::SeqCst);
+
+        let view_ref = pass_builder.read_material(texture);
+        let view = TextureViewEdge::Read(TransientTextureView {
+            texture: view_ref,
+            desc: TransientTextureViewDescriptor::default(),
+        });
+
+        TransientRenderPassDepthStencilAttachment {
+            view,
+            depth_ops: Some(Operations {
+                load: if first_call {
+                    // If first_call is true, then a clear value will always have been provided in the constructor
+                    LoadOp::Clear(self.clear_value.unwrap())
+                } else {
+                    LoadOp::Load
+                },
+                store,
+            }),
+            stencil_ops: None,
         }
     }
 

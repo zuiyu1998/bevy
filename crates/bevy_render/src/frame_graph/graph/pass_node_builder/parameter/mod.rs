@@ -1,7 +1,9 @@
+mod begin_pipeline_statistics_query_parameter;
 mod draw_indexed_indirect_parameter;
 mod draw_indexed_parameter;
 mod draw_indirect_parameter;
 mod draw_parameter;
+mod end_pipeline_statistics_query_parameter;
 mod insert_debug_marker_parameter;
 mod multi_draw_indexed_indirect_count_parameter;
 mod multi_draw_indexed_indirect_parameter;
@@ -18,15 +20,19 @@ mod set_scissor_rect_parameter;
 mod set_stencil_reference_parameter;
 mod set_vertex_buffer_parameter;
 mod set_viewport_parameter;
+mod write_timestamp_parameter;
 
 use crate::frame_graph::{
     RenderPass, RenderPassCommand, ResourceRead, ResourceRef, TransientBindGroup, TransientBuffer,
 };
 use core::ops::Range;
+
+use begin_pipeline_statistics_query_parameter::*;
 use draw_indexed_indirect_parameter::*;
 use draw_indexed_parameter::*;
 use draw_indirect_parameter::*;
 use draw_parameter::*;
+use end_pipeline_statistics_query_parameter::*;
 use insert_debug_marker_parameter::*;
 use multi_draw_indexed_indirect_count_parameter::*;
 use multi_draw_indexed_indirect_parameter::*;
@@ -43,10 +49,29 @@ use set_scissor_rect_parameter::*;
 use set_stencil_reference_parameter::*;
 use set_vertex_buffer_parameter::*;
 use set_viewport_parameter::*;
-use wgpu::{Color, IndexFormat, RenderPipeline};
+use wgpu::{Color, IndexFormat, QuerySet, RenderPipeline};
+use write_timestamp_parameter::*;
 
 pub trait RenderPassExt {
     fn push<T: RenderPassCommand>(&mut self, value: T);
+
+    fn end_pipeline_statistics_query(&mut self) {
+        self.push(EndPipelineStatisticsQueryParameter);
+    }
+
+    fn begin_pipeline_statistics_query(&mut self, query_set: &QuerySet, query_index: u32) {
+        self.push(BeginPipelineStatisticsQueryParameter {
+            query_index,
+            query_set: query_set.clone(),
+        });
+    }
+
+    fn write_timestamp(&mut self, query_set: &QuerySet, query_index: u32) {
+        self.push(WriteTimestampParameter {
+            query_index,
+            query_set: query_set.clone(),
+        });
+    }
 
     fn set_blend_constant(&mut self, color: &Color) {
         self.push(SetBlendConstantParameter { color: *color });

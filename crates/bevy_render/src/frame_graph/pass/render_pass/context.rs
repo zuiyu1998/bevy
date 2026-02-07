@@ -1,6 +1,6 @@
 use core::ops::Range;
 
-use wgpu::{Color, IndexFormat, RenderPipeline};
+use wgpu::{Color, IndexFormat, QuerySet, RenderPipeline};
 
 use crate::frame_graph::{
     GpuRenderPass, PassContext, ResourceRead, ResourceRef, TransientBindGroup, TransientBuffer,
@@ -17,6 +17,24 @@ impl<'a, 'b> RenderPassContext<'a, 'b> {
             render_pass,
             pass_context,
         }
+    }
+
+    pub fn end_pipeline_statistics_query(&mut self) {
+        self.render_pass
+            .get_render_pass_mut()
+            .end_pipeline_statistics_query();
+    }
+
+    pub fn begin_pipeline_statistics_query(&mut self, query_set: &QuerySet, query_index: u32) {
+        self.render_pass
+            .get_render_pass_mut()
+            .begin_pipeline_statistics_query(query_set, query_index);
+    }
+
+    pub fn write_timestamp(&mut self, query_set: &QuerySet, query_index: u32) {
+        self.render_pass
+            .get_render_pass_mut()
+            .write_timestamp(query_set, query_index);
     }
 
     pub fn set_blend_constant(&mut self, color: &Color) {

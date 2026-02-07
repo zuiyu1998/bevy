@@ -1,8 +1,9 @@
-use crate::renderer::WgpuWrapper;
+use crate::{frame_graph::{FrameGraph, ResourceHandle, ResourceMaterial, TransientTexture, TransientTextureDescriptor}, renderer::WgpuWrapper};
 use bevy_derive::{Deref, DerefMut};
 use bevy_ecs::resource::Resource;
 use bevy_utils::define_atomic_id;
 use core::ops::Deref;
+use alloc::sync::Arc;
 
 define_atomic_id!(TextureId);
 
@@ -23,6 +24,21 @@ define_atomic_id!(TextureId);
 pub struct Texture {
     id: TextureId,
     value: WgpuWrapper<wgpu::Texture>,
+}
+
+impl ResourceMaterial for Texture {
+    type ResourceType = TransientTexture;
+
+    fn imported(&self, frame_graph: &mut FrameGraph) -> ResourceHandle<Self::ResourceType> {
+        let buffer_key = format!("buffer_{:?}", self.id());
+
+        let buffer = TransientTexture {
+            resource: self.deref().clone(),
+            desc: TransientTextureDescriptor::default(),
+        };
+
+        frame_graph.import(&buffer_key, Arc::new(buffer))
+    }
 }
 
 impl Texture {

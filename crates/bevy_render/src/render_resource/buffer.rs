@@ -1,6 +1,7 @@
-use crate::renderer::WgpuWrapper;
+use crate::{frame_graph::{FrameGraph, ResourceHandle, ResourceMaterial, TransientBuffer, TransientBufferDescriptor}, renderer::WgpuWrapper};
 use bevy_utils::define_atomic_id;
 use core::ops::{Deref, RangeBounds};
+use alloc::sync::Arc;
 
 define_atomic_id!(BufferId);
 
@@ -66,5 +67,36 @@ impl<'a> Deref for BufferSlice<'a> {
     #[inline]
     fn deref(&self) -> &Self::Target {
         &self.value
+    }
+}
+
+
+impl ResourceMaterial for Buffer {
+    type ResourceType = TransientBuffer;
+
+    fn imported(&self, frame_graph: &mut FrameGraph) -> ResourceHandle<Self::ResourceType> {
+        let buffer_key = format!("buffer_{:?}", self.id());
+
+        let buffer = TransientBuffer {
+            resource: self.deref().clone(),
+            desc: TransientBufferDescriptor::default(),
+        };
+
+        frame_graph.import(&buffer_key, Arc::new(buffer))
+    }
+}
+
+impl<'a> ResourceMaterial for BufferSlice<'a> {
+    type ResourceType = TransientBuffer;
+
+    fn imported(&self, frame_graph: &mut FrameGraph) -> ResourceHandle<Self::ResourceType> {
+        let buffer_key = format!("buffer_{:?}", self.id());
+
+        let buffer = TransientBuffer {
+            resource: self.buffer().clone(),
+            desc: TransientBufferDescriptor::default(),
+        };
+
+        frame_graph.import(&buffer_key, Arc::new(buffer))
     }
 }

@@ -12,6 +12,9 @@ pub use window::*;
 use crate::{
     camera::{ExtractedCamera, MipBias, NormalizedRenderTargetExt as _, TemporalJitter},
     extract_component::ExtractComponentPlugin,
+    frame_graph::{
+        PassBuilder, TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
+    },
     occlusion_culling::OcclusionCulling,
     render_asset::RenderAssets,
     render_phase::ViewRangefinder3d,
@@ -726,6 +729,21 @@ pub struct NoIndirectDrawing;
 impl ViewTarget {
     pub const TEXTURE_FORMAT_HDR: TextureFormat = TextureFormat::Rgba16Float;
 
+    pub fn create_transient_render_pass_color_attachment(
+        &self,
+        pass_builder: &mut PassBuilder,
+    ) -> TransientRenderPassColorAttachment {
+        if self.main_texture.load(Ordering::SeqCst) == 0 {
+            self.main_textures
+                .a
+                .create_transient_render_pass_color_attachment(pass_builder)
+        } else {
+            self.main_textures
+                .b
+                .create_transient_render_pass_color_attachment(pass_builder)
+        }
+    }
+
     /// Retrieve this target's main texture's color attachment.
     pub fn get_color_attachment(&self) -> RenderPassColorAttachment<'_> {
         if self.main_texture.load(Ordering::SeqCst) == 0 {
@@ -885,6 +903,14 @@ impl ViewDepthTexture {
             texture: texture.texture,
             attachment: DepthAttachment::new(texture.default_view, clear_value),
         }
+    }
+
+    pub fn create_transient_render_pass_depth_stencil_attachment(
+        &self,
+        store: StoreOp,
+        pass_builder: &mut PassBuilder,
+    ) -> TransientRenderPassDepthStencilAttachment {
+        self.attachment.create_transient_render_pass_depth_stencil_attachment(store, &self.texture, pass_builder)
     }
 
     pub fn get_attachment(&self, store: StoreOp) -> RenderPassDepthStencilAttachment<'_> {

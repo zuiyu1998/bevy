@@ -11,7 +11,10 @@ use wgpu::IndexFormat;
 #[cfg(feature = "detailed_trace")]
 use bevy_log::trace;
 
-use crate::frame_graph::{PassNodeBuilderExt, RenderPassBuilder, TransientBindGroup};
+use crate::{
+    diagnostic::internal::{Pass, PassKind, WritePipelineStatistics, WriteTimestamp},
+    frame_graph::{PassNodeBuilderExt, RenderPassBuilder, TransientBindGroup},
+};
 
 type BufferSliceKey = (BufferId, wgpu::BufferAddress, wgpu::BufferSize);
 
@@ -171,14 +174,18 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
             #[cfg(feature = "detailed_trace")]
             trace!(
                 "set bind_group {} (already set): {:?} ({:?})",
-                index, bind_group, dynamic_uniform_indices
+                index,
+                bind_group,
+                dynamic_uniform_indices
             );
             return;
         }
         #[cfg(feature = "detailed_trace")]
         trace!(
             "set bind_group {}: {:?} ({:?})",
-            index, bind_group, dynamic_uniform_indices
+            index,
+            bind_group,
+            dynamic_uniform_indices
         );
 
         self.pass
@@ -274,7 +281,9 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "draw indexed: {:?} {} {:?}",
-            indices, base_vertex, instances
+            indices,
+            base_vertex,
+            instances
         );
         self.pass.draw_indexed(indices, base_vertex, instances);
     }
@@ -328,7 +337,8 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "draw indexed indirect: {:?} {}",
-            indirect_buffer, indirect_offset
+            indirect_buffer,
+            indirect_offset
         );
 
         let indirect_buffer_ref = self.pass.read_material(indirect_buffer);
@@ -363,7 +373,9 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "multi draw indirect: {:?} {}, {}x",
-            indirect_buffer, indirect_offset, count
+            indirect_buffer,
+            indirect_offset,
+            count
         );
 
         let indirect_buffer_ref = self.pass.read_material(indirect_buffer);
@@ -405,7 +417,11 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "multi draw indirect count: {:?} {}, ({:?} {})x, max {}x",
-            indirect_buffer, indirect_offset, count_buffer, count_offset, max_count
+            indirect_buffer,
+            indirect_offset,
+            count_buffer,
+            count_offset,
+            max_count
         );
 
         let indirect_buffer_ref = self.pass.read_material(indirect_buffer);
@@ -448,7 +464,9 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "multi draw indexed indirect: {:?} {}, {}x",
-            indirect_buffer, indirect_offset, count
+            indirect_buffer,
+            indirect_offset,
+            count
         );
 
         let indirect_buffer_ref = self.pass.read_material(indirect_buffer);
@@ -492,7 +510,11 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "multi draw indexed indirect count: {:?} {}, ({:?} {})x, max {}x",
-            indirect_buffer, indirect_offset, count_buffer, count_offset, max_count
+            indirect_buffer,
+            indirect_offset,
+            count_buffer,
+            count_offset,
+            max_count
         );
 
         let indirect_buffer_ref = self.pass.read_material(indirect_buffer);
@@ -549,7 +571,12 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         #[cfg(feature = "detailed_trace")]
         trace!(
             "set viewport: {} {} {} {} {} {}",
-            x, y, width, height, min_depth, max_depth
+            x,
+            y,
+            width,
+            height,
+            min_depth,
+            max_depth
         );
         self.pass
             .set_viewport(x, y, width, height, min_depth, max_depth);
@@ -630,4 +657,24 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         trace!("set blend constant: {:?}", color);
         self.pass.set_blend_constant(&wgpu::Color::from(color));
     }
+}
+
+impl<'a, 'b> WriteTimestamp for TrackedRenderPass<'a, 'b> {
+    fn write_timestamp(&mut self, query_set: &wgpu::QuerySet, index: u32) {
+        self.pass.write_timestamp(query_set, index);
+    }
+}
+
+impl<'a, 'b> WritePipelineStatistics for TrackedRenderPass<'a, 'b> {
+    fn begin_pipeline_statistics_query(&mut self, query_set: &wgpu::QuerySet, index: u32) {
+        self.pass.begin_pipeline_statistics_query(query_set, index);
+    }
+
+    fn end_pipeline_statistics_query(&mut self) {
+        self.pass.end_pipeline_statistics_query();
+    }
+}
+
+impl<'a, 'b> Pass for TrackedRenderPass<'a, 'b> {
+    const KIND: PassKind = PassKind::Render;
 }
