@@ -1,3 +1,7 @@
+mod handle;
+
+pub use handle::*;
+
 use core::num::NonZero;
 
 use wgpu::{

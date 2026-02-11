@@ -186,7 +186,7 @@ pub trait TransientResource: 'static {
 }
 
 pub trait TransientResourceDescriptor:
-    'static + Clone + Debug + Into<AnyTransientResourceDescriptor>
+    'static + Clone + Debug + Into<AnyTransientResourceDescriptor> + PartialEq
 {
     type Resource: TransientResource;
 

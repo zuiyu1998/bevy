@@ -64,6 +64,23 @@ pub struct ResourceHandle<ResourceType: TransientResource> {
     _marker: PhantomData<ResourceType>,
 }
 
+impl<ResourceType: TransientResource> Debug for ResourceHandle<ResourceType> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("ResourceHandle")
+            .field("raw", &self.raw)
+            .field("desc", &self.desc)
+            .finish()
+    }
+}
+
+impl<ResourceType: TransientResource> Eq for ResourceHandle<ResourceType> {}
+
+impl<ResourceType: TransientResource> PartialEq for ResourceHandle<ResourceType> {
+    fn eq(&self, other: &Self) -> bool {
+        self.raw == other.raw && self.desc == other.desc
+    }
+}
+
 impl<ResourceType: TransientResource> Clone for ResourceHandle<ResourceType> {
     fn clone(&self) -> Self {
         ResourceHandle {
