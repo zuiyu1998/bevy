@@ -1,6 +1,7 @@
 use core::{marker::PhantomData, num::NonZero};
 
 use crate::{
+    frame_graph::{FrameGraph, ResourceMaterial, TransientBindGroupBufferHandle},
     render_resource::{make_buffer_label, Buffer},
     renderer::{RenderDevice, RenderQueue},
 };
@@ -219,6 +220,17 @@ impl<T: ShaderType + WriteInto> DynamicUniformBuffer<T> {
             offset: 0,
             size: Some(T::min_size()),
         }))
+    }
+
+    pub fn get_buffer_handle(
+        &self,
+        frame_graph: &mut FrameGraph,
+    ) -> Option<TransientBindGroupBufferHandle> {
+        Some(TransientBindGroupBufferHandle {
+            buffer: self.buffer()?.imported(frame_graph),
+            offset: 0,
+            size: Some(T::min_size()),
+        })
     }
 
     #[inline]

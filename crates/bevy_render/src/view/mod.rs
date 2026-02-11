@@ -13,7 +13,8 @@ use crate::{
     camera::{ExtractedCamera, MipBias, NormalizedRenderTargetExt as _, TemporalJitter},
     extract_component::ExtractComponentPlugin,
     frame_graph::{
-        PassBuilder, TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
+        FrameGraph, PassBuilder, ResourceMaterial, TransientBindGroupBufferHandle,
+        TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
     },
     occlusion_culling::OcclusionCulling,
     render_asset::RenderAssets,
@@ -910,7 +911,12 @@ impl ViewDepthTexture {
         store: StoreOp,
         pass_builder: &mut PassBuilder,
     ) -> TransientRenderPassDepthStencilAttachment {
-        self.attachment.create_transient_render_pass_depth_stencil_attachment(store, &self.texture, pass_builder)
+        self.attachment
+            .create_transient_render_pass_depth_stencil_attachment(
+                store,
+                &self.texture,
+                pass_builder,
+            )
     }
 
     pub fn get_attachment(&self, store: StoreOp) -> RenderPassDepthStencilAttachment<'_> {

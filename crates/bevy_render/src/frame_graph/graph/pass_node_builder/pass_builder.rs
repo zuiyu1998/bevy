@@ -2,7 +2,8 @@ use core::mem::take;
 
 use crate::frame_graph::{
     Pass, PassCommand, PassNodeBuilderExt, RenderPassBuilder, ResourceHandle, ResourceMaterial,
-    ResourceRead, ResourceRef, ResourceWrite, TransientResource,
+    ResourceRead, ResourceRef, ResourceWrite, TransientBindGroup, TransientBindGroupHandle,
+    TransientResource,
 };
 
 use super::PassNodeBuilder;

@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use bevy_app::{App, Plugin};
 use bevy_asset::{embedded_asset, load_embedded_asset, AssetServer, Handle};
 use bevy_camera::Exposure;
@@ -13,12 +15,13 @@ use bevy_light::Skybox;
 use bevy_math::Mat4;
 use bevy_render::{
     extract_component::{ComponentUniforms, DynamicUniformIndex, UniformComponentPlugin},
+    frame_graph::TransientBindGroupHandle,
     render_asset::RenderAssets,
     render_resource::{
         binding_types::{sampler, texture_cube, uniform_buffer},
         *,
     },
-    renderer::RenderDevice,
+    renderer::{FrameGraphs, RenderDevice},
     sync_world::RenderEntity,
     texture::GpuImage,
     view::{ExtractedView, Msaa, ViewTarget, ViewUniform, ViewUniforms},
@@ -229,7 +232,7 @@ fn prepare_skybox_pipelines(
 }
 
 #[derive(Component)]
-pub struct SkyboxBindGroup(pub (BindGroup, u32));
+pub struct SkyboxBindGroup(pub (TransientBindGroupHandle, u32));
 
 fn prepare_skybox_bind_groups(
     mut commands: Commands,
@@ -237,26 +240,29 @@ fn prepare_skybox_bind_groups(
     view_uniforms: Res<ViewUniforms>,
     skybox_uniforms: Res<ComponentUniforms<SkyboxUniforms>>,
     images: Res<RenderAssets<GpuImage>>,
-    render_device: Res<RenderDevice>,
     pipeline_cache: Res<PipelineCache>,
     views: Query<(Entity, &Skybox, &DynamicUniformIndex<SkyboxUniforms>)>,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     for (entity, skybox, skybox_uniform_index) in &views {
+        let mut frame_graph = frame_graphs.get_or_insert(entity);
+
         if let (Some(skybox), Some(view_uniforms), Some(skybox_uniforms)) = (
             images.get(&skybox.image),
-            view_uniforms.uniforms.binding(),
-            skybox_uniforms.binding(),
+            view_uniforms.uniforms.get_buffer_handle(frame_graph),
+            skybox_uniforms.get_buffer_handle(frame_graph),
         ) {
-            let bind_group = render_device.create_bind_group(
-                "skybox_bind_group",
+            let skybox_texture_view = skybox.get_texture_view_handle(frame_graph);
+
+            let bind_group = TransientBindGroupHandle::build(
                 &pipeline_cache.get_bind_group_layout(&pipeline.bind_group_layout),
-                &BindGroupEntries::sequential((
-                    &skybox.texture_view,
-                    &skybox.sampler,
-                    view_uniforms,
-                    skybox_uniforms,
-                )),
-            );
+            )
+            .set_label("skybox_bind_group")
+            .push(skybox_texture_view)
+            .push(skybox.sampler.deref())
+            .push(view_uniforms)
+            .push(skybox_uniforms)
+            .finished();
 
             commands
                 .entity(entity)

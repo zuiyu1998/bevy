@@ -1,4 +1,9 @@
 use crate::{
+    frame_graph::{
+        FrameGraph, ResourceMaterial, TransientBindGroupBufferHandle,
+        TransientBindGroupTextureView, TransientBindGroupTextureViewHandle,
+        TransientTextureViewDescriptor,
+    },
     render_asset::{AssetExtractionError, PrepareAssetError, RenderAsset},
     render_resource::{DefaultImageSampler, Sampler, Texture, TextureView},
     renderer::{RenderDevice, RenderQueue},
@@ -180,6 +185,21 @@ impl RenderAsset for GpuImage {
 }
 
 impl GpuImage {
+    pub fn get_texture_view_handle(
+        &self,
+        frame_graph: &mut FrameGraph,
+    ) -> TransientBindGroupTextureViewHandle {
+        let handle = self.texture.imported(frame_graph);
+        let texture_view_descriptor = self.texture_view_descriptor.clone().unwrap_or_default();
+
+        let texture_view_desc = TransientTextureViewDescriptor::from_desc(&texture_view_descriptor);
+
+        TransientBindGroupTextureViewHandle {
+            texture: handle,
+            texture_view_desc,
+        }
+    }
+
     /// Returns the aspect ratio (width / height) of a 2D image.
     #[inline]
     pub fn aspect_ratio(&self) -> AspectRatio {

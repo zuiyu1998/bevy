@@ -226,7 +226,7 @@ impl<'a, 'b> RenderPassBuilder<'a, 'b> {
     pub fn set_bind_group(
         &mut self,
         index: usize,
-        bind_group: &'a TransientBindGroup,
+        bind_group: &TransientBindGroup,
         dynamic_uniform_indices: &[u32],
     ) -> &mut Self {
         self.render_pass

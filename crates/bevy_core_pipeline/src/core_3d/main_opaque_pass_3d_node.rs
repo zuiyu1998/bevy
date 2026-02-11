@@ -8,7 +8,7 @@ use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
     render_phase::{TrackedRenderPass, ViewBinnedRenderPhases},
-    render_resource::{PipelineCache, RenderPassDescriptor, StoreOp},
+    render_resource::{PipelineCache, StoreOp},
     renderer::{FrameGraphs, RenderContext, ViewQuery},
     view::{ExtractedView, ViewDepthTexture, ViewTarget, ViewUniformOffset},
 };
@@ -34,7 +34,7 @@ pub fn main_opaque_pass_3d(
     alpha_mask_phases: Res<ViewBinnedRenderPhases<AlphaMask3d>>,
     pipeline_cache: Res<PipelineCache>,
     mut frame_graphs: ResMut<FrameGraphs>,
-    mut ctx: RenderContext,
+    ctx: RenderContext,
 ) {
     let view_entity = view.entity();
 
@@ -72,6 +72,10 @@ pub fn main_opaque_pass_3d(
 
     let mut render_pass_builder = pass_builder.create_render_pass_builder("main_opaque_pass_3d");
 
+    render_pass_builder
+        .add_color_attachment(color_attachment)
+        .set_depth_stencil_attachment(depth_stencil_attachment);
+
     let mut render_pass = TrackedRenderPass::new(ctx.render_device(), render_pass_builder);
 
     let pass_span = diagnostics.pass_span(&mut render_pass, "main_opaque_pass_3d");
@@ -103,7 +107,7 @@ pub fn main_opaque_pass_3d(
         && let Some(pipeline) = pipeline_cache.get_render_pipeline(skybox_pipeline.0)
     {
         render_pass.set_render_pipeline(pipeline);
-        render_pass.set_bind_group(
+        render_pass.set_bind_group_handle(
             0,
             &skybox_bind_group.0,
             &[view_uniform_offset.offset, skybox_bind_group.1],

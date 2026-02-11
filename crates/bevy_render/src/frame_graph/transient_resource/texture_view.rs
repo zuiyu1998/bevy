@@ -1,7 +1,7 @@
 use wgpu::{TextureAspect, TextureFormat, TextureUsages, TextureView, TextureViewDimension};
 
 use crate::frame_graph::{
-    ResourceRead, ResourceRef, ResourceView, ResourceWrite, TransientTexture, pass::PassContext,
+    pass::PassContext, ResourceRead, ResourceRef, ResourceView, ResourceWrite, TransientTexture,
 };
 
 pub type TransientTextureViewRead = TransientTextureView<ResourceRead>;
@@ -22,6 +22,20 @@ pub struct TransientTextureViewDescriptor {
 }
 
 impl TransientTextureViewDescriptor {
+    pub fn from_desc(desc: &wgpu::TextureViewDescriptor<'_>) -> Self {
+        Self {
+            label: desc.label.as_ref().map(ToString::to_string),
+            format: desc.format,
+            dimension: desc.dimension,
+            usage: desc.usage,
+            aspect: desc.aspect,
+            base_mip_level: desc.base_mip_level,
+            mip_level_count: desc.mip_level_count,
+            base_array_layer: desc.base_array_layer,
+            array_layer_count: desc.array_layer_count,
+        }
+    }
+
     pub fn get_desc<'a>(&'a self) -> wgpu::TextureViewDescriptor<'a> {
         wgpu::TextureViewDescriptor {
             label: self.label.as_deref(),

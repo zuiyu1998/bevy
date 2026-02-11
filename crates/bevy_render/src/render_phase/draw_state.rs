@@ -13,7 +13,9 @@ use bevy_log::trace;
 
 use crate::{
     diagnostic::internal::{Pass, PassKind, WritePipelineStatistics, WriteTimestamp},
-    frame_graph::{PassNodeBuilderExt, RenderPassBuilder, TransientBindGroup},
+    frame_graph::{
+        PassNodeBuilderExt, RenderPassBuilder, TransientBindGroup, TransientBindGroupHandle,
+    },
 };
 
 type BufferSliceKey = (BufferId, wgpu::BufferAddress, wgpu::BufferSize);
@@ -154,6 +156,16 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
         self.state.set_pipeline(pipeline.id());
     }
 
+    pub fn set_bind_group_handle(
+        &mut self,
+        index: usize,
+        bind_group_handle: &TransientBindGroupHandle,
+        dynamic_uniform_indices: &[u32],
+    ) {
+        let bind_group = bind_group_handle.create(&mut self.pass);
+        self.set_bind_group(index, &bind_group, dynamic_uniform_indices);
+    }
+
     /// Sets the active bind group for a given bind group index. The bind group layout
     /// in the active pipeline when any `draw()` function is called must match the layout of
     /// this bind group.
@@ -164,7 +176,7 @@ impl<'a, 'b> TrackedRenderPass<'a, 'b> {
     pub fn set_bind_group(
         &mut self,
         index: usize,
-        bind_group: &'a TransientBindGroup,
+        bind_group: &TransientBindGroup,
         dynamic_uniform_indices: &[u32],
     ) {
         if self

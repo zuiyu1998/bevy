@@ -8,7 +8,7 @@ pub use render_pass_builder::*;
 
 use crate::frame_graph::{
     FrameGraph, Pass, RawResourceHandle, ResourceHandle, ResourceMaterial, ResourceRead,
-    ResourceRef, ResourceWrite, TransientResource,
+    ResourceRef, ResourceWrite, TransientBindGroup, TransientBindGroupHandle, TransientResource,
 };
 
 pub struct PassNodeBuilder<'a> {
@@ -28,7 +28,7 @@ impl Drop for PassNodeBuilder<'_> {
     }
 }
 
-pub trait PassNodeBuilderExt {
+pub trait PassNodeBuilderExt: Sized {
     fn read_material<M: ResourceMaterial>(
         &mut self,
         material: &M,
