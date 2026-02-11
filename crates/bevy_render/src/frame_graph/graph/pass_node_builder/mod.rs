@@ -8,7 +8,7 @@ pub use render_pass_builder::*;
 
 use crate::frame_graph::{
     FrameGraph, Pass, RawResourceHandle, ResourceHandle, ResourceMaterial, ResourceRead,
-    ResourceRef, ResourceWrite, TransientBindGroup, TransientBindGroupHandle, TransientResource,
+    ResourceRef, ResourceWrite, TransientResource,
 };
 
 pub struct PassNodeBuilder<'a> {

@@ -13,8 +13,7 @@ use crate::{
     camera::{ExtractedCamera, MipBias, NormalizedRenderTargetExt as _, TemporalJitter},
     extract_component::ExtractComponentPlugin,
     frame_graph::{
-        FrameGraph, PassBuilder, ResourceMaterial, TransientBindGroupBufferHandle,
-        TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
+        PassBuilder, TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
     },
     occlusion_culling::OcclusionCulling,
     render_asset::RenderAssets,

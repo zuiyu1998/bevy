@@ -7,9 +7,9 @@ use bevy_ecs::prelude::*;
 use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
-    render_phase::ViewSortedRenderPhases,
-    render_resource::{PipelineCache, RenderPassDescriptor, StoreOp},
-    renderer::{RenderContext, ViewQuery},
+    render_phase::{TrackedRenderPass, ViewSortedRenderPhases},
+    render_resource::{PipelineCache, StoreOp},
+    renderer::{FrameGraphs, RenderContext, ViewQuery},
     view::{ExtractedView, ViewDepthTexture, ViewTarget},
 };
 use tracing::error;
@@ -28,7 +28,8 @@ pub fn main_transparent_pass_3d(
         Option<&OitResolvePipelineId>,
     )>,
     transparent_phases: Res<ViewSortedRenderPhases<Transparent3d>>,
-    mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
+    ctx: RenderContext,
 ) {
     let view_entity = view.entity();
 
@@ -46,6 +47,9 @@ pub fn main_transparent_pass_3d(
     else {
         return;
     };
+
+    let frame_graph = frame_graphs.get_or_insert(view_entity);
+    let mut pass_builder = frame_graph.create_pass_buidlder("main_transparent_pass_3d_node");
 
     if !transparent_phase.items.is_empty() {
         #[cfg(feature = "trace")]
@@ -70,20 +74,21 @@ pub fn main_transparent_pass_3d(
             }
         }
 
-        let mut render_pass = ctx.begin_tracked_render_pass(RenderPassDescriptor {
-            label: Some("main_transparent_pass_3d"),
-            color_attachments: &[Some(target.get_color_attachment())],
-            // NOTE: For the transparent pass we load the depth buffer. There should be no
-            // need to write to it, but store is set to `true` as a workaround for issue #3776,
-            // https://github.com/bevyengine/bevy/issues/3776
-            // so that wgpu does not clear the depth buffer.
-            // As the opaque and alpha mask passes run first, opaque meshes can occlude
-            // transparent ones.
-            depth_stencil_attachment: Some(depth.get_attachment(StoreOp::Store)),
-            timestamp_writes: None,
-            occlusion_query_set: None,
-            multiview_mask: None,
-        });
+        let color_attachment =
+            target.create_transient_render_pass_color_attachment(&mut pass_builder);
+        let depth_stencil_attachment = depth.create_transient_render_pass_depth_stencil_attachment(
+            StoreOp::Store,
+            &mut pass_builder,
+        );
+        let mut render_pass_builder =
+            pass_builder.create_render_pass_builder("main_transparent_pass_3d");
+
+        render_pass_builder
+            .add_color_attachment(color_attachment)
+            .set_depth_stencil_attachment(depth_stencil_attachment);
+
+        let mut render_pass = TrackedRenderPass::new(ctx.render_device(), render_pass_builder);
+
         let pass_span = diagnostics.pass_span(&mut render_pass, "main_transparent_pass_3d");
 
         if let Some(viewport) =
@@ -105,15 +110,12 @@ pub fn main_transparent_pass_3d(
     if camera.viewport.is_some() {
         #[cfg(feature = "trace")]
         let _reset_viewport_pass_3d = info_span!("reset_viewport_pass_3d").entered();
-        let pass_descriptor = RenderPassDescriptor {
-            label: Some("reset_viewport_pass_3d"),
-            color_attachments: &[Some(target.get_color_attachment())],
-            depth_stencil_attachment: None,
-            timestamp_writes: None,
-            occlusion_query_set: None,
-            multiview_mask: None,
-        };
 
-        ctx.command_encoder().begin_render_pass(&pass_descriptor);
+        let color_attachment =
+            target.create_transient_render_pass_color_attachment(&mut pass_builder);
+        let mut render_pass_builder =
+            pass_builder.create_render_pass_builder("reset_viewport_pass_3d");
+
+        render_pass_builder.add_color_attachment(color_attachment);
     }
 }

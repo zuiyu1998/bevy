@@ -21,7 +21,7 @@ use bevy_render::{
         binding_types::{sampler, texture_cube, uniform_buffer},
         *,
     },
-    renderer::{FrameGraphs, RenderDevice},
+    renderer::FrameGraphs,
     sync_world::RenderEntity,
     texture::GpuImage,
     view::{ExtractedView, Msaa, ViewTarget, ViewUniform, ViewUniforms},
@@ -245,7 +245,7 @@ fn prepare_skybox_bind_groups(
     mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     for (entity, skybox, skybox_uniform_index) in &views {
-        let mut frame_graph = frame_graphs.get_or_insert(entity);
+        let frame_graph = frame_graphs.get_or_insert(entity);
 
         if let (Some(skybox), Some(view_uniforms), Some(skybox_uniforms)) = (
             images.get(&skybox.image),

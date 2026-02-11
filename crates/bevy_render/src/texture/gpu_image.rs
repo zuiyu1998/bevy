@@ -1,7 +1,6 @@
 use crate::{
     frame_graph::{
-        FrameGraph, ResourceMaterial, TransientBindGroupBufferHandle,
-        TransientBindGroupTextureView, TransientBindGroupTextureViewHandle,
+        FrameGraph, ResourceMaterial, TransientBindGroupTextureViewHandle,
         TransientTextureViewDescriptor,
     },
     render_asset::{AssetExtractionError, PrepareAssetError, RenderAsset},
