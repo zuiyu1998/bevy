@@ -7,13 +7,16 @@ use bevy_camera::{
 };
 use bevy_diagnostic::FrameCount;
 pub use visibility::*;
+use wgpu_types::TextureViewDescriptor;
 pub use window::*;
 
 use crate::{
     camera::{ExtractedCamera, MipBias, NormalizedRenderTargetExt as _, TemporalJitter},
     extract_component::ExtractComponentPlugin,
     frame_graph::{
-        PassBuilder, TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
+        FrameGraph, PassBuilder, ResourceMaterial, TransientBindGroupTextureViewHandle,
+        TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
+        TransientTextureViewDescriptor,
     },
     occlusion_culling::OcclusionCulling,
     render_asset::RenderAssets,
@@ -902,6 +905,21 @@ impl ViewDepthTexture {
         Self {
             texture: texture.texture,
             attachment: DepthAttachment::new(texture.default_view, clear_value),
+        }
+    }
+
+    pub fn get_texture_view_handle(
+        &self,
+        frame_graph: &mut FrameGraph,
+    ) -> TransientBindGroupTextureViewHandle {
+        let handle = self.texture.imported(frame_graph);
+        let texture_view_descriptor = TextureViewDescriptor::default();
+
+        let texture_view_desc = TransientTextureViewDescriptor::from_desc(&texture_view_descriptor);
+
+        TransientBindGroupTextureViewHandle {
+            texture: handle,
+            texture_view_desc,
         }
     }
 

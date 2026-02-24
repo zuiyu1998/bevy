@@ -12,16 +12,16 @@ use bevy_ecs::{
 use bevy_image::BevyDefault as _;
 use bevy_log::warn;
 use bevy_render::{
+    frame_graph::TransientBindGroupHandle,
     render_resource::{
         binding_types::{
             storage_buffer_read_only_sized, storage_buffer_sized, texture_depth_2d, uniform_buffer,
         },
-        BindGroup, BindGroupEntries, BindGroupLayoutDescriptor, BindGroupLayoutEntries,
-        BlendComponent, BlendState, CachedRenderPipelineId, ColorTargetState, ColorWrites,
-        DownlevelFlags, FragmentState, PipelineCache, RenderPipelineDescriptor, ShaderStages,
-        TextureFormat,
+        BindGroupLayoutDescriptor, BindGroupLayoutEntries, BlendComponent, BlendState,
+        CachedRenderPipelineId, ColorTargetState, ColorWrites, DownlevelFlags, FragmentState,
+        PipelineCache, RenderPipelineDescriptor, ShaderStages, TextureFormat,
     },
-    renderer::{RenderAdapter, RenderDevice},
+    renderer::{FrameGraphs, RenderAdapter, RenderDevice},
     view::{ExtractedView, ViewTarget, ViewUniform, ViewUniforms},
     Render, RenderApp, RenderSystems,
 };
@@ -95,8 +95,8 @@ pub fn is_oit_supported(adapter: &RenderAdapter, device: &RenderDevice, warn: bo
 }
 
 /// Bind group for the OIT resolve pass.
-#[derive(Resource, Deref)]
-pub struct OitResolveBindGroup(pub BindGroup);
+#[derive(Deref, Component)]
+pub struct OitResolveBindGroup(pub TransientBindGroupHandle);
 
 /// Bind group layouts used for the OIT resolve pass.
 #[derive(Resource)]
@@ -248,32 +248,39 @@ fn specialize_oit_resolve_pipeline(
 pub fn prepare_oit_resolve_bind_group(
     mut commands: Commands,
     resolve_pipeline: Res<OitResolvePipeline>,
-    render_device: Res<RenderDevice>,
     view_uniforms: Res<ViewUniforms>,
     pipeline_cache: Res<PipelineCache>,
     buffers: Res<OitBuffers>,
+    views: Query<Entity, With<DepthPrepass>>,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
-    if let (
-        Some(view_binding),
-        Some(nodes_binding),
-        Some(heads_binding),
-        Some(atomic_counter_binding),
-    ) = (
-        view_uniforms.uniforms.binding(),
-        buffers.nodes.binding(),
-        buffers.heads.binding(),
-        buffers.atomic_counter.binding(),
-    ) {
-        let bind_group = render_device.create_bind_group(
-            "oit_resolve_bind_group",
-            &pipeline_cache.get_bind_group_layout(&resolve_pipeline.view_bind_group_layout),
-            &BindGroupEntries::sequential((
-                view_binding,
-                nodes_binding,
-                heads_binding,
-                atomic_counter_binding,
-            )),
-        );
-        commands.insert_resource(OitResolveBindGroup(bind_group));
+    for entity in &views {
+        let frame_graph = frame_graphs.get_or_insert(entity);
+
+        if let (
+            Some(view_handle),
+            Some(nodes_handle),
+            Some(head_handle),
+            Some(atomic_counte_handle),
+        ) = (
+            view_uniforms.uniforms.get_buffer_handle(frame_graph),
+            buffers.nodes.get_buffer_handle(frame_graph),
+            buffers.heads.get_buffer_handle(frame_graph),
+            buffers.atomic_counter.get_buffer_handle(frame_graph),
+        ) {
+            let bind_group = TransientBindGroupHandle::build(
+                &pipeline_cache.get_bind_group_layout(&resolve_pipeline.view_bind_group_layout),
+            )
+            .set_label("oit_resolve_bind_group")
+            .push(view_handle)
+            .push(nodes_handle)
+            .push(head_handle)
+            .push(atomic_counte_handle)
+            .finished();
+
+            commands
+                .entity(entity)
+                .insert(OitResolveBindGroup(bind_group));
+        }
     }
 }

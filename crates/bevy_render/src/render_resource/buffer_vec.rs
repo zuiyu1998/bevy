@@ -1,6 +1,7 @@
 use core::{iter, marker::PhantomData, slice};
 
 use crate::{
+    frame_graph::{FrameGraph, ResourceMaterial, TransientBindGroupBufferHandle},
     render_resource::{AtomicPod, Buffer},
     renderer::{RenderDevice, RenderQueue},
 };
@@ -690,6 +691,17 @@ where
         Some(BindingResource::Buffer(
             self.buffer()?.as_entire_buffer_binding(),
         ))
+    }
+
+    pub fn get_buffer_handle(
+        &self,
+        frame_graph: &mut FrameGraph,
+    ) -> Option<TransientBindGroupBufferHandle> {
+        Some(TransientBindGroupBufferHandle {
+            buffer: self.buffer()?.imported(frame_graph),
+            offset: 0,
+            size: None,
+        })
     }
 
     /// Reserves space for one more element in the buffer and returns its index.
