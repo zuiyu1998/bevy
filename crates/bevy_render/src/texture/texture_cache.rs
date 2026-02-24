@@ -1,6 +1,5 @@
 use crate::{
-    render_resource::{Texture, TextureView},
-    renderer::RenderDevice,
+    frame_graph::{FrameGraph, ResourceMaterial, TransientBindGroupTextureViewHandle, TransientTextureViewDescriptor}, render_resource::{Texture, TextureView}, renderer::RenderDevice
 };
 use bevy_ecs::{prelude::ResMut, resource::Resource};
 use bevy_platform::collections::{hash_map::Entry, HashMap};
@@ -23,6 +22,23 @@ struct CachedTextureMeta {
 pub struct CachedTexture {
     pub texture: Texture,
     pub default_view: TextureView,
+}
+
+impl CachedTexture {
+    pub fn get_texture_view_handle(
+        &self,
+        frame_graph: &mut FrameGraph,
+    ) -> TransientBindGroupTextureViewHandle {
+        let handle = self.texture.imported(frame_graph);
+        let texture_view_descriptor = TextureViewDescriptor::default();
+
+        let texture_view_desc = TransientTextureViewDescriptor::from_desc(&texture_view_descriptor);
+
+        TransientBindGroupTextureViewHandle {
+            texture: handle,
+            texture_view_desc,
+        }
+    }
 }
 
 /// This resource caches textures that are created repeatedly in the rendering process and

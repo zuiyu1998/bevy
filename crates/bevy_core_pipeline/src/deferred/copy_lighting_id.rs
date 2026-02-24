@@ -9,8 +9,14 @@ use bevy_image::ToExtents;
 use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
+    frame_graph::{
+        PassBuilder, PassNodeBuilderExt, TextureViewEdge, TransientBindGroupHandle,
+        TransientRenderPassDepthStencilAttachment, TransientTextureView,
+        TransientTextureViewDescriptor,
+    },
+    render_phase::TrackedRenderPass,
     render_resource::{binding_types::texture_2d, *},
-    renderer::RenderDevice,
+    renderer::{FrameGraphs, RenderDevice},
     texture::{CachedTexture, TextureCache},
     view::ViewTarget,
     Render, RenderApp, RenderStartup, RenderSystems,
@@ -45,8 +51,11 @@ pub(crate) fn copy_deferred_lighting_id(
     )>,
     copy_pipeline: Res<CopyDeferredLightingIdPipeline>,
     pipeline_cache: Res<PipelineCache>,
-    mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
+    ctx: RenderContext,
 ) {
+    let view_entity = view.entity();
+
     let (_view_target, view_prepass_textures, deferred_lighting_id_depth_texture) =
         view.into_inner();
 
@@ -58,34 +67,38 @@ pub(crate) fn copy_deferred_lighting_id(
         return;
     };
 
-    let bind_group = ctx.render_device().create_bind_group(
-        "copy_deferred_lighting_id_bind_group",
-        &pipeline_cache.get_bind_group_layout(&copy_pipeline.layout),
-        &BindGroupEntries::single(&deferred_lighting_pass_id_texture.texture.default_view),
-    );
-
     let diagnostics = ctx.diagnostic_recorder();
     let diagnostics = diagnostics.as_deref();
 
-    let mut render_pass = ctx.begin_tracked_render_pass(RenderPassDescriptor {
-        label: Some("copy_deferred_lighting_id"),
-        color_attachments: &[],
-        depth_stencil_attachment: Some(RenderPassDepthStencilAttachment {
-            view: &deferred_lighting_id_depth_texture.texture.default_view,
-            depth_ops: Some(Operations {
-                load: LoadOp::Clear(0.0),
-                store: StoreOp::Store,
-            }),
-            stencil_ops: None,
-        }),
-        timestamp_writes: None,
-        occlusion_query_set: None,
-        multiview_mask: None,
-    });
+    let frame_graph = frame_graphs.get_or_insert(view_entity);
+
+    let deferred_lighting_pass_id_texture_handle = deferred_lighting_pass_id_texture
+        .texture
+        .get_texture_view_handle(frame_graph);
+
+    let bind_group_handle = TransientBindGroupHandle::build(
+        &pipeline_cache.get_bind_group_layout(&copy_pipeline.layout),
+    )
+    .set_label("copy_deferred_lighting_id_bind_group")
+    .push(&deferred_lighting_pass_id_texture_handle)
+    .finished();
+
+    let mut pass_builder = frame_graph.create_pass_buidlder("copy_deferred_lighting_id_node");
+
+    let depth_stencil_attachment = deferred_lighting_id_depth_texture
+        .create_transient_render_pass_depth_stencil_attachment(&mut pass_builder);
+
+    let mut render_pass_builder =
+        pass_builder.create_render_pass_builder("copy_deferred_lighting_id");
+
+    render_pass_builder.set_depth_stencil_attachment(depth_stencil_attachment);
+
+    let mut render_pass = TrackedRenderPass::new(ctx.render_device(), render_pass_builder);
+
     let pass_span = diagnostics.pass_span(&mut render_pass, "copy_deferred_lighting_id");
 
     render_pass.set_render_pipeline(pipeline);
-    render_pass.set_bind_group(0, &bind_group, &[]);
+    render_pass.set_bind_group_handle(0, &bind_group_handle, &[]);
     render_pass.draw(0..3, 0..1);
 
     pass_span.end(&mut render_pass);
@@ -141,6 +154,28 @@ pub fn init_copy_deferred_lighting_id_pipeline(
 #[derive(Component)]
 pub struct DeferredLightingIdDepthTexture {
     pub texture: CachedTexture,
+}
+
+impl DeferredLightingIdDepthTexture {
+    pub fn create_transient_render_pass_depth_stencil_attachment(
+        &self,
+        pass_builder: &mut PassBuilder,
+    ) -> TransientRenderPassDepthStencilAttachment {
+        let view_ref = pass_builder.read_material(&self.texture.texture);
+        let view = TextureViewEdge::Read(TransientTextureView {
+            texture: view_ref,
+            desc: TransientTextureViewDescriptor::default(),
+        });
+
+        TransientRenderPassDepthStencilAttachment {
+            view,
+            depth_ops: Some(Operations {
+                load: LoadOp::Clear(0.0),
+                store: StoreOp::Store,
+            }),
+            stencil_ops: None,
+        }
+    }
 }
 
 fn prepare_deferred_lighting_id_textures(
