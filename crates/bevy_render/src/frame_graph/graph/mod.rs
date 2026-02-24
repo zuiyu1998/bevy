@@ -163,7 +163,7 @@ impl FrameGraph {
         PassNodeBuilder::new(name, self)
     }
 
-    pub fn create_pass_buidlder(&mut self, name: &str) -> PassBuilder<'_> {
+    pub fn create_pass_builder(&mut self, name: &str) -> PassBuilder<'_> {
         PassBuilder::new(self.create_pass_node_builder(name))
     }
 

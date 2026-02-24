@@ -1,6 +1,10 @@
 mod render_pass;
+mod encoder;
+mod parameter;
 
 pub use render_pass::*;
+pub use encoder::*;
+pub use parameter::*;
 
 use wgpu::{CommandBuffer, CommandEncoder, CommandEncoderDescriptor, RenderPipeline};
 

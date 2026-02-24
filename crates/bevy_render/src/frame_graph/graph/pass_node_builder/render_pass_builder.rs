@@ -3,12 +3,13 @@ use core::{mem::take, ops::Range};
 use wgpu::{Color, IndexFormat, QuerySet, RenderPipeline};
 
 use crate::frame_graph::{
-    PassNodeBuilderExt, RenderPass, ResourceHandle, ResourceMaterial, ResourceRead, ResourceRef,
-    ResourceWrite, TransientBindGroup, TransientBuffer, TransientRenderPassColorAttachment,
-    TransientRenderPassDepthStencilAttachment, TransientResource,
+    PassNodeBuilderExt, RenderPass, RenderPassExt, ResourceHandle, ResourceMaterial, ResourceRead,
+    ResourceRef, ResourceWrite, TransientBindGroup, TransientBuffer,
+    TransientRenderPassColorAttachment, TransientRenderPassDepthStencilAttachment,
+    TransientResource,
 };
 
-use super::{PassBuilder, RenderPassExt};
+use super::PassBuilder;
 
 pub struct RenderPassBuilder<'a, 'b> {
     render_pass: RenderPass,
@@ -250,6 +251,15 @@ impl<'a, 'b> RenderPassBuilder<'a, 'b> {
     pub fn draw(&mut self, vertices: Range<u32>, instances: Range<u32>) -> &mut Self {
         self.render_pass.draw(vertices, instances);
 
+        self
+    }
+
+    pub fn set_color_attachments(
+        &mut self,
+        color_attachment: &[Option<TransientRenderPassColorAttachment>],
+    ) -> &mut Self {
+        self.render_pass
+            .set_color_attachments(color_attachment.to_vec());
         self
     }
 

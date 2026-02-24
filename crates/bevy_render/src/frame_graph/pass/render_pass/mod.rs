@@ -8,6 +8,7 @@ use wgpu::{Color, Operations};
 
 use crate::frame_graph::{PassCommand, PassContext, TextureViewEdge};
 
+#[derive(Clone)]
 pub struct TransientRenderPassColorAttachment {
     pub view: TextureViewEdge,
     pub depth_slice: Option<u32>,
@@ -100,6 +101,13 @@ impl RenderPass {
         depth_stencil_attachment: Option<TransientRenderPassDepthStencilAttachment>,
     ) {
         self.desc.depth_stencil_attachment = depth_stencil_attachment;
+    }
+
+    pub fn set_color_attachments(
+        &mut self,
+        color_attachments: Vec<Option<TransientRenderPassColorAttachment>>,
+    ) {
+        self.desc.color_attachments = color_attachments;
     }
 
     pub fn add_color_attachment(

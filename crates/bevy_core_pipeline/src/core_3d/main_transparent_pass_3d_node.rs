@@ -49,7 +49,7 @@ pub fn main_transparent_pass_3d(
     };
 
     let frame_graph = frame_graphs.get_or_insert(view_entity);
-    let mut pass_builder = frame_graph.create_pass_buidlder("main_transparent_pass_3d_node");
+    let mut pass_builder = frame_graph.create_pass_builder("main_transparent_pass_3d_node");
 
     if !transparent_phase.items.is_empty() {
         #[cfg(feature = "trace")]

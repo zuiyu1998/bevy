@@ -63,6 +63,16 @@ impl<ViewType: ResourceView> TransientTextureView<ViewType> {
     }
 }
 
+impl<ViewType: ResourceView> Clone for TransientTextureView<ViewType> {
+    fn clone(&self) -> Self {
+        Self {
+            texture: self.texture.clone(),
+            desc: self.desc.clone(),
+        }
+    }
+}
+
+#[derive(Clone)]
 pub enum TextureViewEdge {
     Read(TransientTextureViewRead),
     Write(TransientTextureViewWrite),

@@ -49,7 +49,7 @@ pub fn main_opaque_pass_2d(
 
     let frame_graph = frame_graphs.get_or_insert(view_entity);
 
-    let mut pass_builder = frame_graph.create_pass_buidlder("main_opaque_pass_2d_node");
+    let mut pass_builder = frame_graph.create_pass_builder("main_opaque_pass_2d_node");
 
     let color_attachment = target.create_transient_render_pass_color_attachment(&mut pass_builder);
     let depth_stencil_attachment = depth

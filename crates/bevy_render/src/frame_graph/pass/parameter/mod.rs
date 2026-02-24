@@ -1,4 +1,5 @@
 mod begin_pipeline_statistics_query_parameter;
+mod clear_texture_parameter;
 mod draw_indexed_indirect_parameter;
 mod draw_indexed_parameter;
 mod draw_indirect_parameter;
@@ -23,11 +24,13 @@ mod set_viewport_parameter;
 mod write_timestamp_parameter;
 
 use crate::frame_graph::{
-    RenderPass, RenderPassCommand, ResourceRead, ResourceRef, TransientBindGroup, TransientBuffer,
+    EncoderCommand, EncoderCommands, RenderPass, RenderPassCommand, ResourceRead, ResourceRef,
+    ResourceWrite, TransientBindGroup, TransientBuffer, TransientTexture,
 };
 use core::ops::Range;
 
 use begin_pipeline_statistics_query_parameter::*;
+use clear_texture_parameter::*;
 use draw_indexed_indirect_parameter::*;
 use draw_indexed_parameter::*;
 use draw_indirect_parameter::*;
@@ -49,8 +52,30 @@ use set_scissor_rect_parameter::*;
 use set_stencil_reference_parameter::*;
 use set_vertex_buffer_parameter::*;
 use set_viewport_parameter::*;
-use wgpu::{Color, IndexFormat, QuerySet, RenderPipeline};
 use write_timestamp_parameter::*;
+
+use wgpu::{Color, ImageSubresourceRange, IndexFormat, QuerySet, RenderPipeline};
+
+pub trait EncoderExt {
+    fn push<T: EncoderCommand>(&mut self, value: T);
+
+    fn clear_texture(
+        &mut self,
+        texture: &ResourceRef<TransientTexture, ResourceWrite>,
+        subresource_range: ImageSubresourceRange,
+    ) {
+        self.push(ClearTextureParameter {
+            texture: texture.clone(),
+            subresource_range,
+        });
+    }
+}
+
+impl EncoderExt for EncoderCommands {
+    fn push<T: EncoderCommand>(&mut self, value: T) {
+        self.commands.push(Box::new(value));
+    }
+}
 
 pub trait RenderPassExt {
     fn push<T: RenderPassCommand>(&mut self, value: T);

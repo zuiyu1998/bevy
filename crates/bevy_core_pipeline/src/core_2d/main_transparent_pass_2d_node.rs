@@ -39,7 +39,7 @@ pub fn main_transparent_pass_2d(
     let diagnostics = diagnostics.as_deref();
 
     let frame_graph = frame_graphs.get_or_insert(view_entity);
-    let mut pass_builder = frame_graph.create_pass_buidlder("main_transparent_pass_2d_node");
+    let mut pass_builder = frame_graph.create_pass_builder("main_transparent_pass_2d_node");
 
     let color_attachment = target.create_transient_render_pass_color_attachment(&mut pass_builder);
     // NOTE: For the transparent pass we load the depth buffer. There should be no

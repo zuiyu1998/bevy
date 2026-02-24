@@ -1,16 +1,19 @@
 use bevy_camera::{MainPassResolutionOverride, Viewport};
 use bevy_ecs::prelude::*;
+
 use bevy_render::occlusion_culling::OcclusionCulling;
 
 use bevy_log::error;
 #[cfg(feature = "trace")]
 use bevy_log::info_span;
+use bevy_render::render_phase::TrackedRenderPass;
+use bevy_render::renderer::FrameGraphs;
 use bevy_render::view::{ExtractedView, NoIndirectDrawing};
 use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
     render_phase::ViewBinnedRenderPhases,
-    render_resource::{RenderPassDescriptor, StoreOp},
+    render_resource::StoreOp,
     renderer::{RenderContext, ViewQuery},
     view::ViewDepthTexture,
 };
@@ -36,6 +39,7 @@ pub(crate) fn early_deferred_prepass(
     opaque_deferred_phases: Res<ViewBinnedRenderPhases<Opaque3dDeferred>>,
     alpha_mask_deferred_phases: Res<ViewBinnedRenderPhases<AlphaMask3dDeferred>>,
     mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     let view_entity = view.entity();
     let (
@@ -61,6 +65,7 @@ pub(crate) fn early_deferred_prepass(
         &alpha_mask_deferred_phases,
         &mut ctx,
         "early deferred prepass",
+        &mut frame_graphs,
     );
 }
 
@@ -70,6 +75,7 @@ pub fn late_deferred_prepass(
     opaque_deferred_phases: Res<ViewBinnedRenderPhases<Opaque3dDeferred>>,
     alpha_mask_deferred_phases: Res<ViewBinnedRenderPhases<AlphaMask3dDeferred>>,
     mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     let view_entity = view.entity();
     let (
@@ -99,6 +105,7 @@ pub fn late_deferred_prepass(
         &alpha_mask_deferred_phases,
         &mut ctx,
         "late deferred prepass",
+        &mut frame_graphs,
     );
 }
 
@@ -119,6 +126,7 @@ fn run_deferred_prepass_system(
     alpha_mask_deferred_phases: &ViewBinnedRenderPhases<AlphaMask3dDeferred>,
     ctx: &mut RenderContext,
     label: &'static str,
+    frame_graphs: &mut FrameGraphs,
 ) {
     let (Some(opaque_deferred_phase), Some(alpha_mask_deferred_phase)) = (
         opaque_deferred_phases.get(&extracted_view.retained_view_entity),
@@ -133,19 +141,8 @@ fn run_deferred_prepass_system(
     let diagnostics = ctx.diagnostic_recorder();
     let diagnostics = diagnostics.as_deref();
 
-    let mut color_attachments = vec![];
-    color_attachments.push(
-        view_prepass_textures
-            .normal
-            .as_ref()
-            .map(|normals_texture| normals_texture.get_attachment()),
-    );
-    color_attachments.push(
-        view_prepass_textures
-            .motion_vectors
-            .as_ref()
-            .map(|motion_vectors_texture| motion_vectors_texture.get_attachment()),
-    );
+    let frame_graph = frame_graphs.get_or_insert(view_entity);
+    let mut pass_builder = frame_graph.create_pass_builder(&format!("{}_node", label));
 
     // If we clear the deferred texture with LoadOp::Clear(Default::default()) we get these errors:
     // Chrome: GL_INVALID_OPERATION: No defined conversion between clear value and attachment format.
@@ -155,12 +152,31 @@ fn run_deferred_prepass_system(
     #[cfg(all(feature = "webgl", target_arch = "wasm32", not(feature = "webgpu")))]
     if !is_late {
         if let Some(deferred_texture) = &view_prepass_textures.deferred {
-            ctx.command_encoder().clear_texture(
-                &deferred_texture.texture.texture,
-                &bevy_render::render_resource::ImageSubresourceRange::default(),
+            let encoder_builder = pass_builder.create_encoder_builder();
+
+            let texture = encoder_builder.write_material(&deferred_texture.texture.texture);
+
+            encoder_builder.clear_texture(
+                &texture,
+                bevy_render::render_resource::ImageSubresourceRange::default(),
             );
         }
     }
+
+    let mut color_attachments = vec![];
+    color_attachments.push(
+        view_prepass_textures
+            .normal
+            .as_ref()
+            .map(|normals_texture| {
+                normals_texture.create_transient_render_pass_color_attachment(&mut pass_builder)
+            }),
+    );
+    color_attachments.push(view_prepass_textures.motion_vectors.as_ref().map(
+        |motion_vectors_texture| {
+            motion_vectors_texture.create_transient_render_pass_color_attachment(&mut pass_builder)
+        },
+    ));
 
     color_attachments.push(
         view_prepass_textures
@@ -168,12 +184,26 @@ fn run_deferred_prepass_system(
             .as_ref()
             .map(|deferred_texture| {
                 if is_late {
-                    deferred_texture.get_attachment()
+                    deferred_texture
+                        .create_transient_render_pass_color_attachment(&mut pass_builder)
                 } else {
                     #[cfg(all(feature = "webgl", target_arch = "wasm32", not(feature = "webgpu")))]
                     {
-                        bevy_render::render_resource::RenderPassColorAttachment {
-                            view: &deferred_texture.texture.default_view,
+                        use bevy_render::frame_graph::{
+                            PassNodeBuilderExt, TextureViewEdge,
+                            TransientRenderPassColorAttachment, TransientTextureView,
+                            TransientTextureViewDescriptor,
+                        };
+
+                        let view_ref =
+                            pass_builder.read_material(&deferred_texture.texture.texture);
+                        let view = TextureViewEdge::Read(TransientTextureView {
+                            texture: view_ref,
+                            desc: TransientTextureViewDescriptor::default(),
+                        });
+
+                        TransientRenderPassColorAttachment {
+                            view,
                             resolve_target: None,
                             ops: bevy_render::render_resource::Operations {
                                 load: bevy_render::render_resource::LoadOp::Load,
@@ -187,7 +217,8 @@ fn run_deferred_prepass_system(
                         not(target_arch = "wasm32"),
                         feature = "webgpu"
                     ))]
-                    deferred_texture.get_attachment()
+                    deferred_texture
+                        .create_transient_render_pass_color_attachment(&mut pass_builder)
                 }
             }),
     );
@@ -196,7 +227,10 @@ fn run_deferred_prepass_system(
         view_prepass_textures
             .deferred_lighting_pass_id
             .as_ref()
-            .map(|deferred_lighting_pass_id| deferred_lighting_pass_id.get_attachment()),
+            .map(|deferred_lighting_pass_id| {
+                deferred_lighting_pass_id
+                    .create_transient_render_pass_color_attachment(&mut pass_builder)
+            }),
     );
 
     // If all color attachments are none: clear the color attachment list so that no fragment shader is required
@@ -204,16 +238,15 @@ fn run_deferred_prepass_system(
         color_attachments.clear();
     }
 
-    let depth_stencil_attachment = Some(view_depth_texture.get_attachment(StoreOp::Store));
+    let depth_stencil_attachment = view_depth_texture
+        .create_transient_render_pass_depth_stencil_attachment(StoreOp::Store, &mut pass_builder);
 
-    let mut render_pass = ctx.begin_tracked_render_pass(RenderPassDescriptor {
-        label: Some(label),
-        color_attachments: &color_attachments,
-        depth_stencil_attachment,
-        timestamp_writes: None,
-        occlusion_query_set: None,
-        multiview_mask: None,
-    });
+    let mut render_pass_builder = pass_builder.create_render_pass_builder(label);
+    render_pass_builder.set_color_attachments(&color_attachments);
+    render_pass_builder.set_depth_stencil_attachment(depth_stencil_attachment);
+
+    let mut render_pass = TrackedRenderPass::new(ctx.render_device(), render_pass_builder);
+
     let pass_span = diagnostics.pass_span(&mut render_pass, label);
 
     if let Some(viewport) =

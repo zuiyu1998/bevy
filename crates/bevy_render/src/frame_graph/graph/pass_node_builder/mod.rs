@@ -1,8 +1,7 @@
-mod parameter;
 mod pass_builder;
 mod render_pass_builder;
+mod encoder_builder;
 
-pub use parameter::RenderPassExt;
 pub use pass_builder::*;
 pub use render_pass_builder::*;
 

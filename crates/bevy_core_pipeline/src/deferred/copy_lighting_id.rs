@@ -83,7 +83,7 @@ pub(crate) fn copy_deferred_lighting_id(
     .push(&deferred_lighting_pass_id_texture_handle)
     .finished();
 
-    let mut pass_builder = frame_graph.create_pass_buidlder("copy_deferred_lighting_id_node");
+    let mut pass_builder = frame_graph.create_pass_builder("copy_deferred_lighting_id_node");
 
     let depth_stencil_attachment = deferred_lighting_id_depth_texture
         .create_transient_render_pass_depth_stencil_attachment(&mut pass_builder);

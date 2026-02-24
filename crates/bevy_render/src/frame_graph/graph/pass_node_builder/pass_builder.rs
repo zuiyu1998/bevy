@@ -1,8 +1,9 @@
 use core::mem::take;
 
 use crate::frame_graph::{
-    Pass, PassCommand, PassNodeBuilderExt, RenderPassBuilder, ResourceHandle, ResourceMaterial,
-    ResourceRead, ResourceRef, ResourceWrite, TransientResource,
+    graph::pass_node_builder::encoder_builder::EncoderBuilder, Pass, PassCommand,
+    PassNodeBuilderExt, RenderPassBuilder, ResourceHandle, ResourceMaterial, ResourceRead,
+    ResourceRef, ResourceWrite, TransientResource,
 };
 
 use super::PassNodeBuilder;
@@ -59,6 +60,10 @@ impl<'a> PassBuilder<'a> {
 
     pub fn create_render_pass_builder(&mut self, name: &str) -> RenderPassBuilder<'a, '_> {
         RenderPassBuilder::new(self, name)
+    }
+
+    pub fn create_encoder_builder(&mut self) -> EncoderBuilder<'a, '_> {
+        EncoderBuilder::new(self)
     }
 
     pub fn push<T: PassCommand>(&mut self, command: T) {
