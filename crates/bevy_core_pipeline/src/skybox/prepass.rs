@@ -10,13 +10,14 @@ use bevy_ecs::{
 };
 use bevy_light::Skybox;
 use bevy_render::{
+    frame_graph::TransientBindGroupHandle,
     render_resource::{
-        binding_types::uniform_buffer, BindGroup, BindGroupEntries, BindGroupLayoutDescriptor,
-        BindGroupLayoutEntries, CachedRenderPipelineId, CompareFunction, DepthStencilState,
-        FragmentState, MultisampleState, PipelineCache, RenderPipelineDescriptor, ShaderStages,
+        binding_types::uniform_buffer, BindGroupLayoutDescriptor, BindGroupLayoutEntries,
+        CachedRenderPipelineId, CompareFunction, DepthStencilState, FragmentState,
+        MultisampleState, PipelineCache, RenderPipelineDescriptor, ShaderStages,
         SpecializedRenderPipeline, SpecializedRenderPipelines,
     },
-    renderer::RenderDevice,
+    renderer::{FrameGraphs, RenderDevice},
     view::{Msaa, ViewUniform, ViewUniforms},
 };
 use bevy_shader::Shader;
@@ -58,7 +59,7 @@ pub struct RenderSkyboxPrepassPipeline(pub CachedRenderPipelineId);
 /// Stores the [`SkyboxPrepassPipeline`] bind group for a camera. This is later used by the prepass
 /// render graph node to add this binding to the prepass's render pass.
 #[derive(Component)]
-pub struct SkyboxPrepassBindGroup(pub BindGroup);
+pub struct SkyboxPrepassBindGroup(pub TransientBindGroupHandle);
 
 pub fn init_skybox_prepass_pipeline(
     mut commands: Commands,
@@ -144,19 +145,25 @@ pub fn prepare_skybox_prepass_bind_groups(
     render_device: Res<RenderDevice>,
     pipeline_cache: Res<PipelineCache>,
     views: Query<Entity, (With<Skybox>, With<MotionVectorPrepass>)>,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     for entity in &views {
-        let (Some(view_uniforms), Some(prev_view_uniforms)) = (
-            view_uniforms.uniforms.binding(),
-            prev_view_uniforms.uniforms.binding(),
+        let frame_graph = frame_graphs.get_or_insert(entity);
+
+        let (Some(view_uniforms_handle), Some(prev_view_uniforms_handle)) = (
+            view_uniforms.uniforms.get_buffer_handle(frame_graph),
+            prev_view_uniforms.uniforms.get_buffer_handle(frame_graph),
         ) else {
             continue;
         };
-        let bind_group = render_device.create_bind_group(
-            "skybox_prepass_bind_group",
+
+        let bind_group = TransientBindGroupHandle::build(
             &pipeline_cache.get_bind_group_layout(&pipeline.bind_group_layout),
-            &BindGroupEntries::sequential((view_uniforms, prev_view_uniforms)),
-        );
+        )
+        .set_label("skybox_bind_group")
+        .push(view_uniforms_handle)
+        .push(prev_view_uniforms_handle)
+        .finished();
 
         commands
             .entity(entity)

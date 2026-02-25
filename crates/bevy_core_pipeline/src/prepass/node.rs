@@ -7,9 +7,9 @@ use bevy_render::{
     camera::ExtractedCamera,
     diagnostic::RecordDiagnostics,
     occlusion_culling::OcclusionCulling,
-    render_phase::ViewBinnedRenderPhases,
-    render_resource::{PipelineCache, RenderPassDescriptor, StoreOp},
-    renderer::{RenderContext, ViewQuery},
+    render_phase::{TrackedRenderPass, ViewBinnedRenderPhases},
+    render_resource::{PipelineCache, StoreOp},
+    renderer::{FrameGraphs, RenderContext, ViewQuery},
     view::{ExtractedView, NoIndirectDrawing, ViewDepthTexture, ViewUniformOffset},
 };
 
@@ -50,6 +50,7 @@ pub fn early_prepass(
     alpha_mask_prepass_phases: Res<ViewBinnedRenderPhases<AlphaMask3dPrepass>>,
     pipeline_cache: Res<PipelineCache>,
     mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     let view_entity = view.entity();
     let (
@@ -83,6 +84,7 @@ pub fn early_prepass(
         &pipeline_cache,
         &mut ctx,
         "early prepass",
+        &mut frame_graphs,
     );
 }
 
@@ -93,6 +95,7 @@ pub fn late_prepass(
     alpha_mask_prepass_phases: Res<ViewBinnedRenderPhases<AlphaMask3dPrepass>>,
     pipeline_cache: Res<PipelineCache>,
     mut ctx: RenderContext,
+    mut frame_graphs: ResMut<FrameGraphs>,
 ) {
     let view_entity = view.entity();
     let (
@@ -130,6 +133,7 @@ pub fn late_prepass(
         &pipeline_cache,
         &mut ctx,
         "late prepass",
+        &mut frame_graphs,
     );
 }
 
@@ -157,6 +161,7 @@ fn run_prepass_system(
     pipeline_cache: &PipelineCache,
     ctx: &mut RenderContext,
     label: &'static str,
+    frame_graphs: &mut FrameGraphs,
 ) {
     // If we're using deferred rendering, there will be a deferred prepass
     // instead of this one. Just bail out so we don't have to bother looking at
@@ -178,15 +183,24 @@ fn run_prepass_system(
     let diagnostics = ctx.diagnostic_recorder();
     let diagnostics = diagnostics.as_deref();
 
+    let frame_graph = frame_graphs.get_or_insert(view_entity);
+
+    let mut pass_builder = frame_graph.create_pass_builder(&format!("{label}_node"));
+
     let mut color_attachments = vec![
         view_prepass_textures
             .normal
             .as_ref()
-            .map(|normals_texture| normals_texture.get_attachment()),
+            .map(|normals_texture| {
+                normals_texture.create_transient_render_pass_color_attachment(&mut pass_builder)
+            }),
         view_prepass_textures
             .motion_vectors
             .as_ref()
-            .map(|motion_vectors_texture| motion_vectors_texture.get_attachment()),
+            .map(|motion_vectors_texture| {
+                motion_vectors_texture
+                    .create_transient_render_pass_color_attachment(&mut pass_builder)
+            }),
         // Use None in place of deferred attachments
         None,
         None,
@@ -197,16 +211,17 @@ fn run_prepass_system(
         color_attachments.clear();
     }
 
-    let depth_stencil_attachment = Some(view_depth_texture.get_attachment(StoreOp::Store));
+    let depth_stencil_attachment = view_depth_texture
+        .create_transient_render_pass_depth_stencil_attachment(StoreOp::Store, &mut pass_builder);
 
-    let mut render_pass = ctx.begin_tracked_render_pass(RenderPassDescriptor {
-        label: Some(label),
-        color_attachments: &color_attachments,
-        depth_stencil_attachment,
-        timestamp_writes: None,
-        occlusion_query_set: None,
-        multiview_mask: None,
-    });
+    let mut render_pass_builder = pass_builder.create_render_pass_builder(label);
+
+    render_pass_builder
+        .set_color_attachments(&color_attachments)
+        .set_depth_stencil_attachment(depth_stencil_attachment);
+
+    let mut render_pass = TrackedRenderPass::new(ctx.render_device(), render_pass_builder);
+
     let pass_span = diagnostics.pass_span(&mut render_pass, label);
 
     if let Some(viewport) =
@@ -242,7 +257,7 @@ fn run_prepass_system(
     ) && let Some(pipeline) = pipeline_cache.get_render_pipeline(skybox_prepass_pipeline.0)
     {
         render_pass.set_render_pipeline(pipeline);
-        render_pass.set_bind_group(
+        render_pass.set_bind_group_handle(
             0,
             &skybox_prepass_bind_group.0,
             &[view_uniform_offset.offset, view_prev_uniform_offset.offset],
